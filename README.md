@@ -102,4 +102,7 @@ python3 tools/verify_lang.py go  --appendix tools/acm_appendix_go.json      # �
 
 ## 许可
 
-代码与文字采用 MIT License，详见 [LICENSE](LICENSE)。
+代码与文字采用 [MIT License](LICENSE)。
+
+注：题目（problem statements）版权归 LeetCode 所有；题单分类参考了代码随想录的刷题路线，
+正文题意、思路、代码均为本仓库自行撰写。

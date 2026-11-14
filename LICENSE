@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 LeetCode 刷题速成手册 contributors
+Copyright (c) 2026 LeetCode 速成 (hot100-228) contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,8 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-题目（problem statements）版权归 LeetCode 所有；题单分类参考代码随想录
-(https://github.com/youngyangyang04/leetcode-master)。本仓库的题解文字与代码为原创。
