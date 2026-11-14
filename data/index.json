@@ -1,0 +1,2101 @@
+{
+ "hot": [
+  {
+   "kind": "hot",
+   "id": "1",
+   "num": 1,
+   "title": "两数之和",
+   "cat": "哈希",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "49",
+   "num": 49,
+   "title": "字母异位词分组",
+   "cat": "哈希",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "128",
+   "num": 128,
+   "title": "最长连续序列",
+   "cat": "哈希",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "283",
+   "num": 283,
+   "title": "移动零",
+   "cat": "双指针",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "11",
+   "num": 11,
+   "title": "盛最多水的容器",
+   "cat": "双指针",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "15",
+   "num": 15,
+   "title": "三数之和",
+   "cat": "双指针",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "42",
+   "num": 42,
+   "title": "接雨水",
+   "cat": "双指针",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "3",
+   "num": 3,
+   "title": "无重复字符的最长子串",
+   "cat": "滑动窗口",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "438",
+   "num": 438,
+   "title": "找到字符串中所有字母异位词",
+   "cat": "滑动窗口",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "560",
+   "num": 560,
+   "title": "和为 K 的子数组",
+   "cat": "子串",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "239",
+   "num": 239,
+   "title": "滑动窗口最大值",
+   "cat": "子串",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "76",
+   "num": 76,
+   "title": "最小覆盖子串",
+   "cat": "子串",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "53",
+   "num": 53,
+   "title": "最大子数组和",
+   "cat": "普通数组",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "56",
+   "num": 56,
+   "title": "合并区间",
+   "cat": "普通数组",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "189",
+   "num": 189,
+   "title": "轮转数组",
+   "cat": "普通数组",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "238",
+   "num": 238,
+   "title": "除自身以外数组的乘积",
+   "cat": "普通数组",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "41",
+   "num": 41,
+   "title": "缺失的第一个正数",
+   "cat": "普通数组",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "73",
+   "num": 73,
+   "title": "矩阵置零",
+   "cat": "矩阵",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "54",
+   "num": 54,
+   "title": "螺旋矩阵",
+   "cat": "矩阵",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "48",
+   "num": 48,
+   "title": "旋转图像",
+   "cat": "矩阵",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "240",
+   "num": 240,
+   "title": "搜索二维矩阵 II",
+   "cat": "矩阵",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "160",
+   "num": 160,
+   "title": "相交链表",
+   "cat": "链表",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "206",
+   "num": 206,
+   "title": "反转链表",
+   "cat": "链表",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "234",
+   "num": 234,
+   "title": "回文链表",
+   "cat": "链表",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "141",
+   "num": 141,
+   "title": "环形链表",
+   "cat": "链表",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "142",
+   "num": 142,
+   "title": "环形链表 II",
+   "cat": "链表",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "21",
+   "num": 21,
+   "title": "合并两个有序链表",
+   "cat": "链表",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "2",
+   "num": 2,
+   "title": "两数相加",
+   "cat": "链表",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "19",
+   "num": 19,
+   "title": "删除链表的倒数第 N 个结点",
+   "cat": "链表",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "24",
+   "num": 24,
+   "title": "两两交换链表中的节点",
+   "cat": "链表",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "25",
+   "num": 25,
+   "title": "K 个一组翻转链表",
+   "cat": "链表",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "138",
+   "num": 138,
+   "title": "随机链表的复制",
+   "cat": "链表",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "148",
+   "num": 148,
+   "title": "排序链表",
+   "cat": "链表",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "23",
+   "num": 23,
+   "title": "合并 K 个升序链表",
+   "cat": "链表",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "146",
+   "num": 146,
+   "title": "LRU 缓存",
+   "cat": "链表",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "94",
+   "num": 94,
+   "title": "二叉树的中序遍历",
+   "cat": "二叉树",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "104",
+   "num": 104,
+   "title": "二叉树的最大深度",
+   "cat": "二叉树",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "226",
+   "num": 226,
+   "title": "翻转二叉树",
+   "cat": "二叉树",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "101",
+   "num": 101,
+   "title": "对称二叉树",
+   "cat": "二叉树",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "543",
+   "num": 543,
+   "title": "二叉树的直径",
+   "cat": "二叉树",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "102",
+   "num": 102,
+   "title": "二叉树的层序遍历",
+   "cat": "二叉树",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "108",
+   "num": 108,
+   "title": "将有序数组转换为二叉搜索树",
+   "cat": "二叉树",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "98",
+   "num": 98,
+   "title": "验证二叉搜索树",
+   "cat": "二叉树",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "230",
+   "num": 230,
+   "title": "二叉搜索树中第 K 小的元素",
+   "cat": "二叉树",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "199",
+   "num": 199,
+   "title": "二叉树的右视图",
+   "cat": "二叉树",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "114",
+   "num": 114,
+   "title": "二叉树展开为链表",
+   "cat": "二叉树",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "105",
+   "num": 105,
+   "title": "从前序与中序遍历序列构造二叉树",
+   "cat": "二叉树",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "437",
+   "num": 437,
+   "title": "路径总和 III",
+   "cat": "二叉树",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "236",
+   "num": 236,
+   "title": "二叉树的最近公共祖先",
+   "cat": "二叉树",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "124",
+   "num": 124,
+   "title": "二叉树中的最大路径和",
+   "cat": "二叉树",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "200",
+   "num": 200,
+   "title": "岛屿数量",
+   "cat": "图论",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "994",
+   "num": 994,
+   "title": "腐烂的橘子",
+   "cat": "图论",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "207",
+   "num": 207,
+   "title": "课程表",
+   "cat": "图论",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "208",
+   "num": 208,
+   "title": "实现 Trie（前缀树）",
+   "cat": "图论",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "46",
+   "num": 46,
+   "title": "全排列",
+   "cat": "回溯",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "78",
+   "num": 78,
+   "title": "子集",
+   "cat": "回溯",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "17",
+   "num": 17,
+   "title": "电话号码的字母组合",
+   "cat": "回溯",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "39",
+   "num": 39,
+   "title": "组合总和",
+   "cat": "回溯",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "22",
+   "num": 22,
+   "title": "括号生成",
+   "cat": "回溯",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "79",
+   "num": 79,
+   "title": "单词搜索",
+   "cat": "回溯",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "131",
+   "num": 131,
+   "title": "分割回文串",
+   "cat": "回溯",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "51",
+   "num": 51,
+   "title": "N 皇后",
+   "cat": "回溯",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "35",
+   "num": 35,
+   "title": "搜索插入位置",
+   "cat": "二分查找",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "74",
+   "num": 74,
+   "title": "搜索二维矩阵",
+   "cat": "二分查找",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "34",
+   "num": 34,
+   "title": "在排序数组中查找元素的第一个和最后一个位置",
+   "cat": "二分查找",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "33",
+   "num": 33,
+   "title": "搜索旋转排序数组",
+   "cat": "二分查找",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "153",
+   "num": 153,
+   "title": "寻找旋转排序数组中的最小值",
+   "cat": "二分查找",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "4",
+   "num": 4,
+   "title": "寻找两个正序数组的中位数",
+   "cat": "二分查找",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "20",
+   "num": 20,
+   "title": "有效的括号",
+   "cat": "栈",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "155",
+   "num": 155,
+   "title": "最小栈",
+   "cat": "栈",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "394",
+   "num": 394,
+   "title": "字符串解码",
+   "cat": "栈",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "739",
+   "num": 739,
+   "title": "每日温度",
+   "cat": "栈",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "84",
+   "num": 84,
+   "title": "柱状图中最大的矩形",
+   "cat": "栈",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "215",
+   "num": 215,
+   "title": "数组中的第 K 个最大元素",
+   "cat": "堆",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "347",
+   "num": 347,
+   "title": "前 K 个高频元素",
+   "cat": "堆",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "295",
+   "num": 295,
+   "title": "数据流的中位数",
+   "cat": "堆",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "121",
+   "num": 121,
+   "title": "买卖股票的最佳时机",
+   "cat": "贪心算法",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "55",
+   "num": 55,
+   "title": "跳跃游戏",
+   "cat": "贪心算法",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "45",
+   "num": 45,
+   "title": "跳跃游戏 II",
+   "cat": "贪心算法",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "763",
+   "num": 763,
+   "title": "划分字母区间",
+   "cat": "贪心算法",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "70",
+   "num": 70,
+   "title": "爬楼梯",
+   "cat": "动态规划",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "118",
+   "num": 118,
+   "title": "杨辉三角",
+   "cat": "动态规划",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "198",
+   "num": 198,
+   "title": "打家劫舍",
+   "cat": "动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "279",
+   "num": 279,
+   "title": "完全平方数",
+   "cat": "动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "322",
+   "num": 322,
+   "title": "零钱兑换",
+   "cat": "动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "139",
+   "num": 139,
+   "title": "单词拆分",
+   "cat": "动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "300",
+   "num": 300,
+   "title": "最长递增子序列",
+   "cat": "动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "152",
+   "num": 152,
+   "title": "乘积最大子数组",
+   "cat": "动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "416",
+   "num": 416,
+   "title": "分割等和子集",
+   "cat": "动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "32",
+   "num": 32,
+   "title": "最长有效括号",
+   "cat": "动态规划",
+   "diff": "困难"
+  },
+  {
+   "kind": "hot",
+   "id": "62",
+   "num": 62,
+   "title": "不同路径",
+   "cat": "多维动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "64",
+   "num": 64,
+   "title": "最小路径和",
+   "cat": "多维动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "5",
+   "num": 5,
+   "title": "最长回文子串",
+   "cat": "多维动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "1143",
+   "num": 1143,
+   "title": "最长公共子序列",
+   "cat": "多维动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "72",
+   "num": 72,
+   "title": "编辑距离",
+   "cat": "多维动态规划",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "136",
+   "num": 136,
+   "title": "只出现一次的数字",
+   "cat": "技巧",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "169",
+   "num": 169,
+   "title": "多数元素",
+   "cat": "技巧",
+   "diff": "简单"
+  },
+  {
+   "kind": "hot",
+   "id": "75",
+   "num": 75,
+   "title": "颜色分类",
+   "cat": "技巧",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "31",
+   "num": 31,
+   "title": "下一个排列",
+   "cat": "技巧",
+   "diff": "中等"
+  },
+  {
+   "kind": "hot",
+   "id": "287",
+   "num": 287,
+   "title": "寻找重复数",
+   "cat": "技巧",
+   "diff": "中等"
+  }
+ ],
+ "extras": [
+  {
+   "kind": "extra",
+   "id": "27",
+   "num": 27,
+   "title": "移除元素",
+   "cat": "数组",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0027.移除元素.md",
+   "base": "0027.移除元素",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "59",
+   "num": 59,
+   "title": "螺旋矩阵II",
+   "cat": "数组",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0059.螺旋矩阵II.md",
+   "base": "0059.螺旋矩阵II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "209",
+   "num": 209,
+   "title": "长度最小的子数组",
+   "cat": "数组",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0209.长度最小的子数组.md",
+   "base": "0209.长度最小的子数组",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "657",
+   "num": 657,
+   "title": "机器人能否返回原点",
+   "cat": "数组",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0657.机器人能否返回原点.md",
+   "base": "0657.机器人能否返回原点",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "704",
+   "num": 704,
+   "title": "二分查找",
+   "cat": "数组",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0704.二分查找.md",
+   "base": "0704.二分查找",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "724",
+   "num": 724,
+   "title": "寻找数组的中心索引",
+   "cat": "数组",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0724.寻找数组的中心索引.md",
+   "base": "0724.寻找数组的中心索引",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "922",
+   "num": 922,
+   "title": "按奇偶排序数组II",
+   "cat": "数组",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0922.按奇偶排序数组II.md",
+   "base": "0922.按奇偶排序数组II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "941",
+   "num": 941,
+   "title": "有效的山脉数组",
+   "cat": "数组",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0941.有效的山脉数组.md",
+   "base": "0941.有效的山脉数组",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "977",
+   "num": 977,
+   "title": "有序数组的平方",
+   "cat": "数组",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0977.有序数组的平方.md",
+   "base": "0977.有序数组的平方",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1356",
+   "num": 1356,
+   "title": "根据数字二进制下1的数目排序",
+   "cat": "数组",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1356.根据数字二进制下1的数目排序.md",
+   "base": "1356.根据数字二进制下1的数目排序",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1365",
+   "num": 1365,
+   "title": "有多少小于当前数字的数字",
+   "cat": "数组",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1365.有多少小于当前数字的数字.md",
+   "base": "1365.有多少小于当前数字的数字",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "143",
+   "num": 143,
+   "title": "重排链表",
+   "cat": "链表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0143.重排链表.md",
+   "base": "0143.重排链表",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "203",
+   "num": 203,
+   "title": "移除链表元素",
+   "cat": "链表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0203.移除链表元素.md",
+   "base": "0203.移除链表元素",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "707",
+   "num": 707,
+   "title": "设计链表",
+   "cat": "链表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0707.设计链表.md",
+   "base": "0707.设计链表",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "18",
+   "num": 18,
+   "title": "四数之和",
+   "cat": "哈希表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0018.四数之和.md",
+   "base": "0018.四数之和",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "202",
+   "num": 202,
+   "title": "快乐数",
+   "cat": "哈希表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0202.快乐数.md",
+   "base": "0202.快乐数",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "205",
+   "num": 205,
+   "title": "同构字符串",
+   "cat": "哈希表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0205.同构字符串.md",
+   "base": "0205.同构字符串",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "242",
+   "num": 242,
+   "title": "有效的字母异位词",
+   "cat": "哈希表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0242.有效的字母异位词.md",
+   "base": "0242.有效的字母异位词",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "349",
+   "num": 349,
+   "title": "两个数组的交集",
+   "cat": "哈希表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0349.两个数组的交集.md",
+   "base": "0349.两个数组的交集",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "383",
+   "num": 383,
+   "title": "赎金信",
+   "cat": "哈希表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0383.赎金信.md",
+   "base": "0383.赎金信",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "454",
+   "num": 454,
+   "title": "四数相加II",
+   "cat": "哈希表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0454.四数相加II.md",
+   "base": "0454.四数相加II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1002",
+   "num": 1002,
+   "title": "查找常用字符",
+   "cat": "哈希表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1002.查找常用字符.md",
+   "base": "1002.查找常用字符",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1207",
+   "num": 1207,
+   "title": "独一无二的出现次数",
+   "cat": "哈希表",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1207.独一无二的出现次数.md",
+   "base": "1207.独一无二的出现次数",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "LCR122",
+   "num": 0,
+   "lcr": "LCR122",
+   "title": "替换空格",
+   "cat": "字符串",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\剑指Offer05.替换空格.md",
+   "base": "剑指Offer05.替换空格",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "LCR182",
+   "num": 0,
+   "lcr": "LCR182",
+   "title": "左旋转字符串",
+   "cat": "字符串",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\剑指Offer58-II.左旋转字符串.md",
+   "base": "剑指Offer58-II.左旋转字符串",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "28",
+   "num": 28,
+   "title": "找出字符串中第一个匹配项的下标",
+   "cat": "字符串",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0028.实现strStr.md",
+   "base": "0028.实现strStr",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "151",
+   "num": 151,
+   "title": "反转字符串中的单词",
+   "cat": "字符串",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0151.翻转字符串里的单词.md",
+   "base": "0151.翻转字符串里的单词",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "344",
+   "num": 344,
+   "title": "反转字符串",
+   "cat": "字符串",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0344.反转字符串.md",
+   "base": "0344.反转字符串",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "459",
+   "num": 459,
+   "title": "重复的子字符串",
+   "cat": "字符串",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0459.重复的子字符串.md",
+   "base": "0459.重复的子字符串",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "541",
+   "num": 541,
+   "title": "反转字符串II",
+   "cat": "字符串",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0541.反转字符串II.md",
+   "base": "0541.反转字符串II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "844",
+   "num": 844,
+   "title": "比较含退格的字符串",
+   "cat": "字符串",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0844.比较含退格的字符串.md",
+   "base": "0844.比较含退格的字符串",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "925",
+   "num": 925,
+   "title": "长按键入",
+   "cat": "字符串",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0925.长按键入.md",
+   "base": "0925.长按键入",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "150",
+   "num": 150,
+   "title": "逆波兰表达式求值",
+   "cat": "栈与队列",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0150.逆波兰表达式求值.md",
+   "base": "0150.逆波兰表达式求值",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "225",
+   "num": 225,
+   "title": "用队列实现栈",
+   "cat": "栈与队列",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0225.用队列实现栈.md",
+   "base": "0225.用队列实现栈",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "232",
+   "num": 232,
+   "title": "用栈实现队列",
+   "cat": "栈与队列",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0232.用栈实现队列.md",
+   "base": "0232.用栈实现队列",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "649",
+   "num": 649,
+   "title": "Dota2参议院",
+   "cat": "栈与队列",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0649.Dota2参议院.md",
+   "base": "0649.Dota2参议院",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1047",
+   "num": 1047,
+   "title": "删除字符串中的所有相邻重复项",
+   "cat": "栈与队列",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1047.删除字符串中的所有相邻重复项.md",
+   "base": "1047.删除字符串中的所有相邻重复项",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "496",
+   "num": 496,
+   "title": "下一个更大元素I",
+   "cat": "单调栈",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0496.下一个更大元素I.md",
+   "base": "0496.下一个更大元素I",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "503",
+   "num": 503,
+   "title": "下一个更大元素II",
+   "cat": "单调栈",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0503.下一个更大元素II.md",
+   "base": "0503.下一个更大元素II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "100",
+   "num": 100,
+   "title": "相同的树",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0100.相同的树.md",
+   "base": "0100.相同的树",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "106",
+   "num": 106,
+   "title": "从中序与后序遍历序列构造二叉树",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0106.从中序与后序遍历序列构造二叉树.md",
+   "base": "0106.从中序与后序遍历序列构造二叉树",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "110",
+   "num": 110,
+   "title": "平衡二叉树",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0110.平衡二叉树.md",
+   "base": "0110.平衡二叉树",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "111",
+   "num": 111,
+   "title": "二叉树的最小深度",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0111.二叉树的最小深度.md",
+   "base": "0111.二叉树的最小深度",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "112",
+   "num": 112,
+   "title": "路径总和",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0112.路径总和.md",
+   "base": "0112.路径总和",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "116",
+   "num": 116,
+   "title": "填充每个节点的下一个右侧节点指针",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0116.填充每个节点的下一个右侧节点指针.md",
+   "base": "0116.填充每个节点的下一个右侧节点指针",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "129",
+   "num": 129,
+   "title": "求根到叶子节点数字之和",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0129.求根到叶子节点数字之和.md",
+   "base": "0129.求根到叶子节点数字之和",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "222",
+   "num": 222,
+   "title": "完全二叉树的节点个数",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0222.完全二叉树的节点个数.md",
+   "base": "0222.完全二叉树的节点个数",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "235",
+   "num": 235,
+   "title": "二叉搜索树的最近公共祖先",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0235.二叉搜索树的最近公共祖先.md",
+   "base": "0235.二叉搜索树的最近公共祖先",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "257",
+   "num": 257,
+   "title": "二叉树的所有路径",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0257.二叉树的所有路径.md",
+   "base": "0257.二叉树的所有路径",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "404",
+   "num": 404,
+   "title": "左叶子之和",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0404.左叶子之和.md",
+   "base": "0404.左叶子之和",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "450",
+   "num": 450,
+   "title": "删除二叉搜索树中的节点",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0450.删除二叉搜索树中的节点.md",
+   "base": "0450.删除二叉搜索树中的节点",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "501",
+   "num": 501,
+   "title": "二叉搜索树中的众数",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0501.二叉搜索树中的众数.md",
+   "base": "0501.二叉搜索树中的众数",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "513",
+   "num": 513,
+   "title": "找树左下角的值",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0513.找树左下角的值.md",
+   "base": "0513.找树左下角的值",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "530",
+   "num": 530,
+   "title": "搜索树的最小绝对差",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0530.二叉搜索树的最小绝对差.md",
+   "base": "0530.二叉搜索树的最小绝对差",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "538",
+   "num": 538,
+   "title": "把二叉搜索树转换为累加树",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0538.把二叉搜索树转换为累加树.md",
+   "base": "0538.把二叉搜索树转换为累加树",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "617",
+   "num": 617,
+   "title": "合并两个二叉树",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0617.合并二叉树.md",
+   "base": "0617.合并二叉树",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "654",
+   "num": 654,
+   "title": "最大二叉树",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0654.最大二叉树.md",
+   "base": "0654.最大二叉树",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "669",
+   "num": 669,
+   "title": "修剪二叉搜索树",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0669.修剪二叉搜索树.md",
+   "base": "0669.修剪二叉搜索树",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "700",
+   "num": 700,
+   "title": "二叉搜索树中的搜索",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0700.二叉搜索树中的搜索.md",
+   "base": "0700.二叉搜索树中的搜索",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "701",
+   "num": 701,
+   "title": "搜索树中的插入操作",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0701.二叉搜索树中的插入操作.md",
+   "base": "0701.二叉搜索树中的插入操作",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1382",
+   "num": 1382,
+   "title": "将二叉搜索树变平衡",
+   "cat": "二叉树",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1382.将二叉搜索树变平衡.md",
+   "base": "1382.将二叉搜索树变平衡",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "37",
+   "num": 37,
+   "title": "解数独",
+   "cat": "回溯算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0037.解数独.md",
+   "base": "0037.解数独",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "40",
+   "num": 40,
+   "title": "组合总和II",
+   "cat": "回溯算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0040.组合总和II.md",
+   "base": "0040.组合总和II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "47",
+   "num": 47,
+   "title": "全排列II",
+   "cat": "回溯算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0047.全排列II.md",
+   "base": "0047.全排列II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "52",
+   "num": 52,
+   "title": "N 皇后 II",
+   "cat": "回溯算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0052.N皇后II.md",
+   "base": "0052.N皇后II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "77",
+   "num": 77,
+   "title": "组合",
+   "cat": "回溯算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0077.组合.md",
+   "base": "0077.组合",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "90",
+   "num": 90,
+   "title": "子集II",
+   "cat": "回溯算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0090.子集II.md",
+   "base": "0090.子集II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "93",
+   "num": 93,
+   "title": "复原IP地址",
+   "cat": "回溯算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0093.复原IP地址.md",
+   "base": "0093.复原IP地址",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "216",
+   "num": 216,
+   "title": "组合总和III",
+   "cat": "回溯算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0216.组合总和III.md",
+   "base": "0216.组合总和III",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "332",
+   "num": 332,
+   "title": "重新安排行程",
+   "cat": "回溯算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0332.重新安排行程.md",
+   "base": "0332.重新安排行程",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "491",
+   "num": 491,
+   "title": "递增子序列",
+   "cat": "回溯算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0491.递增子序列.md",
+   "base": "0491.递增子序列",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "122",
+   "num": 122,
+   "title": "买卖股票的最佳时机II",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0122.买卖股票的最佳时机II.md",
+   "base": "0122.买卖股票的最佳时机II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "134",
+   "num": 134,
+   "title": "加油站",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0134.加油站.md",
+   "base": "0134.加油站",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "135",
+   "num": 135,
+   "title": "分发糖果",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0135.分发糖果.md",
+   "base": "0135.分发糖果",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "376",
+   "num": 376,
+   "title": "摆动序列",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0376.摆动序列.md",
+   "base": "0376.摆动序列",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "406",
+   "num": 406,
+   "title": "根据身高重建队列",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0406.根据身高重建队列.md",
+   "base": "0406.根据身高重建队列",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "435",
+   "num": 435,
+   "title": "无重叠区间",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0435.无重叠区间.md",
+   "base": "0435.无重叠区间",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "452",
+   "num": 452,
+   "title": "用最少数量的箭引爆气球",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0452.用最少数量的箭引爆气球.md",
+   "base": "0452.用最少数量的箭引爆气球",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "455",
+   "num": 455,
+   "title": "分发饼干",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0455.分发饼干.md",
+   "base": "0455.分发饼干",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "738",
+   "num": 738,
+   "title": "单调递增的数字",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0738.单调递增的数字.md",
+   "base": "0738.单调递增的数字",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "860",
+   "num": 860,
+   "title": "柠檬水找零",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0860.柠檬水找零.md",
+   "base": "0860.柠檬水找零",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "968",
+   "num": 968,
+   "title": "监控二叉树",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0968.监控二叉树.md",
+   "base": "0968.监控二叉树",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1005",
+   "num": 1005,
+   "title": "K次取反后最大化的数组和",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1005.K次取反后最大化的数组和.md",
+   "base": "1005.K次取反后最大化的数组和",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1221",
+   "num": 1221,
+   "title": "分割平衡字符串",
+   "cat": "贪心算法",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1221.分割平衡字符串.md",
+   "base": "1221.分割平衡字符串",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "63",
+   "num": 63,
+   "title": "不同路径II",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0063.不同路径II.md",
+   "base": "0063.不同路径II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "96",
+   "num": 96,
+   "title": "不同的二叉搜索树",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0096.不同的二叉搜索树.md",
+   "base": "0096.不同的二叉搜索树",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "115",
+   "num": 115,
+   "title": "不同的子序列",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0115.不同的子序列.md",
+   "base": "0115.不同的子序列",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "123",
+   "num": 123,
+   "title": "买卖股票的最佳时机III",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0123.买卖股票的最佳时机III.md",
+   "base": "0123.买卖股票的最佳时机III",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "132",
+   "num": 132,
+   "title": "分割回文串 II",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0132.分割回文串II.md",
+   "base": "0132.分割回文串II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "188",
+   "num": 188,
+   "title": "买卖股票的最佳时机IV",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0188.买卖股票的最佳时机IV.md",
+   "base": "0188.买卖股票的最佳时机IV",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "213",
+   "num": 213,
+   "title": "打家劫舍II",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0213.打家劫舍II.md",
+   "base": "0213.打家劫舍II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "309",
+   "num": 309,
+   "title": "最佳买卖股票时机含冷冻期",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0309.最佳买卖股票时机含冷冻期.md",
+   "base": "0309.最佳买卖股票时机含冷冻期",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "337",
+   "num": 337,
+   "title": "打家劫舍III",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0337.打家劫舍III.md",
+   "base": "0337.打家劫舍III",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "343",
+   "num": 343,
+   "title": "整数拆分",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0343.整数拆分.md",
+   "base": "0343.整数拆分",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "377",
+   "num": 377,
+   "title": "组合总和Ⅳ",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0377.组合总和Ⅳ.md",
+   "base": "0377.组合总和Ⅳ",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "392",
+   "num": 392,
+   "title": "判断子序列",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0392.判断子序列.md",
+   "base": "0392.判断子序列",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "474",
+   "num": 474,
+   "title": "一和零",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0474.一和零.md",
+   "base": "0474.一和零",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "494",
+   "num": 494,
+   "title": "目标和",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0494.目标和.md",
+   "base": "0494.目标和",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "509",
+   "num": 509,
+   "title": "斐波那契数",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0509.斐波那契数.md",
+   "base": "0509.斐波那契数",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "516",
+   "num": 516,
+   "title": "最长回文子序列",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0516.最长回文子序列.md",
+   "base": "0516.最长回文子序列",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "518",
+   "num": 518,
+   "title": "零钱兑换II",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0518.零钱兑换II.md",
+   "base": "0518.零钱兑换II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "583",
+   "num": 583,
+   "title": "两个字符串的删除操作",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0583.两个字符串的删除操作.md",
+   "base": "0583.两个字符串的删除操作",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "647",
+   "num": 647,
+   "title": "回文子串",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0647.回文子串.md",
+   "base": "0647.回文子串",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "673",
+   "num": 673,
+   "title": "最长递增子序列的个数",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0673.最长递增子序列的个数.md",
+   "base": "0673.最长递增子序列的个数",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "674",
+   "num": 674,
+   "title": "最长连续递增序列",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0674.最长连续递增序列.md",
+   "base": "0674.最长连续递增序列",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "714",
+   "num": 714,
+   "title": "买卖股票的最佳时机含手续费",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0714.买卖股票的最佳时机含手续费.md",
+   "base": "0714.买卖股票的最佳时机含手续费",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "718",
+   "num": 718,
+   "title": "最长重复子数组",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0718.最长重复子数组.md",
+   "base": "0718.最长重复子数组",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "746",
+   "num": 746,
+   "title": "使用最小花费爬楼梯",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0746.使用最小花费爬楼梯.md",
+   "base": "0746.使用最小花费爬楼梯",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1035",
+   "num": 1035,
+   "title": "不相交的线",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1035.不相交的线.md",
+   "base": "1035.不相交的线",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1049",
+   "num": 1049,
+   "title": "最后一块石头的重量II",
+   "cat": "动态规划",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1049.最后一块石头的重量II.md",
+   "base": "1049.最后一块石头的重量II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "127",
+   "num": 127,
+   "title": "单词接龙",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0127.单词接龙.md",
+   "base": "0127.单词接龙",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "130",
+   "num": 130,
+   "title": "被围绕的区域",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0130.被围绕的区域.md",
+   "base": "0130.被围绕的区域",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "210",
+   "num": 210,
+   "title": "课程表II",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0210.课程表II.md",
+   "base": "0210.课程表II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "417",
+   "num": 417,
+   "title": "太平洋大西洋水流问题",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0417.太平洋大西洋水流问题.md",
+   "base": "0417.太平洋大西洋水流问题",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "463",
+   "num": 463,
+   "title": "岛屿的周长",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0463.岛屿的周长.md",
+   "base": "0463.岛屿的周长",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "684",
+   "num": 684,
+   "title": "冗余连接",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0684.冗余连接.md",
+   "base": "0684.冗余连接",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "685",
+   "num": 685,
+   "title": "冗余连接II",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0685.冗余连接II.md",
+   "base": "0685.冗余连接II",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "695",
+   "num": 695,
+   "title": "岛屿的最大面积",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0695.岛屿的最大面积.md",
+   "base": "0695.岛屿的最大面积",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "743",
+   "num": 743,
+   "title": "网络延迟时间",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0743.网络延迟时间.md",
+   "base": "0743.网络延迟时间",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "787",
+   "num": 787,
+   "title": "K站中转内最便宜的航班",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0787.K站中转内最便宜的航班.md",
+   "base": "0787.K站中转内最便宜的航班",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "797",
+   "num": 797,
+   "title": "所有可能的路径",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0797.所有可能的路径.md",
+   "base": "0797.所有可能的路径",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "827",
+   "num": 827,
+   "title": "最大人工岛",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0827.最大人工岛.md",
+   "base": "0827.最大人工岛",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "841",
+   "num": 841,
+   "title": "钥匙和房间",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\0841.钥匙和房间.md",
+   "base": "0841.钥匙和房间",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1020",
+   "num": 1020,
+   "title": "飞地的数量",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1020.飞地的数量.md",
+   "base": "1020.飞地的数量",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1254",
+   "num": 1254,
+   "title": "统计封闭岛屿的数目",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1254.统计封闭岛屿的数目.md",
+   "base": "1254.统计封闭岛屿的数目",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1334",
+   "num": 1334,
+   "title": "阈值距离内邻居最少的城市",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1334.阈值距离内邻居最少的城市.md",
+   "base": "1334.阈值距离内邻居最少的城市",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1791",
+   "num": 1791,
+   "title": "找出星型图的中心节点",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1791.找出星型图的中心节点.md",
+   "base": "1791.找出星型图的中心节点",
+   "diff": ""
+  },
+  {
+   "kind": "extra",
+   "id": "1971",
+   "num": 1971,
+   "title": "寻找图中是否存在路径",
+   "cat": "图论",
+   "file": "C:\\Users\\31964\\Desktop\\leetcode\\leetcode-master-master\\leetcode-master-master\\problems\\1971.寻找图中是否存在路径.md",
+   "base": "1971.寻找图中是否存在路径",
+   "diff": ""
+  }
+ ],
+ "extra_chapters": [
+  "数组",
+  "链表",
+  "哈希表",
+  "字符串",
+  "栈与队列",
+  "单调栈",
+  "二叉树",
+  "回溯算法",
+  "贪心算法",
+  "动态规划",
+  "图论"
+ ]
+}

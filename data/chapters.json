@@ -1,0 +1,142 @@
+{
+ "1|哈希": {
+  "lead": "哈希/集合类题目的输入几乎都是「一个 n，然后 n 个数（或 n 个字符串），最后一行目标值」。ACM 模式里不要用 input() 逐行读，统一 `sys.stdin.read().split()` 一次读成 token 列表，用游标往后取，这样换行、空格、多组数据的差异都被抹平了。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    p = 0\n    n = int(data[p]); p += 1\n    nums = [int(x) for x in data[p:p + n]]; p += n\n    target = int(data[p]); p += 1\n\n    # 把解法里的 Solution 类粘在这里\n    print(Solution().twoSum(nums, target))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "只打印最终答案，不要打印「please input」这类提示；列表输出用 `print(*ans)` 或 `print(ans)`，题目要求哪种格式就照哪种来。"
+ },
+ "1|双指针": {
+  "lead": "双指针题通常给「n + n 个数」，有的题（如三数之和）还要输出二维结果。把数组整体读进来即可，双指针本身在数组上跑，不需要额外输入。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = list(map(int, data[1:1 + n]))\n\n    ans = Solution().threeSum(nums)\n    print(len(ans))\n    for row in ans:\n        print(*row)\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "二维答案统一「先输出行数，再每行输出一行」，机器判题一般都能过；如果题目只要求输出数量，就只打印 len。"
+ },
+ "1|滑动窗口": {
+  "lead": "滑动窗口题只需要「n + 数组」或者「一个字符串 + 一个模式串」。字符串直接当 token 读，不要用 input() 再去处理引号和空格。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s = data[0]\n    p = data[1] if len(data) > 1 else \"\"\n\n    print(Solution().lengthOfLongestSubstring(s))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "字符串题不用把它拆成字符数组，Python 里 str 本身可下标/切片，直接用。"
+ },
+ "1|子串": {
+  "lead": "子串/区间类题目的输入是「数组 + 目标值 k」或「字符串 + 模式串」，读入后直接调用方法即可；注意 k 可能是负数或大于数组和，别提前 return 错。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    n, k = int(data[0]), int(data[1])\n    nums = list(map(int, data[2:2 + n]))\n\n    print(Solution().subarraySum(nums, k))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "输出单个数字时直接 print(int)；输出下标列表时按题目要求决定是否需要先输出长度。"
+ },
+ "1|普通数组": {
+  "lead": "数组类是 ACM 模式最基础的形态：第一行 n，第二行 n 个数。偶尔会先给 m、n 两个维度，或者给多组数据（读到 EOF 为止），模板里给了通用写法。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    p = 0\n    out = []\n    while p < len(data):                      # 多组数据：读到 EOF\n        n = int(data[p]); p += 1\n        nums = list(map(int, data[p:p + n])); p += n\n        out.append(str(Solution().maxSubArray(nums)))\n    print(\"\\n\".join(out))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "如果题目只有一组数据，把 while 换成一次读取更直观；多组数据时千万别在循环里 print 提示语。"
+ },
+ "1|矩阵": {
+  "lead": "矩阵题先给 m、n，再给 m 行、每行 n 个数（或直接给 m*n 个 token）。用「按行切片」的方式构造二维列表，比逐行 input() 稳。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    m, n = int(data[0]), int(data[1])\n    flat = list(map(int, data[2:2 + m * n]))\n    grid = [flat[i * n:(i + 1) * n] for i in range(m)]\n\n    ans = Solution().spiralOrder(grid)\n    print(*ans)\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "输出矩阵时逐行 print(*row)；原地修改类题（如矩阵置零、旋转图像）直接在 grid 上改，最后再把 grid 打出来。"
+ },
+ "1|链表": {
+  "lead": "链表题在 ACM 模式里要自己建表：先读节点值数组，再按需读 pos（环的位置）等附加参数。面试/机试里最省事的写法是「哨兵 + 尾插」，建完再调用解法，最后把结果链表拼成列表打印。",
+  "code": "import sys\n\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(vals):\n    dummy = ListNode(0)\n    cur = dummy\n    for v in vals:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef dump(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    vals = list(map(int, data[1:1 + n]))\n    head = build(vals)\n\n    res = Solution().reverseList(head)\n    print(*dump(res))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "环形链表类题目要额外读一个 pos（-1 表示无环），把尾节点接到第 pos 个节点上再判环；输出链表一律 dump 成空格分隔的一行。"
+ },
+ "1|二叉树": {
+  "lead": "二叉树题在 ACM 模式里是「层序数组」，用 null / None 表示空节点——本质是 LeetCode 序列化的逆过程。用队列逐个建节点，遇到 null 就跳过，千万别把 null 当子节点建出来。",
+  "code": "import sys\nfrom collections import deque\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(tokens):\n    if not tokens or tokens[0] in (\"null\", \"None\", \"#\"):\n        return None\n    root = TreeNode(int(tokens[0]))\n    q = deque([root])\n    i = 1\n    while q and i < len(tokens):\n        node = q.popleft()\n        if i < len(tokens) and tokens[i] not in (\"null\", \"None\", \"#\"):\n            node.left = TreeNode(int(tokens[i]))\n            q.append(node.left)\n        i += 1\n        if i < len(tokens) and tokens[i] not in (\"null\", \"None\", \"#\"):\n            node.right = TreeNode(int(tokens[i]))\n            q.append(node.right)\n        i += 1\n    return root\n\ndef main():\n    data = sys.stdin.read().split()\n    root = build(data[1:])          # 第一行是 n，后面是层序值\n\n    print(Solution().maxDepth(root))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "递归解法的深度可能到 1e5，记得 `sys.setrecursionlimit(10**6)`；输出层序结果时把 None 统一打成 null。"
+ },
+ "1|图论": {
+  "lead": "图论题输入最常见三种：① n 条边，每行 u v；② 邻接矩阵 n×n；③ 网格地图 m 行字符串。建图统一用 `g = [[] for _ in range(n+1)]`（1-indexed），再 DFS/BFS/并查集/拓扑排序。",
+  "code": "import sys\nfrom collections import deque\n\ndef main():\n    data = sys.stdin.read().split()\n    p = 0\n    n, m = int(data[p]), int(data[p + 1]); p += 2\n    g = [[] for _ in range(n + 1)]\n    for _ in range(m):\n        u, v = int(data[p]), int(data[p + 1]); p += 2\n        g[u].append(v)\n        g[v].append(u)               # 无向图才加这一行\n\n    seen = [False] * (n + 1)\n    cnt = 0\n    for s in range(1, n + 1):\n        if seen[s]:\n            continue\n        cnt += 1\n        q = deque([s]); seen[s] = True\n        while q:\n            u = q.popleft()\n            for v in g[u]:\n                if not seen[v]:\n                    seen[v] = True\n                    q.append(v)\n    print(cnt)\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "网格类题目（岛屿数量等）把每行读成字符串再转 list；拓扑排序记得输出「入度为 0 的节点顺序」，无解输出空或题目要求的值。"
+ },
+ "1|回溯": {
+  "lead": "回溯题输入极简：通常只有一个 n，或者「n + 数组」，或者「字符串 + 字典」。输出的是所有方案，ACM 模式里要自己决定按什么格式打印（一般「先方案数，再每行一个方案」）。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    nums = list(map(int, data[1:1 + n]))\n\n    ans = Solution().permute(nums)\n    print(len(ans))\n    for row in ans:\n        print(*row)\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "回溯结果数量可能爆炸（N 皇后 n=9 就有 352 组），打印前先确认数据规模；剪枝条件写在递归入口，别放在 append 之后。"
+ },
+ "1|二分查找": {
+  "lead": "二分题输入是「n + 有序数组 + target」，或者「矩阵 m n + m*n 个数 + target」。读入后用左闭右开/左闭右闭其中一种写法，全程不要混用。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    nums = list(map(int, data[1:1 + n]))\n    target = int(data[1 + n])\n\n    print(Solution().search(nums, target))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "返回值是下标就直接 print；返回区间就 print(left, right)；注意 target 不存在时的返回值约定（-1 还是插入位置）。"
+ },
+ "1|栈": {
+  "lead": "栈/队列题分两类：一类给「数组 + k」，一类要求你实现数据结构（最小栈、LRU）。实现类的题在 ACM 模式里按操作序列读：第一行操作数 q，之后每行一个操作 + 参数。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    p = 0\n    q = int(data[p]); p += 1\n    out = []\n    for _ in range(q):\n        op = data[p]; p += 1\n        if op == \"push\":\n            v = int(data[p]); p += 1\n            st.push(v)\n        elif op == \"pop\":\n            st.pop()\n            out.append(\"null\")\n        else:                       # top / getMin / get ...\n            out.append(str(st.getMin()))\n    print(\"\\n\".join(out))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "设计类题目输出里的 null 要照打（对应无返回值的操作），不要省略成空行。"
+ },
+ "1|堆": {
+  "lead": "堆题输入是「n + 数组 + k」，或者「操作序列（add / findMedian）」。Python 只有小根堆：求第 k 大就存负值，求前 k 大就用 size=k 的小根堆。",
+  "code": "import sys\nimport heapq\n\ndef main():\n    data = sys.stdin.read().split()\n    n, k = int(data[0]), int(data[1])\n    nums = list(map(int, data[2:2 + n]))\n\n    h = []\n    for v in nums:\n        heapq.heappush(h, v)\n        if len(h) > k:\n            heapq.heappop(h)\n    print(h[0])                     # 第 k 大 = 大小为 k 的小根堆堆顶\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "多组输出时注意每行一个；求中位数那种题要把两个堆（大根堆存负值）的平衡条件写死。"
+ },
+ "1|贪心算法": {
+  "lead": "贪心题输入一般是「n + 数组」，少数是「数组 + 限制值」。读入后通常要先排序，再一遍扫描；ACM 模式里排序不影响输入格式。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    nums = list(map(int, data[1:1 + n]))\n\n    print(Solution().canJump(nums))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "输出布尔值统一 True/False 或题目要求的 1/0；别混着来。"
+ },
+ "1|动态规划": {
+  "lead": "一维 DP 的输入是「n + 数组」或「n + 容量」，二维 DP 常给「两个字符串」或「n + 数组 + 目标」。状态定义写在注释里，ACM 模式只负责把输入塞进方法。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    nums = list(map(int, data[1:1 + n]))\n\n    print(Solution().rob(nums))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "DP 结果可能是 0 或负数，别用 `if ans:` 这种真值判断来决定是否输出。"
+ },
+ "1|多维动态规划": {
+  "lead": "二维 DP 的输入多为「两个字符串 s、t」或「m n + m×n 网格」，也可能是「物品数 n + 容量」。字符串题直接当 token 读，网格题按行切片构造。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if len(data) >= 2:\n        s, t = data[0], data[1]\n        print(Solution().longestCommonSubsequence(s, t))\n    else:\n        m, n = int(data[0]), int(data[1])\n        grid = [[int(x) for x in data[2 + i * n:2 + (i + 1) * n]] for i in range(m)]\n        print(Solution().minPathSum(grid))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "字符串长度可能到 1000+，DP 表用滚动数组能省内存，但输出格式不受影响。"
+ },
+ "1|技巧": {
+  "lead": "技巧类题目输入差异大：位运算题给「n + 数组」，找重复数给「n+1 个数的数组」，下一个排列给「n + 数组」。统一按 n 读，能覆盖九成情况。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    nums = list(map(int, data[1:1 + n]))\n\n    print(Solution().singleNumber(nums))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "输出数组就 print(*nums)；要求原地修改的题，修改完再打印。"
+ },
+ "2|数组": {
+  "lead": "补充篇的数组题（二分查找、移除元素、螺旋矩阵、长度最小的子数组）在 ACM 模式里还要注意「原地修改」：机试判题看的是你最后输出的数组，所以改完要打印整个数组。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    nums = list(map(int, data[1:1 + n]))\n\n    k = Solution().removeElement(nums, 2)\n    print(k)\n    print(*nums[:k])\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "「返回新长度 k」的题，判题器通常只检查前 k 个元素，打印时记得切片。"
+ },
+ "2|链表": {
+  "lead": "补充篇的链表题（移除链表元素、设计链表、重排链表）都要求自己建表、自己输出。设计链表类题目按操作序列读：`addAtHead v` / `addAtIndex i v` / `deleteAtIndex i` / `get i`。",
+  "code": "import sys\n\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(vals):\n    dummy = ListNode(0)\n    cur = dummy\n    for v in vals:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef main():\n    data = sys.stdin.read().split()\n    p = 0\n    q = int(data[p]); p += 1\n    obj = None\n    out = []\n    for _ in range(q):\n        op = data[p]; p += 1\n        if op == \"MyLinkedList\":\n            obj = MyLinkedList(); out.append(\"null\")\n        elif op == \"addAtHead\":\n            obj.addAtHead(int(data[p])); p += 1; out.append(\"null\")\n        elif op == \"get\":\n            out.append(str(obj.get(int(data[p])))); p += 1\n        else:\n            obj.deleteAtIndex(int(data[p])); p += 1; out.append(\"null\")\n    print(\"\\n\".join(out))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "设计类题目的输出是「每个操作的返回值，没有就 null」，一行一个，顺序不能乱。"
+ },
+ "2|哈希表": {
+  "lead": "哈希题输入是「n + 数组」或「字符串 + 字符串」，四数相加这类给四个数组，读入时按长度切段即可；不要假设每行长度一致。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    nums = list(map(int, data[1:1 + n]))\n\n    print(Solution().fourSumCount(nums, nums, nums, nums))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "输出计数直接 print(int)；输出去重后的集合时先排序再打印，保证结果稳定。"
+ },
+ "2|字符串": {
+  "lead": "字符串题注意「读 token 还是读整行」：翻转单词这类题目内部有空格，必须先 `sys.stdin.readline()` 读整行再 strip，不能 split 后只取第一个 token。",
+  "code": "import sys\n\ndef main():\n    line = sys.stdin.readline().strip()\n    print(Solution().reverseWords(line))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "需要保留空格的题用 readline；纯字母/数字串才用 read().split()。"
+ },
+ "2|栈与队列": {
+  "lead": "栈队列题分「表达式求值」（给一整个字符串）和「用栈实现队列」（给操作序列）两类。表达式里的逆波兰式按 token 读，操作符和数字混在一起时统一当字符串判断。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    print(Solution().evalRPN(data))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "结果为整数时注意 Python 的 `/` 是浮点除，要用 `int(a / b)` 或向零截断的写法。"
+ },
+ "2|单调栈": {
+  "lead": "单调栈题给「n + 数组」或「nums1 + nums2」两个数组。栈里存下标，出栈时才知道答案落在哪一位，所以 ACM 模式只负责把两个数组读进来。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    nums = list(map(int, data[1:1 + n]))\n\n    print(*Solution().nextGreaterElements(nums))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "循环数组题把数组复制一遍再跑，不要真的修改原数组长度。"
+ },
+ "2|二叉树": {
+  "lead": "补充篇二叉树题量最大（遍历、构造、BST、公共祖先、路径），输入统一是「n + 层序数组」，空节点写 null。建树模板和速成篇一样，区别在于输出：中序遍历要打一串数，构造类题要打整棵树的层序结果。",
+  "code": "import sys\nfrom collections import deque\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(tokens):\n    if not tokens or tokens[0] in (\"null\", \"None\", \"#\"):\n        return None\n    root = TreeNode(int(tokens[0]))\n    q = deque([root])\n    i = 1\n    while q and i < len(tokens):\n        node = q.popleft()\n        if i < len(tokens) and tokens[i] not in (\"null\", \"None\", \"#\"):\n            node.left = TreeNode(int(tokens[i]))\n            q.append(node.left)\n        i += 1\n        if i < len(tokens) and tokens[i] not in (\"null\", \"None\", \"#\"):\n            node.right = TreeNode(int(tokens[i]))\n            q.append(node.right)\n        i += 1\n    return root\n\ndef level_order(root):\n    out, q = [], deque([root]) if root else deque()\n    while q:\n        node = q.popleft()\n        out.append(str(node.val))\n        if node.left:\n            q.append(node.left)\n        if node.right:\n            q.append(node.right)\n    return out\n\ndef main():\n    sys.setrecursionlimit(10 ** 6)\n    data = sys.stdin.read().split()\n    root = build(data[1:])\n\n    print(*Solution().inorderTraversal(root))     # 换成该题的方法\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "输出整棵树用层序（level_order）打一行，空节点按题目要求补 null；构造类题目（106、654）输入可能给两个数组（中序 + 后序），按「先读完两个数组再建树」处理。"
+ },
+ "2|回溯算法": {
+  "lead": "补充篇的回溯题输入是「n」「n + k」「n + 数组」或「棋盘/字符串」。解数独这类题要把 9 行棋盘按行读成 char 数组，输出时按行打回字符串。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    n, k = int(data[0]), int(data[1])\n\n    ans = Solution().combine(n, k)\n    print(len(ans))\n    for row in ans:\n        print(*row)\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "二维结果统一「先方案数，再每行一个方案」；解数独输出 9 行字符串。"
+ },
+ "2|贪心算法": {
+  "lead": "贪心题输入是「n + 数组」或「数组 + 限制」，多数题要先按某个维度排序（身高、区间右端点、孩子胃口），排序写在方法里。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    nums = list(map(int, data[1:1 + n]))\n\n    print(Solution().findContentChildren(nums, nums))\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "区间题按「左端点排序」还是「右端点排序」结果不同，先确认题目要哪种。"
+ },
+ "2|动态规划": {
+  "lead": "补充篇 DP 覆盖：基础（斐波那契/爬楼梯）、背包（01/完全/多重）、打家劫舍、股票、子序列。背包题输入是「物品数 n + 容量 bagweight」，然后每行「重量 价值」；读成一维数组更省事。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    p = 0\n    n, bag = int(data[p]), int(data[p + 1]); p += 2\n    weight = list(map(int, data[p:p + n])); p += n\n    value = list(map(int, data[p:p + n])); p += n\n\n    dp = [0] * (bag + 1)\n    for i in range(n):\n        for j in range(bag, weight[i] - 1, -1):   # 01 背包倒序；完全背包正序\n            dp[j] = max(dp[j], dp[j - weight[i]] + value[i])\n    print(dp[bag])\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "01 背包容量必须倒序遍历，完全背包正序——这是最容易写反的一行。"
+ },
+ "2|图论": {
+  "lead": "补充篇图论题输入三种：① 边表「n m 然后 m 行 u v」；② 网格「m n 然后 m 行 0/1」；③ 带权「u v w」。建图时无向图要双向加边，有向图只加一次，别搞反。",
+  "code": "import sys\n\ndef main():\n    data = sys.stdin.read().split()\n    p = 0\n    n, m = int(data[p]), int(data[p + 1]); p += 2\n    parent = list(range(n + 1))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    for _ in range(m):\n        u, v = int(data[p]), int(data[p + 1]); p += 2\n        ru, rv = find(u), find(v)\n        if ru == rv:\n            print(u, v)          # 冗余连接：这条边让图成环\n            return\n        parent[ru] = rv\n\nif __name__ == \"__main__\":\n    main()",
+  "out": "网格题先把每行读成字符串；带权最短路用 `heapq` 的 Dijkstra，别用 Bellman-Ford 硬算大数据。"
+ }
+}

@@ -1,0 +1,772 @@
+[
+ {
+  "id": "90",
+  "num": 90,
+  "title": "子集II",
+  "diff": "中等",
+  "tags": "回溯,排序去重,子集",
+  "stmt": "给定可能含重复元素的整数数组 nums，返回所有不重复的子集（幂集）。",
+  "ex": "nums = [1,2,2] → [[],[1],[1,2],[1,2,2],[2],[2,2]]",
+  "key": "排序后同层跳过相同数，同一个树枝上照用",
+  "idea": [
+   "先排序让相同元素相邻，回溯每层从 start 枚举，进入节点就收集当前路径。",
+   "不需要显式终止条件，start 扫到末尾循环自然结束，每个节点都是一个子集。",
+   "去重看树层：i>start 且 nums[i]==nums[i-1] 时跳过，同一树枝仍可复用该值。",
+   "递归传 i+1 保证每个下标只用一次，这是组合/子集与排列的关键差别。",
+   "复杂度 O(n·2^n)，递归深度不超过 n。"
+  ],
+  "cx": "时间 O(n·2^n)，空间 O(n)",
+  "trap": "去重条件是 i>start 而不是 i>0；换成 used 数组版本时容易把树层和树枝判反。",
+  "code": "class Solution:\n    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:\n        nums.sort()\n        res, path = [], []\n\n        def dfs(start):\n            res.append(path[:])\n            for i in range(start, len(nums)):\n                if i > start and nums[i] == nums[i - 1]:\n                    continue\n                path.append(nums[i])\n                dfs(i + 1)\n                path.pop()\n\n        dfs(0)\n        return res",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    nums.sort()\n    res, path = [], []\n\n    def dfs(start):\n        res.append(path[:])\n        for i in range(start, n):\n            if i > start and nums[i] == nums[i - 1]:\n                continue\n            path.append(nums[i])\n            dfs(i + 1)\n            path.pop()\n\n    dfs(0)\n    res.sort()\n    print(\"[\" + \",\".join(\"[\" + \",\".join(map(str, x)) + \"]\" for x in res) + \"]\")\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "3\n1 2 2\n",
+    "[[],[1],[1,2],[1,2,2],[2],[2,2]]"
+   ],
+   [
+    "1\n0\n",
+    "[[],[0]]"
+   ],
+   [
+    "4\n4 4 1 4\n",
+    "[[],[1],[1,4],[1,4,4],[1,4,4,4],[4],[4,4],[4,4,4]]"
+   ]
+  ]
+ },
+ {
+  "id": "93",
+  "num": 93,
+  "title": "复原IP地址",
+  "diff": "中等",
+  "tags": "回溯,字符串切割,剪枝",
+  "stmt": "给只含数字的字符串 s，返回所有合法 IP 地址，四段各 0~255 且无前导零。",
+  "ex": "s = \"25525511135\" → [\"255.255.11.135\",\"255.255.111.35\"]",
+  "key": "切四段，每段 0 到 255 且不带前导零",
+  "idea": [
+   "把问题看成在字符串上切三刀得到四段，用回溯枚举每一段的结束位置。",
+   "参数 start 是本段起点，path 存已确定的段；凑满四段且字符用完才收答案。",
+   "每层最多枚举三位，i 从 start 走到 min(start+2, n-1)。",
+   "剪枝：长度大于 1 且首字符是 '0' 直接 break；数值超过 255 也 break。",
+   "总长度不在 4~12 之间一定无解，可提前返回空列表。"
+  ],
+  "cx": "时间 O(3^4)，空间 O(n)",
+  "trap": "非法段要 break 而不是 continue；长度 4~12 的预判能挡掉大量无用搜索。",
+  "code": "class Solution:\n    def restoreIpAddresses(self, s: str) -> List[str]:\n        n = len(s)\n        res, path = [], []\n\n        def ok(a, b):\n            if b - a + 1 > 3:\n                return False\n            if b - a + 1 > 1 and s[a] == \"0\":\n                return False\n            return int(s[a:b + 1]) <= 255\n\n        def dfs(start):\n            if len(path) == 4:\n                if start == n:\n                    res.append(\".\".join(path))\n                return\n            for i in range(start, min(start + 3, n)):\n                if not ok(start, i):\n                    break\n                path.append(s[start:i + 1])\n                dfs(i + 1)\n                path.pop()\n\n        if 4 <= n <= 12:\n            dfs(0)\n        return res",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s = data[0]\n    n = len(s)\n    res, path = [], []\n\n    def ok(a, b):\n        if b - a + 1 > 3:\n            return False\n        if b - a + 1 > 1 and s[a] == \"0\":\n            return False\n        return int(s[a:b + 1]) <= 255\n\n    def dfs(start):\n        if len(path) == 4:\n            if start == n:\n                res.append(\".\".join(path))\n            return\n        for i in range(start, min(start + 3, n)):\n            if not ok(start, i):\n                break\n            path.append(s[start:i + 1])\n            dfs(i + 1)\n            path.pop()\n\n    if 4 <= n <= 12:\n        dfs(0)\n    print(\"[\" + \",\".join('\"' + x + '\"' for x in res) + \"]\")\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "25525511135\n",
+    "[\"255.255.11.135\",\"255.255.111.35\"]"
+   ],
+   [
+    "0000\n",
+    "[\"0.0.0.0\"]"
+   ],
+   [
+    "101023\n",
+    "[\"1.0.10.23\",\"1.0.102.3\",\"10.1.0.23\",\"10.10.2.3\",\"101.0.2.3\"]"
+   ]
+  ]
+ },
+ {
+  "id": "216",
+  "num": 216,
+  "title": "组合总和III",
+  "diff": "中等",
+  "tags": "回溯,组合,剪枝",
+  "stmt": "在 1~9 中取 k 个互不相同的数使其和为 n，返回所有组合，不能重复。",
+  "ex": "k = 3, n = 7 → [[1,2,4]]",
+  "key": "1 到 9 选 k 个，正好凑出 n 就收，超了剪掉",
+  "idea": [
+   "在固定集合 1~9 上做组合回溯，start 递增保证取数升序且不重复。",
+   "递归只需要两个量：还要取几个数、还差多少和。",
+   "两个量都归零就收路径；有一个变成负数就直接返回。",
+   "剪枝一：当前数大于剩余和时，后面的数更大，可以 break。",
+   "剪枝二：从 i 到 9 不足 count 个数时 break，深度最多 9 层。"
+  ],
+  "cx": "时间 O(C(9,k)·k)，空间 O(k)",
+  "trap": "两个剪枝都要写；k 大于 9 或 n 太小会搜出空结果，返回前不必特判。",
+  "code": "class Solution:\n    def combinationSum3(self, k: int, n: int) -> List[List[int]]:\n        res, path = [], []\n\n        def dfs(start, count, target):\n            if count == 0:\n                if target == 0:\n                    res.append(path[:])\n                return\n            for i in range(start, 10):\n                if i > target or 10 - i < count:\n                    break\n                path.append(i)\n                dfs(i + 1, count - 1, target - i)\n                path.pop()\n\n        dfs(1, k, n)\n        return res",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    k, n = int(data[0]), int(data[1])\n    res, path = [], []\n\n    def dfs(start, count, target):\n        if count == 0:\n            if target == 0:\n                res.append(path[:])\n            return\n        for i in range(start, 10):\n            if i > target or 10 - i < count:\n                break\n            path.append(i)\n            dfs(i + 1, count - 1, target - i)\n            path.pop()\n\n    dfs(1, k, n)\n    print(\"[\" + \",\".join(\"[\" + \",\".join(map(str, x)) + \"]\" for x in res) + \"]\")\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "3 7\n",
+    "[[1,2,4]]"
+   ],
+   [
+    "3 9\n",
+    "[[1,2,6],[1,3,5],[2,3,4]]"
+   ],
+   [
+    "2 4\n",
+    "[[1,3]]"
+   ]
+  ]
+ },
+ {
+  "id": "332",
+  "num": 332,
+  "title": "重新安排行程",
+  "diff": "困难",
+  "tags": "回溯,欧拉路径,图",
+  "stmt": "给定机票 [from,to] 列表，从 JFK 出发用完所有票，返回字典序最小的行程。",
+  "ex": "tickets = [[\"JFK\",\"MUC\"],[\"MUC\",\"LHR\"],[\"LHR\",\"SFO\"],[\"SFO\",\"SJC\"]] → [\"JFK\",\"MUC\",\"LHR\",\"SFO\",\"SJC\"]",
+  "key": "目的港升序取最小，搜到底再倒序拼路径",
+  "idea": [
+   "本质是有向图的欧拉路径：机场是点、机票是边，从 JFK 起每条边走一次。",
+   "邻接表里每个出发地把目的港降序排序，取列表末尾就是字典序最小的下一步。",
+   "深搜：弹出一条边、递归目的港，返回后再把当前机场压入路径。",
+   "全部走完把路径整体反转，得到的就是字典序最小的行程。",
+   "票数最多 300，递归深度可控；不需要额外判断是否连通。"
+  ],
+  "cx": "时间 O(E log E)，空间 O(E)",
+  "trap": "按字典序贪心直接走会走进死胡同，必须后序收集再反转（欧拉路径套路）。",
+  "code": "class Solution:\n    def findItinerary(self, tickets: List[List[str]]) -> List[str]:\n        graph = {}\n        for a, b in tickets:\n            graph.setdefault(a, []).append(b)\n        for k in graph:\n            graph[k].sort(reverse=True)\n\n        path = []\n\n        def dfs(cur):\n            nxt = graph.get(cur)\n            while nxt:\n                dfs(nxt.pop())\n            path.append(cur)\n\n        dfs(\"JFK\")\n        return path[::-1]",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m = int(data[0])\n    graph = {}\n    idx = 1\n    for _ in range(m):\n        a, b = data[idx], data[idx + 1]\n        idx += 2\n        graph.setdefault(a, []).append(b)\n    for key in graph:\n        graph[key].sort(reverse=True)\n    path = []\n\n    def dfs(cur):\n        nxt = graph.get(cur)\n        while nxt:\n            dfs(nxt.pop())\n        path.append(cur)\n\n    dfs(\"JFK\")\n    print(\"[\" + \",\".join('\"' + x + '\"' for x in path[::-1]) + \"]\")\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "4\nMUC LHR\nJFK MUC\nSFO SJC\nLHR SFO\n",
+    "[\"JFK\",\"MUC\",\"LHR\",\"SFO\",\"SJC\"]"
+   ],
+   [
+    "5\nJFK SFO\nJFK ATL\nSFO ATL\nATL JFK\nATL SFO\n",
+    "[\"JFK\",\"ATL\",\"JFK\",\"SFO\",\"ATL\",\"SFO\"]"
+   ]
+  ]
+ },
+ {
+  "id": "491",
+  "num": 491,
+  "title": "递增子序列",
+  "diff": "中等",
+  "tags": "回溯,树层去重,子序列",
+  "stmt": "找出数组里所有长度至少为 2 的递增（非递减）子序列，结果不能重复。",
+  "ex": "nums = [4,6,7,7] → [[4,6],[4,6,7],[4,6,7,7],[4,7],[4,7,7],[6,7],[6,7,7],[7,7]]",
+  "key": "不排序，每层拿 set 挡重复值，只挑非递减的",
+  "idea": [
+   "递增子序列依赖原数组顺序，所以不能像子集II那样先排序，只能做树层去重。",
+   "每一层开一个 set 记录本层已用过的值，遇到重复值直接跳过。",
+   "只有 nums[i] 不小于路径末尾元素时才继续递归，start 传 i+1 保证下标递增。",
+   "路径长度达到 2 就收进结果；长度不足 2 的节点不收。",
+   "元素范围是 [-100,100] 时也可以用定长数组代替 set 去重。"
+  ],
+  "cx": "时间 O(n·2^n)，空间 O(n)",
+  "trap": "千万不要排序，排完序所有子序列都递增；无序数组上全局 used 数组去重会失效。",
+  "code": "class Solution:\n    def findSubsequences(self, nums: List[int]) -> List[List[int]]:\n        res, path = [], []\n\n        def dfs(start):\n            if len(path) >= 2:\n                res.append(path[:])\n            used = set()\n            for i in range(start, len(nums)):\n                if nums[i] in used:\n                    continue\n                if path and nums[i] < path[-1]:\n                    continue\n                used.add(nums[i])\n                path.append(nums[i])\n                dfs(i + 1)\n                path.pop()\n\n        dfs(0)\n        return res",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    res, path = [], []\n\n    def dfs(start):\n        if len(path) >= 2:\n            res.append(path[:])\n        used = set()\n        for i in range(start, n):\n            if nums[i] in used:\n                continue\n            if path and nums[i] < path[-1]:\n                continue\n            used.add(nums[i])\n            path.append(nums[i])\n            dfs(i + 1)\n            path.pop()\n\n    dfs(0)\n    res.sort()\n    print(\"[\" + \",\".join(\"[\" + \",\".join(map(str, x)) + \"]\" for x in res) + \"]\")\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "4\n4 6 7 7\n",
+    "[[4,6],[4,6,7],[4,6,7,7],[4,7],[4,7,7],[6,7],[6,7,7],[7,7]]"
+   ],
+   [
+    "3\n4 7 6\n",
+    "[[4,6],[4,7]]"
+   ],
+   [
+    "2\n1 1\n",
+    "[[1,1]]"
+   ]
+  ]
+ },
+ {
+  "id": "122",
+  "num": 122,
+  "title": "买卖股票的最佳时机II",
+  "diff": "中等",
+  "tags": "贪心,数组",
+  "stmt": "给定每日股价，可多次买卖但同一时间只能持一股，求能获得的最大利润。",
+  "ex": "prices = [7,1,5,3,6,4] → 7",
+  "key": "把所有相邻两天的上涨差价加起来就是答案",
+  "idea": [
+   "贪心：只在相邻两天涨价时做一次买卖，吃掉每一段上涨。",
+   "累加 max(0, prices[i]-prices[i-1])，跨多天的上涨被拆成多笔等价收益。",
+   "每一段的局部最优相加就是全局最优，不需要考虑持有多少天。",
+   "也可以写持有/不持有两状态的 DP，两种写法结果相同。",
+   "长度小于 2 时没有交易可做，返回 0。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "只累加正差价；跌的那一天不要算进收益，也别漏掉第一天不能卖的限制。",
+  "code": "class Solution:\n    def maxProfit(self, prices: List[int]) -> int:\n        profit = 0\n        for i in range(1, len(prices)):\n            if prices[i] > prices[i - 1]:\n                profit += prices[i] - prices[i - 1]\n        return profit",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    prices = [int(x) for x in data[1:1 + n]]\n    profit = 0\n    for i in range(1, n):\n        if prices[i] > prices[i - 1]:\n            profit += prices[i] - prices[i - 1]\n    print(profit)\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "6\n7 1 5 3 6 4\n",
+    "7"
+   ],
+   [
+    "5\n1 2 3 4 5\n",
+    "4"
+   ],
+   [
+    "5\n7 6 4 3 1\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "134",
+  "num": 134,
+  "title": "加油站",
+  "diff": "中等",
+  "tags": "贪心,一次遍历",
+  "stmt": "环路上第 i 站有 gas[i] 升油，开到下一站耗 cost[i] 升，求能绕一圈的起点。",
+  "ex": "gas = [1,2,3,4,5], cost = [3,4,5,1,2] → 3",
+  "key": "总和不够就返回 -1，够就 reset 到耗尽点的下一站",
+  "idea": [
+   "先看总加油量减总耗油量，为负一定无解，直接返回 -1。",
+   "从 0 号站开始累加当前剩余油量，一旦变成负数，说明这段路从其中任何一点起跑都走不通。",
+   "于是把起点改成 i+1、剩余油量清零，继续向后扫。",
+   "有解时答案唯一，扫完返回记录的起点即可。",
+   "全程一次遍历，不需要每个点都模拟绕圈。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "reset 的起点是 i+1 而不是 i；忘了判总油量是否为负会返回错误下标。",
+  "code": "class Solution:\n    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -> int:\n        total = cur = 0\n        start = 0\n        for i in range(len(gas)):\n            diff = gas[i] - cost[i]\n            total += diff\n            cur += diff\n            if cur < 0:\n                start = i + 1\n                cur = 0\n        return start if total >= 0 else -1",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    gas = [int(x) for x in data[idx:idx + n]]; idx += n\n    cost = [int(x) for x in data[idx:idx + n]]\n    total = cur = 0\n    start = 0\n    for i in range(n):\n        diff = gas[i] - cost[i]\n        total += diff\n        cur += diff\n        if cur < 0:\n            start = i + 1\n            cur = 0\n    print(start if total >= 0 else -1)\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "5\n1 2 3 4 5\n3 4 5 1 2\n",
+    "3"
+   ],
+   [
+    "3\n2 3 4\n3 4 3\n",
+    "-1"
+   ],
+   [
+    "1\n5\n4\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "135",
+  "num": 135,
+  "title": "分发糖果",
+  "diff": "困难",
+  "tags": "贪心,两次遍历",
+  "stmt": "每个孩子至少 1 颗糖，相邻孩子中评分高的必须更多，求最少需要的糖果总数。",
+  "ex": "ratings = [1,0,2] → 5",
+  "key": "左到右补上升，右到左补下降，第二趟取 max",
+  "idea": [
+   "两个维度不能一起贪，先只看「右边比左边高」，再只看「左边比右边高」。",
+   "从左到右：右边评分更高就比左边多一颗糖。",
+   "从右到左：左边评分更高时取 max(自己的糖, 右边糖数加一)。",
+   "第二趟必须取 max，否则会把第一趟已满足的左邻约束改坏。",
+   "相邻评分相等时不加糖，最终求和即最少总数。"
+  ],
+  "cx": "时间 O(n)，空间 O(n)",
+  "trap": "右往左那趟直接赋值而不取 max 是经典错误；相等评分不加糖。",
+  "code": "class Solution:\n    def candy(self, ratings: List[int]) -> int:\n        n = len(ratings)\n        candy = [1] * n\n        for i in range(1, n):\n            if ratings[i] > ratings[i - 1]:\n                candy[i] = candy[i - 1] + 1\n        for i in range(n - 2, -1, -1):\n            if ratings[i] > ratings[i + 1]:\n                candy[i] = max(candy[i], candy[i + 1] + 1)\n        return sum(candy)",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    ratings = [int(x) for x in data[1:1 + n]]\n    candy = [1] * n\n    for i in range(1, n):\n        if ratings[i] > ratings[i - 1]:\n            candy[i] = candy[i - 1] + 1\n    for i in range(n - 2, -1, -1):\n        if ratings[i] > ratings[i + 1]:\n            candy[i] = max(candy[i], candy[i + 1] + 1)\n    print(sum(candy))\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "3\n1 0 2\n",
+    "5"
+   ],
+   [
+    "3\n1 2 2\n",
+    "4"
+   ],
+   [
+    "5\n1 2 87 87 87\n",
+    "8"
+   ]
+  ]
+ },
+ {
+  "id": "376",
+  "num": 376,
+  "title": "摆动序列",
+  "diff": "中等",
+  "tags": "贪心,数组,差分",
+  "stmt": "求数组的最长摆动子序列长度，相邻元素的差值必须正负严格交替。",
+  "ex": "nums = [1,7,4,9,2,5] → 6",
+  "key": "只数趋势拐点，平坡不计，答案至少是 1",
+  "idea": [
+   "摆动序列只关心相邻差值符号的交替，连续同向的一段可以压缩成一个拐点。",
+   "记录上一个非零差值的符号，符号翻转就说明多了一个摆动点。",
+   "差值为 0 时跳过，平坡不改变方向也不产生新元素。",
+   "结果至少为 1，长度小于 2 时直接返回长度。",
+   "也可以用 up/down 两个变量的 DP 写，本质相同。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "全相等数组答案是 1；只在符号真正翻转时计数，别把平坡当成摆动。",
+  "code": "class Solution:\n    def wiggleMaxLength(self, nums: List[int]) -> int:\n        if len(nums) < 2:\n            return len(nums)\n        res, prev = 1, 0\n        for i in range(1, len(nums)):\n            diff = nums[i] - nums[i - 1]\n            if diff == 0:\n                continue\n            cur = 1 if diff > 0 else -1\n            if cur != prev:\n                res += 1\n                prev = cur\n        return res",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    if n < 2:\n        print(n)\n        return\n    res, prev = 1, 0\n    for i in range(1, n):\n        diff = nums[i] - nums[i - 1]\n        if diff == 0:\n            continue\n        cur = 1 if diff > 0 else -1\n        if cur != prev:\n            res += 1\n            prev = cur\n    print(res)\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "6\n1 7 4 9 2 5\n",
+    "6"
+   ],
+   [
+    "9\n1 2 3 4 5 6 7 8 9\n",
+    "2"
+   ],
+   [
+    "3\n3 3 3\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "406",
+  "num": 406,
+  "title": "根据身高重建队列",
+  "diff": "中等",
+  "tags": "贪心,排序,插入",
+  "stmt": "给 [身高, 前面不矮于自己的人数] 数组，重建出满足条件的队列并返回。",
+  "ex": "people = [[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]] → [[5,0],[7,0],[5,2],[6,1],[4,4],[7,1]]",
+  "key": "高的先站好，按 k 插进去，矮的插前面不影响",
+  "idea": [
+   "两个维度先固定一个：身高降序排，身高相同则按 k 升序排。",
+   "这样依次处理时前面站好的人都不矮于自己，k 就是该插入的下标。",
+   "用列表 insert(k, person) 插入，后面的高个子计数不受影响。",
+   "矮个子插到前面只增加更矮的人，不会改动 k 的语义。",
+   "插入是 O(n)，总复杂度 O(n^2)，n≤2000 足够。"
+  ],
+  "cx": "时间 O(n^2)，空间 O(n)",
+  "trap": "排序必须身高降序且 k 升序；两者写反会让同身高的人互相挤错位置。",
+  "code": "class Solution:\n    def reconstructQueue(self, people: List[List[int]]) -> List[List[int]]:\n        people.sort(key=lambda p: (-p[0], p[1]))\n        queue = []\n        for p in people:\n            queue.insert(p[1], p)\n        return queue",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m = int(data[0])\n    idx = 1\n    people = []\n    for _ in range(m):\n        people.append([int(data[idx]), int(data[idx + 1])])\n        idx += 2\n    people.sort(key=lambda p: (-p[0], p[1]))\n    queue = []\n    for p in people:\n        queue.insert(p[1], p)\n    print(\"[\" + \",\".join(\"[\" + \",\".join(map(str, x)) + \"]\" for x in queue) + \"]\")\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "6\n7 0\n4 4\n7 1\n5 0\n6 1\n5 2\n",
+    "[[5,0],[7,0],[5,2],[6,1],[4,4],[7,1]]"
+   ],
+   [
+    "6\n6 0\n5 0\n4 0\n3 2\n2 2\n1 4\n",
+    "[[4,0],[5,0],[2,2],[3,2],[1,4],[6,0]]"
+   ]
+  ]
+ },
+ {
+  "id": "435",
+  "num": 435,
+  "title": "无重叠区间",
+  "diff": "中等",
+  "tags": "贪心,区间排序",
+  "stmt": "给定区间数组，求最少移除多少个区间，才能让剩下的区间互不重叠。",
+  "ex": "intervals = [[1,2],[2,3],[3,4],[1,3]] → 1",
+  "key": "按右端点排队，能留就留，冲突就删一个",
+  "idea": [
+   "等价于问「最多能留下几个互不重叠的区间」，答案 = 总数 - 最多保留数。",
+   "按右端点升序排序，优先保留结束最早的区间，给后面留最大空间。",
+   "记一个上一个保留区间的右端 end，当前区间左端 ≥ end 就保留并更新 end。",
+   "否则当前区间与已选区间冲突，需要移除，计数加一。",
+   "端点相接不算重叠，如 [1,2] 与 [2,3] 可以共存。"
+  ],
+  "cx": "时间 O(n log n)，空间 O(1)",
+  "trap": "判断冲突用「左端 < end」；按左端点排序也能做，但保留时 end 要取 min。",
+  "code": "class Solution:\n    def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:\n        intervals.sort(key=lambda x: x[1])\n        removed = 0\n        end = None\n        for a, b in intervals:\n            if end is None or a >= end:\n                end = b\n            else:\n                removed += 1\n        return removed",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m = int(data[0])\n    idx = 1\n    intervals = []\n    for _ in range(m):\n        intervals.append([int(data[idx]), int(data[idx + 1])])\n        idx += 2\n    intervals.sort(key=lambda x: x[1])\n    removed = 0\n    end = None\n    for a, b in intervals:\n        if end is None or a >= end:\n            end = b\n        else:\n            removed += 1\n    print(removed)\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "4\n1 2\n2 3\n3 4\n1 3\n",
+    "1"
+   ],
+   [
+    "3\n1 2\n1 2\n1 2\n",
+    "2"
+   ],
+   [
+    "2\n1 2\n2 3\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "452",
+  "num": 452,
+  "title": "用最少数量的箭引爆气球",
+  "diff": "中等",
+  "tags": "贪心,区间排序",
+  "stmt": "气球用 [start,end] 表示，一支箭可穿透多个，求引爆全部气球的最少箭数。",
+  "ex": "points = [[10,16],[2,8],[1,6],[7,12]] → 2",
+  "key": "按右端排好队，一箭尽量穿到底再换箭",
+  "idea": [
+   "和区间调度同源：按右端点升序排序，箭射在当前最靠左的右端点上覆盖最多。",
+   "第一支箭的位置就是第一个区间的右端。",
+   "向后扫描，某区间左端大于箭的位置说明射不到，箭数加一、箭移到它的右端。",
+   "排序后一次扫描即可，不必真的合并区间。",
+   "空数组返回 0；端点相接的区间可以被同一支箭穿透。"
+  ],
+  "cx": "时间 O(n log n)，空间 O(1)",
+  "trap": "判断条件是「左端 > 箭的位置」；更新箭位用当前区间的右端，别用左端。",
+  "code": "class Solution:\n    def findMinArrowShots(self, points: List[List[int]]) -> int:\n        if not points:\n            return 0\n        points.sort(key=lambda x: x[1])\n        arrows = 1\n        pos = points[0][1]\n        for a, b in points:\n            if a > pos:\n                arrows += 1\n                pos = b\n        return arrows",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m = int(data[0])\n    if m == 0:\n        print(0)\n        return\n    idx = 1\n    points = []\n    for _ in range(m):\n        points.append([int(data[idx]), int(data[idx + 1])])\n        idx += 2\n    points.sort(key=lambda x: x[1])\n    arrows = 1\n    pos = points[0][1]\n    for a, b in points:\n        if a > pos:\n            arrows += 1\n            pos = b\n    print(arrows)\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "4\n10 16\n2 8\n1 6\n7 12\n",
+    "2"
+   ],
+   [
+    "4\n1 2\n3 4\n5 6\n7 8\n",
+    "4"
+   ],
+   [
+    "4\n1 2\n2 3\n3 4\n4 5\n",
+    "2"
+   ]
+  ]
+ },
+ {
+  "id": "455",
+  "num": 455,
+  "title": "分发饼干",
+  "diff": "简单",
+  "tags": "贪心,排序,双指针",
+  "stmt": "孩子胃口 g、饼干尺寸 s，每块饼干最多给一个孩子，求最多能满足几个孩子。",
+  "ex": "g = [1,2,3], s = [1,1] → 1",
+  "key": "都排序，小饼干先喂小胃口，喂不动就换大饼干",
+  "idea": [
+   "两个数组都升序排序，用双指针从小到大配对。",
+   "饼干 s[j] 能满足 g[i] 就两个指针同时后移，否则只换更大的饼干。",
+   "小饼干喂小胃口，才不会浪费大饼干，这是贪心的局部最优。",
+   "任一数组走完就结束，i 就是被满足的孩子数。",
+   "也可以从大到小配对，结论一致。"
+  ],
+  "cx": "时间 O(m log m + n log n)，空间 O(1)",
+  "trap": "必须小饼干配小胃口；用大饼干去喂小胃口会让后面的大胃口无人可喂。",
+  "code": "class Solution:\n    def findContentChildren(self, g: List[int], s: List[int]) -> int:\n        g.sort()\n        s.sort()\n        i = j = 0\n        while i < len(g) and j < len(s):\n            if s[j] >= g[i]:\n                i += 1\n            j += 1\n        return i",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    g = [int(x) for x in data[idx:idx + n]]; idx += n\n    m = int(data[idx]); idx += 1\n    s = [int(x) for x in data[idx:idx + m]]\n    g.sort()\n    s.sort()\n    i = j = 0\n    while i < n and j < m:\n        if s[j] >= g[i]:\n            i += 1\n        j += 1\n    print(i)\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "3\n1 2 3\n2\n1 1\n",
+    "1"
+   ],
+   [
+    "2\n1 2\n3\n1 2 3\n",
+    "2"
+   ],
+   [
+    "3\n10 9 8\n3\n9 8 10\n",
+    "3"
+   ]
+  ]
+ },
+ {
+  "id": "738",
+  "num": 738,
+  "title": "单调递增的数字",
+  "diff": "中等",
+  "tags": "贪心,数字处理",
+  "stmt": "给非负整数 n，求不大于 n 且各位数字从左到右单调递增的最大整数。",
+  "ex": "n = 332 → 299",
+  "key": "找到降位前一位减一，后面全变 9",
+  "idea": [
+   "把数字转成字符数组，从右往左找 s[i-1] > s[i] 的降位。",
+   "一发现降位，就让 s[i-1] 减一，并把 i 及其之后全部置成 '9'。",
+   "减一可能在更靠左的位置造出新的降位，所以要从右往左一路扫回去。",
+   "前导 0 会在 int 转换时自动去掉，比如 100 得到 99。",
+   "本身就是递增的数字不做改动，直接返回 n。"
+  ],
+  "cx": "时间 O(log n)，空间 O(log n)",
+  "trap": "只处理第一个降位不够，要一路往左修正；否则 332 会被改成 329。",
+  "code": "class Solution:\n    def monotoneIncreasingDigits(self, n: int) -> int:\n        s = list(str(n))\n        L = len(s)\n        for i in range(L - 1, 0, -1):\n            if s[i - 1] > s[i]:\n                s[i - 1] = str(int(s[i - 1]) - 1)\n                for j in range(i, L):\n                    s[j] = \"9\"\n        return int(\"\".join(s))",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    s = list(str(n))\n    L = len(s)\n    for i in range(L - 1, 0, -1):\n        if s[i - 1] > s[i]:\n            s[i - 1] = str(int(s[i - 1]) - 1)\n            for j in range(i, L):\n                s[j] = \"9\"\n    print(int(\"\".join(s)))\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "332\n",
+    "299"
+   ],
+   [
+    "10\n",
+    "9"
+   ],
+   [
+    "1234\n",
+    "1234"
+   ],
+   [
+    "100\n",
+    "99"
+   ]
+  ]
+ },
+ {
+  "id": "860",
+  "num": 860,
+  "title": "柠檬水找零",
+  "diff": "简单",
+  "tags": "贪心,模拟",
+  "stmt": "每杯柠檬水 5 美元，顾客依次付 5/10/20 美元，判断能否给每位正确找零。",
+  "ex": "bills = [5,5,5,10,20] → true",
+  "key": "收 20 先花 10 再花 5，5 块的最金贵",
+  "idea": [
+   "只需要维护手上 5 元和 10 元的张数，20 元不用找出去。",
+   "收 5 元直接加一；收 10 元必须找一张 5 元；收 20 元优先找 10+5。",
+   "优先消耗 10 元，因为 5 元更通用，能同时应付 10 元和 20 元两种找零。",
+   "任一步零钱不够立即返回 false，全部处理完返回 true。",
+   "整个过程一次遍历，不需要真的维护钞票序列。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "20 元找零必须先试 10+5 再试 5+5+5；顺序反了会在 [5,5,10,10,20] 上判错。",
+  "code": "class Solution:\n    def lemonadeChange(self, bills: List[int]) -> bool:\n        five = ten = 0\n        for b in bills:\n            if b == 5:\n                five += 1\n            elif b == 10:\n                if five == 0:\n                    return False\n                five -= 1\n                ten += 1\n            else:\n                if ten > 0 and five > 0:\n                    ten -= 1\n                    five -= 1\n                elif five >= 3:\n                    five -= 3\n                else:\n                    return False\n        return True",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    bills = [int(x) for x in data[1:1 + n]]\n    five = ten = 0\n    ok = True\n    for b in bills:\n        if b == 5:\n            five += 1\n        elif b == 10:\n            if five == 0:\n                ok = False\n                break\n            five -= 1\n            ten += 1\n        else:\n            if ten > 0 and five > 0:\n                ten -= 1\n                five -= 1\n            elif five >= 3:\n                five -= 3\n            else:\n                ok = False\n                break\n    print(\"true\" if ok else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "5\n5 5 5 10 20\n",
+    "true"
+   ],
+   [
+    "2\n10 10\n",
+    "false"
+   ],
+   [
+    "5\n5 5 10 10 20\n",
+    "false"
+   ],
+   [
+    "3\n5 5 10\n",
+    "true"
+   ]
+  ]
+ },
+ {
+  "id": "968",
+  "num": 968,
+  "title": "监控二叉树",
+  "diff": "困难",
+  "tags": "贪心,二叉树,后序遍历",
+  "stmt": "节点上的摄像头能覆盖自身、父节点和直接子节点，求覆盖整棵树的最少摄像头数。",
+  "ex": "root = [0,0,null,0,0] → 1",
+  "key": "自底向上后序贪心，摄像头放在叶子的父节点",
+  "idea": [
+   "摄像头越靠上覆盖越多，所以从叶子往上贪心，并且不在叶子节点上放。",
+   "用三个状态表示节点：0 无覆盖、1 装有摄像头、2 已被覆盖。",
+   "左右孩子都已被覆盖时，本节点暂时无覆盖，留给父节点处理。",
+   "只要有一个孩子无覆盖，就必须在本节点装摄像头，答案加一。",
+   "空节点当成「已被覆盖」，否则叶子节点会被迫装摄像头。"
+  ],
+  "cx": "时间 O(n)，空间 O(h)",
+  "trap": "空节点必须返回「已覆盖」；递归结束后根节点仍无覆盖要再补一台摄像头。",
+  "code": "class Solution:\n    def minCameraCover(self, root: Optional[TreeNode]) -> int:\n        self.res = 0\n\n        def dfs(node):\n            if node is None:\n                return 2\n            left = dfs(node.left)\n            right = dfs(node.right)\n            if left == 0 or right == 0:\n                self.res += 1\n                return 1\n            if left == 1 or right == 1:\n                return 2\n            return 0\n\n        if dfs(root) == 0:\n            self.res += 1\n        return self.res",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m = int(data[0])\n    vals = data[1:1 + m]\n    if not vals or vals[0] == \"null\":\n        print(0)\n        return\n    root = TreeNode(int(vals[0]))\n    queue = [root]\n    head = 0\n    i = 1\n    while head < len(queue) and i < m:\n        node = queue[head]\n        head += 1\n        if i < m:\n            if vals[i] != \"null\":\n                node.left = TreeNode(int(vals[i]))\n                queue.append(node.left)\n            i += 1\n        if i < m:\n            if vals[i] != \"null\":\n                node.right = TreeNode(int(vals[i]))\n                queue.append(node.right)\n            i += 1\n\n    res = 0\n\n    def dfs(node):\n        nonlocal res\n        if node is None:\n            return 2\n        left = dfs(node.left)\n        right = dfs(node.right)\n        if left == 0 or right == 0:\n            res += 1\n            return 1\n        if left == 1 or right == 1:\n            return 2\n        return 0\n\n    if dfs(root) == 0:\n        res += 1\n    print(res)\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "5 0 0 null 0 0\n",
+    "1"
+   ],
+   [
+    "9 0 0 null 0 null 0 null null 0\n",
+    "2"
+   ],
+   [
+    "1 0\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "1005",
+  "num": 1005,
+  "title": "K次取反后最大化的数组和",
+  "diff": "中等",
+  "tags": "贪心,排序",
+  "stmt": "可以任选元素取反共 k 次（同一元素可重复），求操作后数组可能的最大和。",
+  "ex": "nums = [4,2,3], k = 1 → 5",
+  "key": "先翻最负的，剩的次数折腾绝对值最小的数",
+  "idea": [
+   "先把数组升序排序，从最负的数开始取反，每次消耗一次 k。",
+   "负数被翻得越大收益越高，所以优先吃掉所有能吃的负数。",
+   "k 用完后直接求和；若 k 还有剩余就处理绝对值最小的元素。",
+   "剩余 k 为偶数时总和不变，为奇数时总和减去两倍最小值。",
+   "数组全为正数时同样走第三步，逻辑统一。"
+  ],
+  "cx": "时间 O(n log n)，空间 O(1)",
+  "trap": "k 没用完要按奇偶处理最小元素；漏掉这一步在 [2,-3,-1,5,-4], k=3 上会错。",
+  "code": "class Solution:\n    def largestSumAfterKNegations(self, nums: List[int], k: int) -> int:\n        nums.sort()\n        for i in range(len(nums)):\n            if k > 0 and nums[i] < 0:\n                nums[i] = -nums[i]\n                k -= 1\n        if k % 2 == 1:\n            nums.sort()\n            nums[0] = -nums[0]\n        return sum(nums)",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n, k = int(data[0]), int(data[1])\n    nums = [int(x) for x in data[2:2 + n]]\n    nums.sort()\n    for i in range(n):\n        if k > 0 and nums[i] < 0:\n            nums[i] = -nums[i]\n            k -= 1\n    if k % 2 == 1:\n        nums.sort()\n        nums[0] = -nums[0]\n    print(sum(nums))\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "3 1\n4 2 3\n",
+    "5"
+   ],
+   [
+    "4 3\n3 -1 0 2\n",
+    "6"
+   ],
+   [
+    "5 2\n2 -3 -1 5 -4\n",
+    "13"
+   ]
+  ]
+ },
+ {
+  "id": "1221",
+  "num": 1221,
+  "title": "分割平衡字符串",
+  "diff": "简单",
+  "tags": "贪心,计数,字符串",
+  "stmt": "平衡串中 L 与 R 数量相同，把 s 切成尽量多的平衡子串，返回最大段数。",
+  "ex": "s = \"RLRRLLRLRL\" → 4",
+  "key": "计数器归零就切一刀，切了几刀就是答案",
+  "idea": [
+   "一次遍历，遇到 L 加一、遇到 R 减一，计数器代表当前片段的收支。",
+   "计数器回到 0 就说明这一段 L 和 R 数量相等，可以切分，答案加一。",
+   "越早切越好，因为切出来的每一段本身都平衡，不会影响后面能否继续切。",
+   "题目保证整体平衡，所以最后计数器一定回到 0。",
+   "只需统计次数，不用真的去构造子串。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "每归零一次就加一，别把最后一段漏掉；开始前计数器要是 0。",
+  "code": "class Solution:\n    def balancedStringSplit(self, s: str) -> int:\n        res = cnt = 0\n        for ch in s:\n            cnt += 1 if ch == \"L\" else -1\n            if cnt == 0:\n                res += 1\n        return res",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s = data[0]\n    res = cnt = 0\n    for ch in s:\n        cnt += 1 if ch == \"L\" else -1\n        if cnt == 0:\n            res += 1\n    print(res)\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "RLRRLLRLRL\n",
+    "4"
+   ],
+   [
+    "RLLLLRRRLR\n",
+    "3"
+   ],
+   [
+    "LLLLRRRR\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "63",
+  "num": 63,
+  "title": "不同路径II",
+  "diff": "中等",
+  "tags": "动态规划,网格",
+  "stmt": "m×n 网格中 1 表示障碍，从左上到右下每次只能向右或向下，求不同路径数。",
+  "ex": "obstacleGrid = [[0,0,0],[0,1,0],[0,0,0]] → 2",
+  "key": "障碍格直接清零，第一行第一列遇障即断路",
+  "idea": [
+   "dp[i][j] 表示走到 (i,j) 的路径数，等于上方与左方之和。",
+   "格子有障碍时路径数直接设为 0，相当于把这条路切断。",
+   "初始化第一行第一列时一旦遇到障碍，后面全部为 0，不能无脑填 1。",
+   "起点本身是障碍则答案为 0。",
+   "可用一维滚动数组，dp[j] += dp[j-1] 表示从左边过来的路径。"
+  ],
+  "cx": "时间 O(m·n)，空间 O(m·n)",
+  "trap": "第一行第一列遇障后必须持续为 0；无障碍时才继承前一个格子的值。",
+  "code": "class Solution:\n    def uniquePathsWithObstacles(self, obstacleGrid: List[List[int]]) -> int:\n        m, n = len(obstacleGrid), len(obstacleGrid[0])\n        dp = [0] * n\n        dp[0] = 1\n        for i in range(m):\n            for j in range(n):\n                if obstacleGrid[i][j] == 1:\n                    dp[j] = 0\n                elif j > 0:\n                    dp[j] += dp[j - 1]\n        return dp[-1]",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m, n = int(data[0]), int(data[1])\n    grid = []\n    idx = 2\n    for i in range(m):\n        grid.append([int(x) for x in data[idx:idx + n]])\n        idx += n\n    dp = [0] * n\n    dp[0] = 1\n    for i in range(m):\n        for j in range(n):\n            if grid[i][j] == 1:\n                dp[j] = 0\n            elif j > 0:\n                dp[j] += dp[j - 1]\n    print(dp[-1])\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "3 3\n0 0 0\n0 1 0\n0 0 0\n",
+    "2"
+   ],
+   [
+    "2 2\n0 1\n0 0\n",
+    "1"
+   ],
+   [
+    "1 2\n0 1\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "96",
+  "num": 96,
+  "title": "不同的二叉搜索树",
+  "diff": "中等",
+  "tags": "动态规划,二叉搜索树,卡特兰数",
+  "stmt": "给定 n，求用 1~n 这些节点能组成的互不相同的二叉搜索树的个数。",
+  "ex": "n = 3 → 5",
+  "key": "枚举根，左右子树方案数相乘再累加",
+  "idea": [
+   "dp[i] 表示 i 个连续节点能构成的 BST 数量。",
+   "枚举根节点 j（1..i），左子树 j-1 个节点、右子树 i-j 个节点，方案数相乘。",
+   "dp[i] = sum(dp[j-1] * dp[i-j])，本质是卡特兰数。",
+   "初始化 dp[0]=1 表示空树也算一种方案，dp[1]=1。",
+   "从 2 递推到 n，答案是 dp[n]，n≤19 时仍在 int 范围内。"
+  ],
+  "cx": "时间 O(n^2)，空间 O(n)",
+  "trap": "dp[0] 必须初始化为 1，否则所有乘积都会变成 0。",
+  "code": "class Solution:\n    def numTrees(self, n: int) -> int:\n        dp = [0] * (n + 1)\n        dp[0] = 1\n        for i in range(1, n + 1):\n            for j in range(1, i + 1):\n                dp[i] += dp[j - 1] * dp[i - j]\n        return dp[n]",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    dp = [0] * (n + 1)\n    dp[0] = 1\n    for i in range(1, n + 1):\n        for j in range(1, i + 1):\n            dp[i] += dp[j - 1] * dp[i - j]\n    print(dp[n])\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "3\n",
+    "5"
+   ],
+   [
+    "1\n",
+    "1"
+   ],
+   [
+    "19\n",
+    "1767263190"
+   ]
+  ]
+ },
+ {
+  "id": "115",
+  "num": 115,
+  "title": "不同的子序列",
+  "diff": "困难",
+  "tags": "动态规划,子序列,字符串",
+  "stmt": "求字符串 s 的子序列中等于 t 的个数，删除字符不能改变剩余字符顺序。",
+  "ex": "s = \"rabbbit\", t = \"rabbit\" → 3",
+  "key": "字符相等时用与不用两种选择相加，不等只继承上边",
+  "idea": [
+   "dp[i][j] 表示 s 前 i 个字符中选出 t 前 j 个字符的方案数。",
+   "初始化 dp[i][0]=1（空串是任何串的子序列），dp[0][j>0]=0。",
+   "字符相等时用与不用两种情况相加：dp[i-1][j-1]+dp[i-1][j]。",
+   "不相等时只能不取，dp[i][j]=dp[i-1][j]。",
+   "可倒序压成一维；答案保证在 32 位有符号整数范围内。"
+  ],
+  "cx": "时间 O(m·n)，空间 O(m·n)",
+  "trap": "相等时漏掉 dp[i-1][j]（不用当前 s 字符）会少算，这是本题最易错的一步。",
+  "code": "class Solution:\n    def numDistinct(self, s: str, t: str) -> int:\n        m, n = len(s), len(t)\n        dp = [[0] * (n + 1) for _ in range(m + 1)]\n        for i in range(m + 1):\n            dp[i][0] = 1\n        for i in range(1, m + 1):\n            for j in range(1, n + 1):\n                if s[i - 1] == t[j - 1]:\n                    dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j]\n                else:\n                    dp[i][j] = dp[i - 1][j]\n        return dp[m][n]",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s, t = data[0], data[1]\n    m, n = len(s), len(t)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(m + 1):\n        dp[i][0] = 1\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if s[i - 1] == t[j - 1]:\n                dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j]\n            else:\n                dp[i][j] = dp[i - 1][j]\n    print(dp[m][n])\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "rabbbit rabbit\n",
+    "3"
+   ],
+   [
+    "babgbag bag\n",
+    "5"
+   ],
+   [
+    "aaa a\n",
+    "3"
+   ]
+  ]
+ },
+ {
+  "id": "123",
+  "num": 123,
+  "title": "买卖股票的最佳时机III",
+  "diff": "困难",
+  "tags": "动态规划,状态机",
+  "stmt": "给定每日股价，最多完成两笔买卖，同一时间只能持一股，求最大利润。",
+  "ex": "prices = [3,3,5,0,0,3,1,4] → 6",
+  "key": "五状态滚动：没交易、一买、一卖、二买、二卖",
+  "idea": [
+   "用状态机描述：第一次持有、第一次卖出、第二次持有、第二次卖出。",
+   "每天按固定顺序更新：买入用前一个卖出状态减当日价，卖出用持有加当日价。",
+   "第一次买入相当于从未交易状态入场，初值取 -prices[0]。",
+   "两次卖出状态初值为 0，表示可以不交易。",
+   "原地按顺序更新即可，答案取第二次卖出的结果。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "buy1、buy2 必须初始化为 -prices[0]，全设 0 会让后续推导全部出错。",
+  "code": "class Solution:\n    def maxProfit(self, prices: List[int]) -> int:\n        buy1 = buy2 = -prices[0]\n        sell1 = sell2 = 0\n        for p in prices[1:]:\n            buy1 = max(buy1, -p)\n            sell1 = max(sell1, buy1 + p)\n            buy2 = max(buy2, sell1 - p)\n            sell2 = max(sell2, buy2 + p)\n        return sell2",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    prices = [int(x) for x in data[1:1 + n]]\n    buy1 = buy2 = -prices[0]\n    sell1 = sell2 = 0\n    for p in prices[1:]:\n        buy1 = max(buy1, -p)\n        sell1 = max(sell1, buy1 + p)\n        buy2 = max(buy2, sell1 - p)\n        sell2 = max(sell2, buy2 + p)\n    print(sell2)\n\n\nif __name__ == \"__main__\":\n    main()",
+  "tests": [
+   [
+    "8\n3 3 5 0 0 3 1 4\n",
+    "6"
+   ],
+   [
+    "5\n1 2 3 4 5\n",
+    "4"
+   ],
+   [
+    "5\n7 6 4 3 1\n",
+    "0"
+   ]
+  ]
+ }
+]

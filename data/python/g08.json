@@ -1,0 +1,728 @@
+[
+ {
+  "id": "116",
+  "num": 116,
+  "title": "填充每个节点的下一个右侧节点指针",
+  "diff": "中等",
+  "tags": "二叉树,层序遍历,next指针",
+  "stmt": "完美二叉树中把每一层的节点用 next 串起来，每层最后一个指向空，要求常量额外空间。",
+  "ex": "root = [1,2,3,4,5,6,7] → [1,#,2,3,#,4,5,6,7,#]",
+  "key": "上一层搭好的 next，就是下一层的桥",
+  "idea": [
+   "层序遍历最直观，但要求常量空间，改用已经建好的 next 当链表指针。",
+   "从最左节点 cur 出发，沿 next 走完这一层，同时给下一层接线。",
+   "左孩子必接右孩子：cur.left.next = cur.right。",
+   "右孩子接 cur.next 的左孩子，cur.next 为空就保持 None。",
+   "一层接完 cur = cur.left 下沉，直到 cur.left 为空即到叶子层。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "跨父节点那根线要用 cur.next.left，漏掉就只有同一父节点内的连线。",
+  "code": "class Solution:\n    def connect(self, root: 'Optional[Node]') -> 'Optional[Node]':\n        if not root:\n            return None\n        cur = root\n        while cur.left:\n            head = cur\n            while head:\n                head.left.next = head.right\n                if head.next:\n                    head.right.next = head.next.left\n                head = head.next\n            cur = cur.left\n        return root\n",
+  "acm": "import sys\n\n\nclass Node:\n    def __init__(self, val=0, left=None, right=None, next=None):\n        self.val = val\n        self.left = left\n        self.right = right\n        self.next = next\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = Node(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = Node(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = Node(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    root = build(tokens(sys.stdin.read()))\n    cur = root\n    while cur and cur.left:\n        head = cur\n        while head:\n            head.left.next = head.right\n            if head.next:\n                head.right.next = head.next.left\n            head = head.next\n        cur = cur.left\n    out, q = [], [root] if root else []\n    while q:\n        nxt = []\n        for n in q:\n            out.append(str(n.val))\n            if n.left:\n                nxt.append(n.left)\n            if n.right:\n                nxt.append(n.right)\n        out.append('#')\n        q = nxt\n    print('[' + ','.join(out) + ']' if out else '[]')\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "1,2,3,4,5,6,7",
+    "[1,#,2,3,#,4,5,6,7,#]"
+   ],
+   [
+    "1",
+    "[1,#]"
+   ],
+   [
+    "1,2,3",
+    "[1,#,2,3,#]"
+   ]
+  ]
+ },
+ {
+  "id": "129",
+  "num": 129,
+  "title": "求根到叶子节点数字之和",
+  "diff": "中等",
+  "tags": "二叉树,DFS,数字拼接",
+  "stmt": "把每条从根到叶子的路径上的数字依次拼成一个数，求所有路径数字之和。",
+  "ex": "root = [1,2,3] → 25",
+  "key": "往下走就乘十加当前值，到叶子就收",
+  "idea": [
+   "前序遍历把「到目前为止拼出的数」往下传，天然完成拼接。",
+   "进入节点先 cur = cur * 10 + node.val。",
+   "左右孩子都空说明到叶子，把 cur 加进答案。",
+   "空节点返回 0，用返回值相加的思路就不需要全局变量。",
+   "单节点树返回该值；节点值为 0 时也不能当空处理。"
+  ],
+  "cx": "时间 O(n)，空间 O(h)",
+  "trap": "叶子判定要放在非空节点上做，空节点提前返回 0，否则会把 None 算成一条路径。",
+  "code": "class Solution:\n    def sumNumbers(self, root: Optional[TreeNode]) -> int:\n        def dfs(node, cur):\n            if not node:\n                return 0\n            cur = cur * 10 + node.val\n            if not node.left and not node.right:\n                return cur\n            return dfs(node.left, cur) + dfs(node.right, cur)\n\n        return dfs(root, 0)\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    root = build(tokens(sys.stdin.read()))\n\n    def dfs(node, cur):\n        if not node:\n            return 0\n        cur = cur * 10 + node.val\n        if not node.left and not node.right:\n            return cur\n        return dfs(node.left, cur) + dfs(node.right, cur)\n\n    print(dfs(root, 0))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "1,2,3",
+    "25"
+   ],
+   [
+    "4,9,0,5,1",
+    "1026"
+   ],
+   [
+    "0",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "222",
+  "num": 222,
+  "title": "完全二叉树的节点个数",
+  "diff": "中等",
+  "tags": "完全二叉树,递归,满二叉树",
+  "stmt": "给一棵完全二叉树，求节点个数，要求比逐个遍历更快。",
+  "ex": "root = [1,2,3,4,5,6] → 6",
+  "key": "左右等高就是整棵满树，公式直接算",
+  "idea": [
+   "普通递归数节点是 O(n)，完全二叉树可以整块套满二叉树公式。",
+   "分别沿最左链求左子树、右子树的高度，都只看 left 指针。",
+   "两高度相等说明左子树是满的，节点数 2^lh，再递归右子树。",
+   "高度不等说明右子树是满的，节点数 2^rh，再递归左子树。",
+   "整棵最多下沉 O(log n) 层，每层算高度 O(log n)。"
+  ],
+  "cx": "时间 O(log²n)，空间 O(log n)",
+  "trap": "高度只沿左链数，不要真去遍历整棵子树，否则退化成 O(n)。",
+  "code": "class Solution:\n    def countNodes(self, root: Optional[TreeNode]) -> int:\n        if not root:\n            return 0\n        lh = self.height(root.left)\n        rh = self.height(root.right)\n        if lh == rh:\n            return (1 << lh) + self.countNodes(root.right)\n        return (1 << rh) + self.countNodes(root.left)\n\n    def height(self, node: Optional[TreeNode]) -> int:\n        h = 0\n        while node:\n            h += 1\n            node = node.left\n        return h\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    root = build(tokens(sys.stdin.read()))\n\n    def height(node):\n        h = 0\n        while node:\n            h += 1\n            node = node.left\n        return h\n\n    def count(node):\n        if not node:\n            return 0\n        lh, rh = height(node.left), height(node.right)\n        if lh == rh:\n            return (1 << lh) + count(node.right)\n        return (1 << rh) + count(node.left)\n\n    print(count(root))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "1,2,3,4,5,6",
+    "6"
+   ],
+   [
+    "1",
+    "1"
+   ],
+   [
+    "[]",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "235",
+  "num": 235,
+  "title": "二叉搜索树的最近公共祖先",
+  "diff": "中等",
+  "tags": "二叉搜索树,迭代,最近公共祖先",
+  "stmt": "在二叉搜索树中给定两个节点，求它们的最近公共祖先节点。",
+  "ex": "root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8 → 6",
+  "key": "第一次落在 p、q 中间，就是答案",
+  "idea": [
+   "BST 有序，从上往下只走一条路径就够，不需要回溯。",
+   "当前值同时大于 p、q，两者都在左子树，往左走。",
+   "当前值同时小于 p、q，往右走。",
+   "其余情况（含等于 p 或 q）当前节点就是最近公共祖先。",
+   "迭代实现，走到空说明不存在，返回 None。"
+  ],
+  "cx": "时间 O(h)，空间 O(1)",
+  "trap": "祖先可以是 p 本身，判断要写成「不同侧」，别用严格的开区间。",
+  "code": "class Solution:\n    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode',\n                             q: 'TreeNode') -> 'TreeNode':\n        while root:\n            if root.val > p.val and root.val > q.val:\n                root = root.left\n            elif root.val < p.val and root.val < q.val:\n                root = root.right\n            else:\n                return root\n        return None\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    lines = [ln for ln in sys.stdin.read().splitlines() if ln.strip()]\n    root = build(tokens(lines[0]))\n    p, q = map(int, lines[1].split()[:2])\n    while root:\n        if root.val > p and root.val > q:\n            root = root.left\n        elif root.val < p and root.val < q:\n            root = root.right\n        else:\n            break\n    print(root.val if root else 'null')\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "6,2,8,0,4,7,9,null,null,3,5\n2 8",
+    "6"
+   ],
+   [
+    "6,2,8,0,4,7,9,null,null,3,5\n2 4",
+    "2"
+   ],
+   [
+    "2,1\n1 2",
+    "2"
+   ]
+  ]
+ },
+ {
+  "id": "257",
+  "num": 257,
+  "title": "二叉树的所有路径",
+  "diff": "简单",
+  "tags": "二叉树,前序遍历,回溯",
+  "stmt": "返回二叉树中所有从根节点到叶子节点的路径，节点值用 -> 连接。",
+  "ex": "root = [1,2,3,null,5] → [\"1->2->5\",\"1->3\"]",
+  "key": "前序走到底收一条，回头时把尾巴弹掉",
+  "idea": [
+   "只有走到叶子才知道一条路径结束，所以用前序遍历加回溯。",
+   "path 直接存字符串，进入节点 append，离开节点 pop。",
+   "左右孩子都空时，把 '->'.join(path) 收进结果。",
+   "递归写在非空节点上，空节点直接返回，省掉一层判断。",
+   "单节点树返回一条只有一个值的路径。"
+  ],
+  "cx": "时间 O(n·h)，空间 O(h)",
+  "trap": "回溯的 pop 必须和递归配对放在一起，漏掉会串路径。",
+  "code": "class Solution:\n    def binaryTreePaths(self, root: Optional[TreeNode]) -> List[str]:\n        res, path = [], []\n\n        def dfs(node):\n            if not node:\n                return\n            path.append(str(node.val))\n            if not node.left and not node.right:\n                res.append('->'.join(path))\n            dfs(node.left)\n            dfs(node.right)\n            path.pop()\n\n        dfs(root)\n        return res\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    root = build(tokens(sys.stdin.read()))\n    res, path = [], []\n\n    def dfs(node):\n        if not node:\n            return\n        path.append(str(node.val))\n        if not node.left and not node.right:\n            res.append('->'.join(path))\n        dfs(node.left)\n        dfs(node.right)\n        path.pop()\n\n    dfs(root)\n    print('\\n'.join(res))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "1,2,3,null,5",
+    "1->2->5\n1->3"
+   ],
+   [
+    "1",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "404",
+  "num": 404,
+  "title": "左叶子之和",
+  "diff": "简单",
+  "tags": "二叉树,递归,叶子节点",
+  "stmt": "求二叉树中所有左叶子节点值之和，左叶子指父节点的左孩子且本身是叶子。",
+  "ex": "root = [3,9,20,null,null,15,7] → 24",
+  "key": "站在父节点上认左孩子，别自己当叶子",
+  "idea": [
+   "左叶子无法由自身判断，必须由父节点判断：左孩子存在且它左右都空。",
+   "后序遍历，先拿左子树、右子树的结果，再加本层的判断。",
+   "空节点返回 0，叶子节点也返回 0，因为它不可能是自己的左叶子。",
+   "返回值累加比全局变量干净，三个条件是逻辑与的关系。",
+   "整棵树只有右孩子是叶子时答案就是 0。"
+  ],
+  "cx": "时间 O(n)，空间 O(h)",
+  "trap": "别把「最左边的节点」当左叶子，判断必须三个条件都满足。",
+  "code": "class Solution:\n    def sumOfLeftLeaves(self, root: Optional[TreeNode]) -> int:\n        if not root:\n            return 0\n        total = 0\n        left = root.left\n        if left and not left.left and not left.right:\n            total += left.val\n        return total + self.sumOfLeftLeaves(root.left) \\\n            + self.sumOfLeftLeaves(root.right)\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    root = build(tokens(sys.stdin.read()))\n\n    def dfs(node):\n        if not node:\n            return 0\n        total = 0\n        left = node.left\n        if left and not left.left and not left.right:\n            total += left.val\n        return total + dfs(node.left) + dfs(node.right)\n\n    print(dfs(root))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "3,9,20,null,null,15,7",
+    "24"
+   ],
+   [
+    "1",
+    "0"
+   ],
+   [
+    "1,2,3,4,5",
+    "4"
+   ]
+  ]
+ },
+ {
+  "id": "450",
+  "num": 450,
+  "title": "删除二叉搜索树中的节点",
+  "diff": "中等",
+  "tags": "二叉搜索树,递归,删除节点",
+  "stmt": "删除二叉搜索树中值为 key 的节点，保持 BST 性质，返回新的根。",
+  "ex": "root = [5,3,6,2,4,null,7], key = 3 → [5,4,6,2,null,null,7]",
+  "key": "两边都在，就把左子树挂到右子树最左",
+  "idea": [
+   "按 BST 规则递归定位 key，走到空说明不存在，返回 None。",
+   "找到后分情况：叶子返回 None；只有一边就把那一边顶上来。",
+   "两边都有时，找右子树最左节点（后继），把左子树接到它的左孩子上。",
+   "递归返回值直接赋给父节点的 left / right，省去记录父节点。",
+   "时间 O(h)，树退化成链时是 O(n)。"
+  ],
+  "cx": "时间 O(h)，空间 O(h)",
+  "trap": "两边都在时不要新建节点，先把左子树接到右子树最左再返回右子树。",
+  "code": "class Solution:\n    def deleteNode(self, root: Optional[TreeNode], key: int) -> Optional[TreeNode]:\n        if not root:\n            return None\n        if key < root.val:\n            root.left = self.deleteNode(root.left, key)\n        elif key > root.val:\n            root.right = self.deleteNode(root.right, key)\n        else:\n            if not root.left:\n                return root.right\n            if not root.right:\n                return root.left\n            cur = root.right\n            while cur.left:\n                cur = cur.left\n            cur.left = root.left\n            return root.right\n        return root\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    lines = [ln for ln in sys.stdin.read().splitlines() if ln.strip()]\n    root = build(tokens(lines[0]))\n    key = int(lines[1].split()[0])\n\n    def delete(node, k):\n        if not node:\n            return None\n        if k < node.val:\n            node.left = delete(node.left, k)\n        elif k > node.val:\n            node.right = delete(node.right, k)\n        else:\n            if not node.left:\n                return node.right\n            if not node.right:\n                return node.left\n            cur = node.right\n            while cur.left:\n                cur = cur.left\n            cur.left = node.left\n            return node.right\n        return node\n\n    print(dump(delete(root, key)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "5,3,6,2,4,null,7\n3",
+    "[5,4,6,2,null,null,7]"
+   ],
+   [
+    "5,3,6,2,4,null,7\n0",
+    "[5,3,6,2,4,null,7]"
+   ],
+   [
+    "0\n0",
+    "[]"
+   ]
+  ]
+ },
+ {
+  "id": "501",
+  "num": 501,
+  "title": "二叉搜索树中的众数",
+  "diff": "简单",
+  "tags": "二叉搜索树,中序遍历,众数",
+  "stmt": "找出二叉搜索树中出现频率最高的所有值，顺序不限。",
+  "ex": "root = [1,null,2,2] → [2]",
+  "key": "中序就是有序数组，相同值必然挨着",
+  "idea": [
+   "中序遍历 BST 得到升序序列，相同值连续出现，只需比相邻。",
+   "pre 记上一个访问的值，cnt 记当前值已经出现几次。",
+   "cnt 超过 best 就清空结果换新众数；等于 best 就追加。",
+   "一趟遍历即可，不用哈希表，额外空间只有递归栈。",
+   "空树返回空列表，输出天然是升序。"
+  ],
+  "cx": "时间 O(n)，空间 O(h)",
+  "trap": "cnt 大于 best 时必须清空旧结果，只 append 会留下过期答案。",
+  "code": "class Solution:\n    def findMode(self, root: Optional[TreeNode]) -> List[int]:\n        res, best, cnt, pre = [], 0, 0, None\n\n        def dfs(node):\n            nonlocal best, cnt, pre, res\n            if not node:\n                return\n            dfs(node.left)\n            if pre is not None and pre == node.val:\n                cnt += 1\n            else:\n                cnt = 1\n            pre = node.val\n            if cnt > best:\n                best, res = cnt, [node.val]\n            elif cnt == best:\n                res.append(node.val)\n            dfs(node.right)\n\n        dfs(root)\n        return res\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    root = build(tokens(sys.stdin.read()))\n    res, best, cnt, pre = [], 0, 0, None\n\n    def dfs(node):\n        nonlocal best, cnt, pre, res\n        if not node:\n            return\n        dfs(node.left)\n        if pre is not None and pre == node.val:\n            cnt += 1\n        else:\n            cnt = 1\n        pre = node.val\n        if cnt > best:\n            best, res = cnt, [node.val]\n        elif cnt == best:\n            res.append(node.val)\n        dfs(node.right)\n\n    dfs(root)\n    print(' '.join(str(v) for v in res))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "1,null,2,2",
+    "2"
+   ],
+   [
+    "0",
+    "0"
+   ],
+   [
+    "1,null,2",
+    "1 2"
+   ]
+  ]
+ },
+ {
+  "id": "513",
+  "num": 513,
+  "title": "找树左下角的值",
+  "diff": "中等",
+  "tags": "二叉树,层序遍历,BFS",
+  "stmt": "求二叉树最后一行最左边的节点值。",
+  "ex": "root = [2,1,3] → 1",
+  "key": "层序遍历，每层第一个就是候选",
+  "idea": [
+   "最后一行最左，等价于层序 BFS 时每层的第一个节点，最后一层那个就是答案。",
+   "每进一层先把队首的值记下来，再整层扩展。",
+   "用整层替换的方式维护队列，避免 pop(0) 挪动数组。",
+   "DFS 也行：优先走左，深度比之前更大时更新答案。",
+   "空树不合法，题目保证至少一个节点。"
+  ],
+  "cx": "时间 O(n)，空间 O(w)",
+  "trap": "不是一路向左走到底，最左的叶子不一定出现在最后一行。",
+  "code": "class Solution:\n    def findBottomLeftValue(self, root: Optional[TreeNode]) -> int:\n        q, ans = [root], root.val\n        while q:\n            ans = q[0].val\n            nxt = []\n            for node in q:\n                if node.left:\n                    nxt.append(node.left)\n                if node.right:\n                    nxt.append(node.right)\n            q = nxt\n        return ans\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    root = build(tokens(sys.stdin.read()))\n    q, ans = [root], root.val\n    while q:\n        ans = q[0].val\n        nxt = []\n        for node in q:\n            if node.left:\n                nxt.append(node.left)\n            if node.right:\n                nxt.append(node.right)\n        q = nxt\n    print(ans)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "2,1,3",
+    "1"
+   ],
+   [
+    "1,2,3,4,null,5,6,null,null,7",
+    "7"
+   ]
+  ]
+ },
+ {
+  "id": "530",
+  "num": 530,
+  "title": "搜索树的最小绝对差",
+  "diff": "简单",
+  "tags": "二叉搜索树,中序遍历,双指针",
+  "stmt": "求二叉搜索树中任意两个节点值之差的绝对值的最小值。",
+  "ex": "root = [4,2,6,1,3] → 1",
+  "key": "中序有序，最小差只在相邻两个里",
+  "idea": [
+   "BST 中序得到升序数组，最小绝对差一定出现在相邻元素之间。",
+   "递归中序，用 pre 记住上一个访问到的值。",
+   "每到一个节点就更新 ans = min(ans, node.val - pre)。",
+   "不必真的开数组，边遍历边算，空间只花递归栈。",
+   "节点数至少 2，ans 初始设成正无穷。"
+  ],
+  "cx": "时间 O(n)，空间 O(h)",
+  "trap": "pre 第一次还是 None，不能直接相减，否则报类型错误。",
+  "code": "class Solution:\n    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:\n        ans, pre = float('inf'), None\n\n        def dfs(node):\n            nonlocal ans, pre\n            if not node:\n                return\n            dfs(node.left)\n            if pre is not None:\n                ans = min(ans, node.val - pre)\n            pre = node.val\n            dfs(node.right)\n\n        dfs(root)\n        return ans\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    root = build(tokens(sys.stdin.read()))\n    ans, pre = float('inf'), None\n\n    def dfs(node):\n        nonlocal ans, pre\n        if not node:\n            return\n        dfs(node.left)\n        if pre is not None:\n            ans = min(ans, node.val - pre)\n        pre = node.val\n        dfs(node.right)\n\n    dfs(root)\n    print(int(ans))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4,2,6,1,3",
+    "1"
+   ],
+   [
+    "1,0,48,null,null,12,49",
+    "1"
+   ],
+   [
+    "1,null,3",
+    "2"
+   ]
+  ]
+ },
+ {
+  "id": "538",
+  "num": 538,
+  "title": "把二叉搜索树转换为累加树",
+  "diff": "中等",
+  "tags": "二叉搜索树,反中序遍历,累加",
+  "stmt": "把每个节点的值改成原树中所有大于等于它的值之和，返回转换后的根。",
+  "ex": "root = [4,1,6,0,2,5,7,null,null,null,3,null,null,null,8] → [30,36,21,36,35,26,15,null,null,null,33,null,null,null,8]",
+  "key": "右中左反着走，一路累加写回",
+  "idea": [
+   "累加值本质是「从大到小的后缀和」。",
+   "BST 用右-中-左遍历，正好按降序访问每个节点。",
+   "维护一个 total，先递归右子树，再 total += node.val 并写回节点。",
+   "最后递归左子树；节点值是负数时这个顺序同样成立。",
+   "空树直接返回 None。"
+  ],
+  "cx": "时间 O(n)，空间 O(h)",
+  "trap": "顺序必须是右-中-左；写回的值是累加后的 total，不是原来的 val。",
+  "code": "class Solution:\n    def convertBST(self, root: Optional[TreeNode]) -> Optional[TreeNode]:\n        total = 0\n\n        def dfs(node):\n            nonlocal total\n            if not node:\n                return\n            dfs(node.right)\n            total += node.val\n            node.val = total\n            dfs(node.left)\n\n        dfs(root)\n        return root\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    root = build(tokens(sys.stdin.read()))\n    total = 0\n\n    def dfs(node):\n        nonlocal total\n        if not node:\n            return\n        dfs(node.right)\n        total += node.val\n        node.val = total\n        dfs(node.left)\n\n    dfs(root)\n    print(dump(root))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4,1,6,0,2,5,7,null,null,null,3,null,null,null,8",
+    "[30,36,21,36,35,26,15,null,null,null,33,null,null,null,8]"
+   ],
+   [
+    "0,null,1",
+    "[1,null,1]"
+   ],
+   [
+    "3,2,4,1",
+    "[7,9,4,10]"
+   ]
+  ]
+ },
+ {
+  "id": "617",
+  "num": 617,
+  "title": "合并两个二叉树",
+  "diff": "简单",
+  "tags": "二叉树,递归,合并",
+  "stmt": "按位置相加把两棵二叉树合并成一棵，只有一边有节点的位置直接搬过来。",
+  "ex": "t1 = [1,3,2,5], t2 = [2,1,3,null,4,null,7] → [3,4,5,5,4,null,7]",
+  "key": "一边空就把另一边整棵交回去",
+  "idea": [
+   "同时递归两棵树，参数是两个节点，返回合并后的节点。",
+   "某一边为空就直接返回另一边，整棵子树跟着挂上，这是最省的剪枝。",
+   "都不空就把值相加，再递归合并左右孩子。",
+   "可以直接复用 t1 的节点就地改值，不必新建。",
+   "前中后序都可以，因为没有依赖子结果的中间逻辑。"
+  ],
+  "cx": "时间 O(n+m)，空间 O(h)",
+  "trap": "返回 t2 或 t1 时是整棵子树跟着接上，不能只返回值。",
+  "code": "class Solution:\n    def mergeTrees(self, t1: Optional[TreeNode],\n                   t2: Optional[TreeNode]) -> Optional[TreeNode]:\n        if not t1:\n            return t2\n        if not t2:\n            return t1\n        t1.val += t2.val\n        t1.left = self.mergeTrees(t1.left, t2.left)\n        t1.right = self.mergeTrees(t1.right, t2.right)\n        return t1\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    lines = [ln for ln in sys.stdin.read().splitlines() if ln.strip()]\n    t1 = build(tokens(lines[0]))\n    t2 = build(tokens(lines[1])) if len(lines) > 1 else None\n\n    def merge(a, b):\n        if not a:\n            return b\n        if not b:\n            return a\n        a.val += b.val\n        a.left = merge(a.left, b.left)\n        a.right = merge(a.right, b.right)\n        return a\n\n    print(dump(merge(t1, t2)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "1,3,2,5\n2,1,3,null,4,null,7",
+    "[3,4,5,5,4,null,7]"
+   ],
+   [
+    "1\n1,2",
+    "[2,2]"
+   ],
+   [
+    "1,2,3\n[]",
+    "[1,2,3]"
+   ]
+  ]
+ },
+ {
+  "id": "654",
+  "num": 654,
+  "title": "最大二叉树",
+  "diff": "中等",
+  "tags": "二叉树,递归,分治建树",
+  "stmt": "用不含重复元素的数组构造最大二叉树：根是最大值，左右递归用两侧子数组。",
+  "ex": "nums = [3,2,1,6,0,5] → [6,3,5,null,2,0,null,null,1]",
+  "key": "每层先挑最大值当根，再把数组切两半",
+  "idea": [
+   "构造树先定根，所以用前序：先在区间里找最大值。",
+   "用 max 加 index 定位切分点，左侧 [0, i)、右侧 (i, end]。",
+   "递归构造左右子树挂上去，区间为空就返回 None。",
+   "切片写法最简洁，但每层找最大是 O(n)，总体 O(n²)。",
+   "题目保证元素互不相同，根唯一。"
+  ],
+  "cx": "时间 O(n²)，空间 O(n)",
+  "trap": "递归出口是区间为空而不是长度 1；切片右边界别写反。",
+  "code": "class Solution:\n    def constructMaximumBinaryTree(self, nums: List[int]) -> Optional[TreeNode]:\n        if not nums:\n            return None\n        i = nums.index(max(nums))\n        root = TreeNode(nums[i])\n        root.left = self.constructMaximumBinaryTree(nums[:i])\n        root.right = self.constructMaximumBinaryTree(nums[i + 1:])\n        return root\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    nums = [int(x) for x in tokens(sys.stdin.read())]\n\n    def build_max(sub):\n        if not sub:\n            return None\n        i = sub.index(max(sub))\n        node = TreeNode(sub[i])\n        node.left = build_max(sub[:i])\n        node.right = build_max(sub[i + 1:])\n        return node\n\n    print(dump(build_max(nums)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "3,2,1,6,0,5",
+    "[6,3,5,null,2,0,null,null,1]"
+   ],
+   [
+    "3,2,1",
+    "[3,null,2,null,1]"
+   ]
+  ]
+ },
+ {
+  "id": "669",
+  "num": 669,
+  "title": "修剪二叉搜索树",
+  "diff": "中等",
+  "tags": "二叉搜索树,递归,区间裁剪",
+  "stmt": "修剪二叉搜索树，只保留值落在 [low, high] 内的节点，返回新的根。",
+  "ex": "root = [1,0,2], low = 1, high = 2 → [1,null,2]",
+  "key": "越界的那一支别扔，还要往回收",
+  "idea": [
+   "节点小于 low：它和左子树都不要，但右子树里可能有合格节点，递归右。",
+   "节点大于 high：递归左子树，把结果返回上去。",
+   "落在区间内：递归修剪左右孩子并接回，最后返回自己。",
+   "核心是越界时返回「修剪后的那一边」，不是返回 None。",
+   "空节点返回 None，根节点可能被换掉。"
+  ],
+  "cx": "时间 O(n)，空间 O(h)",
+  "trap": "越界直接 return None 会连同合格后代一起丢掉，这是本题最大的坑。",
+  "code": "class Solution:\n    def trimBST(self, root: Optional[TreeNode], low: int,\n                high: int) -> Optional[TreeNode]:\n        if not root:\n            return None\n        if root.val < low:\n            return self.trimBST(root.right, low, high)\n        if root.val > high:\n            return self.trimBST(root.left, low, high)\n        root.left = self.trimBST(root.left, low, high)\n        root.right = self.trimBST(root.right, low, high)\n        return root\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    lines = [ln for ln in sys.stdin.read().splitlines() if ln.strip()]\n    root = build(tokens(lines[0]))\n    low, high = map(int, lines[1].split()[:2])\n\n    def trim(node):\n        if not node:\n            return None\n        if node.val < low:\n            return trim(node.right)\n        if node.val > high:\n            return trim(node.left)\n        node.left = trim(node.left)\n        node.right = trim(node.right)\n        return node\n\n    print(dump(trim(root)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "1,0,2\n1 2",
+    "[1,null,2]"
+   ],
+   [
+    "3,0,4,null,2,null,null,1\n1 3",
+    "[3,2,null,1]"
+   ]
+  ]
+ },
+ {
+  "id": "700",
+  "num": 700,
+  "title": "二叉搜索树中的搜索",
+  "diff": "简单",
+  "tags": "二叉搜索树,迭代,查找",
+  "stmt": "在二叉搜索树中查找值为 val 的节点，返回以它为根的子树，不存在返回空。",
+  "ex": "root = [4,2,7,1,3], val = 2 → [2,1,3]",
+  "key": "比大小走一条路，不用遍历全树",
+  "idea": [
+   "BST 有序，比较 val 与当前值就能决定往左还是往右。",
+   "迭代最省：while 循环到命中或走到空节点。",
+   "命中就返回当前节点，整棵子树随之返回。",
+   "走到空说明树里没有这个值，返回 None。",
+   "空树直接返回 None。"
+  ],
+  "cx": "时间 O(h)，空间 O(1)",
+  "trap": "别按普通二叉树前序遍历，那样白白浪费了 BST 的有序性。",
+  "code": "class Solution:\n    def searchBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:\n        while root and root.val != val:\n            root = root.left if val < root.val else root.right\n        return root\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    lines = [ln for ln in sys.stdin.read().splitlines() if ln.strip()]\n    root = build(tokens(lines[0]))\n    val = int(lines[1].split()[0])\n    while root and root.val != val:\n        root = root.left if val < root.val else root.right\n    print(dump(root))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4,2,7,1,3\n2",
+    "[2,1,3]"
+   ],
+   [
+    "4,2,7,1,3\n5",
+    "[]"
+   ]
+  ]
+ },
+ {
+  "id": "701",
+  "num": 701,
+  "title": "搜索树中的插入操作",
+  "diff": "中等",
+  "tags": "二叉搜索树,递归,插入",
+  "stmt": "往二叉搜索树中插入一个与现有节点值都不同的新值，返回插入后的根。",
+  "ex": "root = [4,2,7,1,3], val = 5 → [4,2,7,1,3,5]",
+  "key": "顺着大小走到空位，就地挂上",
+  "idea": [
+   "不需要重构树，按 BST 规则一路走到空节点插入即可。",
+   "递归函数返回插入后的子树根，父节点直接接住返回值。",
+   "空节点就是插入位置，新建节点返回。",
+   "val 比当前值小就递归左子树，否则递归右子树（题目保证不重复）。",
+   "空树时新节点就是根。"
+  ],
+  "cx": "时间 O(h)，空间 O(h)",
+  "trap": "必须写 root.left = ... 接住返回值，否则新节点挂不上去。",
+  "code": "class Solution:\n    def insertIntoBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:\n        if not root:\n            return TreeNode(val)\n        if val < root.val:\n            root.left = self.insertIntoBST(root.left, val)\n        else:\n            root.right = self.insertIntoBST(root.right, val)\n        return root\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    lines = [ln for ln in sys.stdin.read().splitlines() if ln.strip()]\n    root = build(tokens(lines[0]))\n    val = int(lines[1].split()[0])\n\n    def insert(node, v):\n        if not node:\n            return TreeNode(v)\n        if v < node.val:\n            node.left = insert(node.left, v)\n        else:\n            node.right = insert(node.right, v)\n        return node\n\n    print(dump(insert(root, val)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4,2,7,1,3\n5",
+    "[4,2,7,1,3,5]"
+   ],
+   [
+    "[]\n5",
+    "[5]"
+   ]
+  ]
+ },
+ {
+  "id": "1382",
+  "num": 1382,
+  "title": "将二叉搜索树变平衡",
+  "diff": "中等",
+  "tags": "二叉搜索树,中序遍历,分治建树",
+  "stmt": "把一棵二叉搜索树改造成高度平衡的二叉搜索树，节点值不变，返回任意一种。",
+  "ex": "root = [1,null,2,null,3,null,4] → [2,1,3,null,null,null,4]",
+  "key": "中序拿有序数组，每次取中点重建",
+  "idea": [
+   "平衡 BST 的中序仍是升序，所以先中序遍历拿到有序数组。",
+   "每次取区间中点当根，左右高度差自然不超过 1。",
+   "递归 [lo, mid-1] 建左子树，[mid+1, hi] 建右子树。",
+   "结果不唯一，中点偏左或偏右都能通过。",
+   "节点数最多 1e4，递归深度只有 O(log n)。"
+  ],
+  "cx": "时间 O(n)，空间 O(n)",
+  "trap": "用闭区间时子区间要排除 mid，写成 [lo, mid] 会死循环。",
+  "code": "class Solution:\n    def balanceBST(self, root: Optional[TreeNode]) -> Optional[TreeNode]:\n        vals = []\n\n        def inorder(node):\n            if not node:\n                return\n            inorder(node.left)\n            vals.append(node.val)\n            inorder(node.right)\n\n        def build(lo, hi):\n            if lo > hi:\n                return None\n            mid = (lo + hi) // 2\n            node = TreeNode(vals[mid])\n            node.left = build(lo, mid - 1)\n            node.right = build(mid + 1, hi)\n            return node\n\n        inorder(root)\n        return build(0, len(vals) - 1)\n",
+  "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == 'null':\n        return None\n    root = TreeNode(int(vals[0]))\n    q, i = [root], 1\n    while q and i < len(vals):\n        cur = q.pop(0)\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.left = TreeNode(int(vals[i]))\n                q.append(cur.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != 'null':\n                cur.right = TreeNode(int(vals[i]))\n                q.append(cur.right)\n            i += 1\n    return root\n\n\ndef dump(root):\n    if root is None:\n        return '[]'\n    out, q = [], [root]\n    while q:\n        n = q.pop(0)\n        if n is None:\n            out.append('null')\n        else:\n            out.append(str(n.val))\n            q.append(n.left)\n            q.append(n.right)\n    while out and out[-1] == 'null':\n        out.pop()\n    return '[' + ','.join(out) + ']'\n\n\ndef tokens(s):\n    return s.replace('[', ' ').replace(']', ' ').replace(',', ' ').split()\n\n\ndef main():\n    root = build(tokens(sys.stdin.read()))\n    vals = []\n\n    def inorder(node):\n        if not node:\n            return\n        inorder(node.left)\n        vals.append(node.val)\n        inorder(node.right)\n\n    def build_bal(lo, hi):\n        if lo > hi:\n            return None\n        mid = (lo + hi) // 2\n        node = TreeNode(vals[mid])\n        node.left = build_bal(lo, mid - 1)\n        node.right = build_bal(mid + 1, hi)\n        return node\n\n    inorder(root)\n    print(dump(build_bal(0, len(vals) - 1)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "1,null,2,null,3,null,4",
+    "[2,1,3,null,null,null,4]"
+   ],
+   [
+    "2,1,3",
+    "[2,1,3]"
+   ]
+  ]
+ },
+ {
+  "id": "37",
+  "num": 37,
+  "title": "解数独",
+  "diff": "困难",
+  "tags": "回溯,二维递归,集合判重",
+  "stmt": "填满 9×9 数独的空格，每行、每列、每宫 1-9 各出现一次，保证解唯一。",
+  "ex": "board 首行 \"53..7....\" → 解出首行 \"534678912\"，共 9 行填满",
+  "key": "空格试 1-9，不行就退回上一个",
+  "idea": [
+   "二维递归：外层两层循环找空格，内层试 1-9，填满即成功。",
+   "返回值用 bool，找到一个解立刻层层返回 True，不再继续搜索。",
+   "用 rows、cols、boxes 三个集合做 O(1) 的合法性判断。",
+   "某个空格 1-9 全试完都不行就 return False，整枝被剪掉。",
+   "不需要写递归终止条件，棋盘填满自然返回 True。"
+  ],
+  "cx": "时间 O(9^m)（m 为空位数），空间 O(m)",
+  "trap": "九个数试完必须 return False，漏了这一句会无限递归下去。",
+  "code": "class Solution:\n    def solveSudoku(self, board: List[List[str]]) -> None:\n        rows = [set() for _ in range(9)]\n        cols = [set() for _ in range(9)]\n        boxes = [set() for _ in range(9)]\n        for i in range(9):\n            for j in range(9):\n                c = board[i][j]\n                if c != '.':\n                    rows[i].add(c)\n                    cols[j].add(c)\n                    boxes[i // 3 * 3 + j // 3].add(c)\n\n        def dfs():\n            for i in range(9):\n                for j in range(9):\n                    if board[i][j] != '.':\n                        continue\n                    b = i // 3 * 3 + j // 3\n                    for c in '123456789':\n                        if c in rows[i] or c in cols[j] or c in boxes[b]:\n                            continue\n                        board[i][j] = c\n                        rows[i].add(c)\n                        cols[j].add(c)\n                        boxes[b].add(c)\n                        if dfs():\n                            return True\n                        board[i][j] = '.'\n                        rows[i].discard(c)\n                        cols[j].discard(c)\n                        boxes[b].discard(c)\n                    return False\n            return True\n\n        dfs()\n",
+  "acm": "import sys\n\n\ndef main():\n    rows_txt = sys.stdin.read().split()\n    board = [list(r) for r in rows_txt[:9]]\n    rows = [set() for _ in range(9)]\n    cols = [set() for _ in range(9)]\n    boxes = [set() for _ in range(9)]\n    for i in range(9):\n        for j in range(9):\n            c = board[i][j]\n            if c != '.':\n                rows[i].add(c)\n                cols[j].add(c)\n                boxes[i // 3 * 3 + j // 3].add(c)\n\n    def dfs():\n        for i in range(9):\n            for j in range(9):\n                if board[i][j] != '.':\n                    continue\n                b = i // 3 * 3 + j // 3\n                for c in '123456789':\n                    if c in rows[i] or c in cols[j] or c in boxes[b]:\n                        continue\n                    board[i][j] = c\n                    rows[i].add(c)\n                    cols[j].add(c)\n                    boxes[b].add(c)\n                    if dfs():\n                        return True\n                    board[i][j] = '.'\n                    rows[i].discard(c)\n                    cols[j].discard(c)\n                    boxes[b].discard(c)\n                return False\n        return True\n\n    dfs()\n    print('\\n'.join(''.join(r) for r in board))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "53..7....\n6..195...\n.98....6.\n8...6...3\n4..8.3..1\n7...2...6\n.6....28.\n...419..5\n....8..79",
+    "534678912\n672195348\n198342567\n859761423\n426853791\n713924856\n961537284\n287419635\n345286179"
+   ],
+   [
+    "8........\n..36.....\n.7..9.2..\n.5...7...\n....457..\n...1...3.\n..1....68\n..85...1.\n.9....4..",
+    "812753649\n943682175\n675491283\n154237896\n369845721\n287169534\n521974368\n438526917\n796318452"
+   ]
+  ]
+ },
+ {
+  "id": "40",
+  "num": 40,
+  "title": "组合总和II",
+  "diff": "中等",
+  "tags": "回溯,排序去重,组合",
+  "stmt": "数组含重复元素，每个数只能用一次，找出所有和为 target 的不重复组合。",
+  "ex": "candidates = [10,1,2,7,6,1,5], target = 8 → [[1,1,6],[1,2,5],[1,7],[2,6]]",
+  "key": "先排序，同一层跳重复，同一条路径不跳",
+  "idea": [
+   "先排序，让相同元素相邻，方便去重和提前剪枝。",
+   "递归带 start 参数，保证只往后取数，组合不会重复。",
+   "同一层里值和前一个相同时跳过，条件要带 i > start。",
+   "每个数只能用一次，递归下一层传 i + 1 而不是 i。",
+   "candidates[i] > rest 时直接 break，后面更大的更不行。"
+  ],
+  "cx": "时间 O(2^n)，空间 O(n)",
+  "trap": "去重条件必须带 i > start，否则会把同一条路径上的相同值也剪掉。",
+  "code": "class Solution:\n    def combinationSum2(self, candidates: List[int],\n                         target: int) -> List[List[int]]:\n        candidates.sort()\n        res, path = [], []\n\n        def dfs(start, rest):\n            if rest == 0:\n                res.append(path[:])\n                return\n            for i in range(start, len(candidates)):\n                if i > start and candidates[i] == candidates[i - 1]:\n                    continue\n                if candidates[i] > rest:\n                    break\n                path.append(candidates[i])\n                dfs(i + 1, rest - candidates[i])\n                path.pop()\n\n        dfs(0, target)\n        return res\n",
+  "acm": "import sys\n\n\ndef main():\n    lines = [ln for ln in sys.stdin.read().splitlines() if ln.strip()]\n    nums = [int(x) for x in\n            lines[0].replace('[', ' ').replace(']', ' ').replace(',', ' ').split()]\n    target = int(lines[1].split()[0])\n    nums.sort()\n    res, path = [], []\n\n    def dfs(start, rest):\n        if rest == 0:\n            res.append(path[:])\n            return\n        for i in range(start, len(nums)):\n            if i > start and nums[i] == nums[i - 1]:\n                continue\n            if nums[i] > rest:\n                break\n            path.append(nums[i])\n            dfs(i + 1, rest - nums[i])\n            path.pop()\n\n    dfs(0, target)\n    print('\\n'.join(' '.join(str(v) for v in c) for c in res))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "10,1,2,7,6,1,5\n8",
+    "1 1 6\n1 2 5\n1 7\n2 6"
+   ],
+   [
+    "2,5,2,1,2\n5",
+    "1 2 2\n5"
+   ]
+  ]
+ },
+ {
+  "id": "47",
+  "num": 47,
+  "title": "全排列II",
+  "diff": "中等",
+  "tags": "回溯,排序去重,排列",
+  "stmt": "给定可能含重复数字的数组，返回所有不重复的全排列。",
+  "ex": "nums = [1,1,2] → [[1,1,2],[1,2,1],[2,1,1]]",
+  "key": "排序加 used，同层相同值只取第一个",
+  "idea": [
+   "先排序让相同数字相邻，再用 used 数组标记哪些下标已经用过。",
+   "排列每层都从头扫，所以不用 start，改用 used 判断是否可选。",
+   "去重：i > 0 且 nums[i] == nums[i-1] 且 used[i-1] 为假时跳过。",
+   "used[i-1] 为假说明前一个相同数在本层没被用，属于同层重复。",
+   "path 长度等于 n 时收集，回溯时同时撤销 used 和 path。"
+  ],
+  "cx": "时间 O(n·n!)，空间 O(n)",
+  "trap": "去重里 used[i-1] 必须是假，写成真会剪掉本该保留的分支。",
+  "code": "class Solution:\n    def permuteUnique(self, nums: List[int]) -> List[List[int]]:\n        nums.sort()\n        res, path = [], []\n        used = [False] * len(nums)\n\n        def dfs():\n            if len(path) == len(nums):\n                res.append(path[:])\n                return\n            for i in range(len(nums)):\n                if used[i]:\n                    continue\n                if i > 0 and nums[i] == nums[i - 1] and not used[i - 1]:\n                    continue\n                used[i] = True\n                path.append(nums[i])\n                dfs()\n                path.pop()\n                used[i] = False\n\n        dfs()\n        return res\n",
+  "acm": "import sys\n\n\ndef main():\n    raw = sys.stdin.read().replace('[', ' ').replace(']', ' ').replace(',', ' ')\n    nums = [int(x) for x in raw.split()]\n    nums.sort()\n    res, path = [], []\n    used = [False] * len(nums)\n\n    def dfs():\n        if len(path) == len(nums):\n            res.append(path[:])\n            return\n        for i in range(len(nums)):\n            if used[i]:\n                continue\n            if i > 0 and nums[i] == nums[i - 1] and not used[i - 1]:\n                continue\n            used[i] = True\n            path.append(nums[i])\n            dfs()\n            path.pop()\n            used[i] = False\n\n    dfs()\n    print('\\n'.join(' '.join(str(v) for v in p) for p in res))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "1,1,2",
+    "1 1 2\n1 2 1\n2 1 1"
+   ],
+   [
+    "1,2,3",
+    "1 2 3\n1 3 2\n2 1 3\n2 3 1\n3 1 2\n3 2 1"
+   ]
+  ]
+ },
+ {
+  "id": "52",
+  "num": 52,
+  "title": "N 皇后 II",
+  "diff": "困难",
+  "tags": "回溯,集合判重,棋盘",
+  "stmt": "求 n 皇后不同解法的数量，皇后不能同行、同列、同两条斜线。",
+  "ex": "n = 4 → 2",
+  "key": "一行放一个，列和两条斜线各记一张表",
+  "idea": [
+   "按行递归，每行只放一个皇后，天然避免同行冲突。",
+   "用三个集合记已占的列 c、主对角线 r-c、副对角线 r+c。",
+   "三个表都空才可放，放下后递归下一行，返回后逐个撤销。",
+   "走到第 n 行说明凑出一种摆法，返回 1 并把子结果累加。",
+   "只求个数，不必真的拼棋盘字符串，省掉一层构造。"
+  ],
+  "cx": "时间 O(n!)，空间 O(n)",
+  "trap": "两条斜线分别用 r-c 和 r+c 做下标，只记一个会漏判。",
+  "code": "class Solution:\n    def totalNQueens(self, n: int) -> int:\n        cols, diag1, diag2 = set(), set(), set()\n\n        def dfs(r):\n            if r == n:\n                return 1\n            cnt = 0\n            for c in range(n):\n                if c in cols or r - c in diag1 or r + c in diag2:\n                    continue\n                cols.add(c)\n                diag1.add(r - c)\n                diag2.add(r + c)\n                cnt += dfs(r + 1)\n                cols.discard(c)\n                diag1.discard(r - c)\n                diag2.discard(r + c)\n            return cnt\n\n        return dfs(0)\n",
+  "acm": "import sys\n\n\ndef main():\n    n = int(sys.stdin.read().split()[0])\n    cols, diag1, diag2 = set(), set(), set()\n\n    def dfs(r):\n        if r == n:\n            return 1\n        cnt = 0\n        for c in range(n):\n            if c in cols or r - c in diag1 or r + c in diag2:\n                continue\n            cols.add(c)\n            diag1.add(r - c)\n            diag2.add(r + c)\n            cnt += dfs(r + 1)\n            cols.discard(c)\n            diag1.discard(r - c)\n            diag2.discard(r + c)\n        return cnt\n\n    print(dfs(0))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4",
+    "2"
+   ],
+   [
+    "1",
+    "1"
+   ],
+   [
+    "8",
+    "92"
+   ]
+  ]
+ },
+ {
+  "id": "77",
+  "num": 77,
+  "title": "组合",
+  "diff": "中等",
+  "tags": "回溯,组合,剪枝",
+  "stmt": "返回 1 到 n 之间所有由 k 个数组成的组合，顺序不限。",
+  "ex": "n = 4, k = 2 → [[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]",
+  "key": "从 start 往后取，凑够 k 个就收",
+  "idea": [
+   "组合不管顺序，所以带 start，每层只从当前数往后选。",
+   "path 长度到 k 就收集并返回，不再往下递归。",
+   "剪枝：本层最多取到 n-(k-len(path))+1，再往后数量不够。",
+   "递归传 i + 1，保证同一个数不会被重复使用。",
+   "递归深度是 k，额外空间只有 O(k)。"
+  ],
+  "cx": "时间 O(C(n,k)·k)，空间 O(k)",
+  "trap": "剪枝的上界写错会漏解，range 右端要 +1 才是闭区间。",
+  "code": "class Solution:\n    def combine(self, n: int, k: int) -> List[List[int]]:\n        res, path = [], []\n\n        def dfs(start):\n            if len(path) == k:\n                res.append(path[:])\n                return\n            for i in range(start, n - (k - len(path)) + 2):\n                path.append(i)\n                dfs(i + 1)\n                path.pop()\n\n        dfs(1)\n        return res\n",
+  "acm": "import sys\n\n\ndef main():\n    n, k = map(int, sys.stdin.read().split()[:2])\n    res, path = [], []\n\n    def dfs(start):\n        if len(path) == k:\n            res.append(path[:])\n            return\n        for i in range(start, n - (k - len(path)) + 2):\n            path.append(i)\n            dfs(i + 1)\n            path.pop()\n\n    dfs(1)\n    print('\\n'.join(' '.join(str(v) for v in c) for c in res))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4 2",
+    "1 2\n1 3\n1 4\n2 3\n2 4\n3 4"
+   ],
+   [
+    "1 1",
+    "1"
+   ]
+  ]
+ }
+]

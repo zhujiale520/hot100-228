@@ -1,0 +1,581 @@
+[
+ {
+  "id": "127",
+  "num": 127,
+  "title": "单词接龙",
+  "diff": "困难",
+  "tags": "BFS,哈希表,图论",
+  "stmt": "给 beginWord、endWord 与字典，每次只改一个字母且中间词须在字典中，求最短转换序列的单词数。",
+  "ex": "beginWord = \"hit\", endWord = \"cog\", wordList = [\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"] → 5",
+  "key": "逐位换 26 个字母做 BFS，一碰到终点就是最短路",
+  "idea": [
+   "无权图最短路：单词是点，恰好差一个字母就连一条边",
+   "字典先转成 set，endWord 不在集合里直接返回 0",
+   "队列存单词并配 dist 字典，出队时逐位枚举 26 个字母造新词",
+   "新词在集合里且未访问过才入队，访问标记防止绕圈",
+   "边界：一步可达时答案为 2；beginWord 不在字典里也要从它出发"
+  ],
+  "cx": "时间 O(N·L·26)，空间 O(N·L)",
+  "trap": "先判 endWord 是否在字典；访问标记用字典，别每次线性扫列表。",
+  "code": "class Solution:\n    def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:\n        words = set(wordList)\n        if endWord not in words:\n            return 0\n        dist = {beginWord: 1}\n        queue = [beginWord]\n        head = 0\n        while head < len(queue):\n            word = queue[head]\n            head += 1\n            step = dist[word]\n            for i in range(len(word)):\n                for ch in \"abcdefghijklmnopqrstuvwxyz\":\n                    nxt = word[:i] + ch + word[i + 1:]\n                    if nxt == endWord:\n                        return step + 1\n                    if nxt in words and nxt not in dist:\n                        dist[nxt] = step + 1\n                        queue.append(nxt)\n        return 0\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    begin, end = data[0], data[1]\n    n = int(data[2])\n    words = set(data[3:3 + n])\n    if end not in words:\n        print(0)\n        return\n    dist = {begin: 1}\n    queue = [begin]\n    head = 0\n    while head < len(queue):\n        word = queue[head]\n        head += 1\n        step = dist[word]\n        for i in range(len(word)):\n            for ch in \"abcdefghijklmnopqrstuvwxyz\":\n                nxt = word[:i] + ch + word[i + 1:]\n                if nxt == end:\n                    print(step + 1)\n                    return\n                if nxt in words and nxt not in dist:\n                    dist[nxt] = step + 1\n                    queue.append(nxt)\n    print(0)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "hit\ncog\n6\nhot dot dog lot log cog\n",
+    "5"
+   ],
+   [
+    "hit\ncog\n5\nhot dot dog lot log\n",
+    "0"
+   ],
+   [
+    "a\nc\n2\na b\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "130",
+  "num": 130,
+  "title": "被围绕的区域",
+  "diff": "中等",
+  "tags": "DFS,泛洪,矩阵",
+  "stmt": "m×n 的 X/O 矩阵，把所有被 X 完全包围的 O 区域改成 X，边界上的 O 及与其连通的不动。",
+  "ex": "board = [[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"O\",\"O\",\"X\"],[\"X\",\"X\",\"O\",\"X\"],[\"X\",\"O\",\"X\",\"X\"]] → [[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"O\",\"X\",\"X\"]]",
+  "key": "从边界上的 O 反着灌，灌不到的 O 才填 X",
+  "idea": [
+   "正向判断「被包围」要回溯整块区域，容易写乱",
+   "能连到边界的 O 一定安全，从四条边上的 O 出发泛洪",
+   "泛洪时把 O 改成 'A' 当访问标记，省掉 visited 数组",
+   "最后扫全图：O 改成 X，A 还原成 O"
+  ],
+  "cx": "时间 O(mn)，空间 O(mn)",
+  "trap": "四条边界都要遍历（含四个角）；改标记和入栈必须同时做，否则重复入栈。",
+  "code": "class Solution:\n    def solve(self, board: List[List[str]]) -> None:\n        if not board:\n            return\n        m, n = len(board), len(board[0])\n        stack = []\n        for i in range(m):\n            for j in (0, n - 1):\n                if board[i][j] == 'O':\n                    board[i][j] = 'A'\n                    stack.append((i, j))\n        for j in range(n):\n            for i in (0, m - 1):\n                if board[i][j] == 'O':\n                    board[i][j] = 'A'\n                    stack.append((i, j))\n        while stack:\n            x, y = stack.pop()\n            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                nx, ny = x + dx, y + dy\n                if 0 <= nx < m and 0 <= ny < n and board[nx][ny] == 'O':\n                    board[nx][ny] = 'A'\n                    stack.append((nx, ny))\n        for i in range(m):\n            for j in range(n):\n                if board[i][j] == 'O':\n                    board[i][j] = 'X'\n                elif board[i][j] == 'A':\n                    board[i][j] = 'O'\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m, n = int(data[0]), int(data[1])\n    board = [list(data[2 + i]) for i in range(m)]\n    stack = []\n    for i in range(m):\n        for j in (0, n - 1):\n            if board[i][j] == 'O':\n                board[i][j] = 'A'\n                stack.append((i, j))\n    for j in range(n):\n        for i in (0, m - 1):\n            if board[i][j] == 'O':\n                board[i][j] = 'A'\n                stack.append((i, j))\n    while stack:\n        x, y = stack.pop()\n        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nx, ny = x + dx, y + dy\n            if 0 <= nx < m and 0 <= ny < n and board[nx][ny] == 'O':\n                board[nx][ny] = 'A'\n                stack.append((nx, ny))\n    out = []\n    for i in range(m):\n        row = []\n        for j in range(n):\n            row.append('O' if board[i][j] == 'A' else 'X')\n        out.append(''.join(row))\n    print('\\n'.join(out))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4 4\nXXXX\nXOOX\nXXOX\nXOXX\n",
+    "XXXX\nXXXX\nXXXX\nXOXX"
+   ],
+   [
+    "3 3\nXXX\nXOX\nXXX\n",
+    "XXX\nXXX\nXXX"
+   ],
+   [
+    "1 1\nO\n",
+    "O"
+   ]
+  ]
+ },
+ {
+  "id": "210",
+  "num": 210,
+  "title": "课程表II",
+  "diff": "中等",
+  "tags": "拓扑排序,BFS,图论",
+  "stmt": "n 门课与先修关系，返回能学完所有课程的顺序，存在环时返回空。",
+  "ex": "numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]] → [0,1,2,3]",
+  "key": "入度为 0 先入队，出队就削后继入度，凑不够数就是有环",
+  "idea": [
+   "拓扑排序：先修课指向后修课，建邻接表并统计每点入度",
+   "所有入度 0 的课先入队，出队时把课程号写进答案",
+   "把出队点的后继入度减 1，减到 0 就入队",
+   "答案长度等于 n 说明无环，否则返回空列表"
+  ],
+  "cx": "时间 O(n+e)，空间 O(n+e)",
+  "trap": "prerequisites[i] = [后修, 先修]，边方向是先修→后修，别建反。",
+  "code": "class Solution:\n    def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:\n        graph = [[] for _ in range(numCourses)]\n        indeg = [0] * numCourses\n        for cur, pre in prerequisites:\n            graph[pre].append(cur)\n            indeg[cur] += 1\n        queue = [i for i in range(numCourses) if indeg[i] == 0]\n        head = 0\n        order = []\n        while head < len(queue):\n            node = queue[head]\n            head += 1\n            order.append(node)\n            for nxt in graph[node]:\n                indeg[nxt] -= 1\n                if indeg[nxt] == 0:\n                    queue.append(nxt)\n        return order if len(order) == numCourses else []\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    m = int(data[idx]); idx += 1\n    graph = [[] for _ in range(n)]\n    indeg = [0] * n\n    for _ in range(m):\n        cur = int(data[idx]); idx += 1\n        pre = int(data[idx]); idx += 1\n        graph[pre].append(cur)\n        indeg[cur] += 1\n    queue = [i for i in range(n) if indeg[i] == 0]\n    head = 0\n    order = []\n    while head < len(queue):\n        node = queue[head]\n        head += 1\n        order.append(node)\n        for nxt in graph[node]:\n            indeg[nxt] -= 1\n            if indeg[nxt] == 0:\n                queue.append(nxt)\n    if len(order) != n:\n        print(-1)\n    else:\n        print(' '.join(map(str, order)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "2 1\n1 0\n",
+    "0 1"
+   ],
+   [
+    "4 4\n1 0\n2 0\n3 1\n3 2\n",
+    "0 1 2 3"
+   ],
+   [
+    "2 2\n1 0\n0 1\n",
+    "-1"
+   ]
+  ]
+ },
+ {
+  "id": "417",
+  "num": 417,
+  "title": "太平洋大西洋水流问题",
+  "diff": "中等",
+  "tags": "DFS,逆向,矩阵",
+  "stmt": "m×n 高度矩阵，水只流向高度不增的相邻格，求既能到左上两洋又能到右下两洋的格子。",
+  "ex": "heights = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]] → [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]",
+  "key": "别正向找海，从两片海往高处倒灌，两张表取交集",
+  "idea": [
+   "正向对每个点判断能否到两洋，重复搜索太多",
+   "把水往高处流的条件反转：从海洋边界向内走，只走高度 ≥ 当前格",
+   "太平洋取上行加左列，大西洋取下行加右列，各得一张可达表",
+   "两表同为真的坐标就是答案"
+  ],
+  "cx": "时间 O(mn)，空间 O(mn)",
+  "trap": "倒灌条件是下一格高度 ≥ 当前格，写反就变成顺流而下。",
+  "code": "class Solution:\n    def pacificAtlantic(self, heights: List[List[int]]) -> List[List[int]]:\n        m, n = len(heights), len(heights[0])\n\n        def flow(starts):\n            seen = [[False] * n for _ in range(m)]\n            stack = []\n            for x, y in starts:\n                if not seen[x][y]:\n                    seen[x][y] = True\n                    stack.append((x, y))\n            while stack:\n                x, y = stack.pop()\n                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    nx, ny = x + dx, y + dy\n                    if 0 <= nx < m and 0 <= ny < n and not seen[nx][ny] \\\n                            and heights[nx][ny] >= heights[x][y]:\n                        seen[nx][ny] = True\n                        stack.append((nx, ny))\n            return seen\n\n        pac = flow([(0, j) for j in range(n)] + [(i, 0) for i in range(m)])\n        atl = flow([(m - 1, j) for j in range(n)] + [(i, n - 1) for i in range(m)])\n        res = []\n        for i in range(m):\n            for j in range(n):\n                if pac[i][j] and atl[i][j]:\n                    res.append([i, j])\n        return res\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m, n = int(data[0]), int(data[1])\n    h = [[int(data[2 + i * n + j]) for j in range(n)] for i in range(m)]\n\n    def flow(starts):\n        seen = [[False] * n for _ in range(m)]\n        stack = []\n        for x, y in starts:\n            if not seen[x][y]:\n                seen[x][y] = True\n                stack.append((x, y))\n        while stack:\n            x, y = stack.pop()\n            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                nx, ny = x + dx, y + dy\n                if 0 <= nx < m and 0 <= ny < n and not seen[nx][ny] \\\n                        and h[nx][ny] >= h[x][y]:\n                    seen[nx][ny] = True\n                    stack.append((nx, ny))\n        return seen\n\n    pac = flow([(0, j) for j in range(n)] + [(i, 0) for i in range(m)])\n    atl = flow([(m - 1, j) for j in range(n)] + [(i, n - 1) for i in range(m)])\n    out = []\n    for i in range(m):\n        for j in range(n):\n            if pac[i][j] and atl[i][j]:\n                out.append(str(i) + ' ' + str(j))\n    print('\\n'.join(out))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "2 2\n2 1\n1 2\n",
+    "0 0\n0 1\n1 0\n1 1"
+   ],
+   [
+    "1 1\n5\n",
+    "0 0"
+   ]
+  ]
+ },
+ {
+  "id": "463",
+  "num": 463,
+  "title": "岛屿的周长",
+  "diff": "简单",
+  "tags": "矩阵,模拟,遍历",
+  "stmt": "row×col 的 0/1 网格中恰好有一个岛屿，求它的周长。",
+  "ex": "grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]] → 16",
+  "key": "每块陆地先算四条边，邻居是陆地就减一",
+  "idea": [
+   "不用 DFS/BFS，逐格遍历就够，每个 1 贡献 4 条边",
+   "邻居越界或是水域 0，说明这条边露在外面，计数 +1",
+   "邻居是陆地时两块相贴，这条边不算周长",
+   "也可以只统计每个陆地的右边和下边邻居，结果一样"
+  ],
+  "cx": "时间 O(mn)，空间 O(1)",
+  "trap": "越界和 0 都算边界；只算上下左右，斜对角不相连。",
+  "code": "class Solution:\n    def islandPerimeter(self, grid: List[List[int]]) -> int:\n        m, n = len(grid), len(grid[0])\n        total = 0\n        for i in range(m):\n            for j in range(n):\n                if grid[i][j] != 1:\n                    continue\n                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    x, y = i + dx, j + dy\n                    if x < 0 or x >= m or y < 0 or y >= n or grid[x][y] == 0:\n                        total += 1\n        return total\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m, n = int(data[0]), int(data[1])\n    grid = [[int(data[2 + i * n + j]) for j in range(n)] for i in range(m)]\n    total = 0\n    for i in range(m):\n        for j in range(n):\n            if grid[i][j] != 1:\n                continue\n            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                x, y = i + dx, j + dy\n                if x < 0 or x >= m or y < 0 or y >= n or grid[x][y] == 0:\n                    total += 1\n    print(total)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4 4\n0 1 0 0\n1 1 1 0\n0 1 0 0\n1 1 0 0\n",
+    "16"
+   ],
+   [
+    "1 1\n1\n",
+    "4"
+   ],
+   [
+    "1 2\n1 0\n",
+    "4"
+   ]
+  ]
+ },
+ {
+  "id": "684",
+  "num": 684,
+  "title": "冗余连接",
+  "diff": "中等",
+  "tags": "并查集,图论,无向图",
+  "stmt": "n 个点的树被多加了一条无向边，按数组顺序求删掉后能恢复树的那条边，多解取最后。",
+  "ex": "edges = [[1,2],[1,3],[2,3]] → [2,3]",
+  "key": "按顺序并查集，第一次发现两端已同根的就是答案",
+  "idea": [
+   "树加一条边必成恰好一个环，删环上任意边都能还原成树",
+   "按输入顺序逐条合并边两端的集合",
+   "若某条边两端已经同根，说明它闭合了环，直接返回",
+   "顺序遍历天然满足「多个答案取最后出现的那条」"
+  ],
+  "cx": "时间 O(n·α(n))，空间 O(n)",
+  "trap": "节点编号 1~n，父亲数组开 n+1；先判同根再合并。",
+  "code": "class Solution:\n    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:\n        n = len(edges)\n        parent = list(range(n + 1))\n\n        def find(x):\n            while parent[x] != x:\n                parent[x] = parent[parent[x]]\n                x = parent[x]\n            return x\n\n        for u, v in edges:\n            ru, rv = find(u), find(v)\n            if ru == rv:\n                return [u, v]\n            parent[ru] = rv\n        return []\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    parent = list(range(n + 1))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    idx = 1\n    for _ in range(n):\n        u = int(data[idx]); v = int(data[idx + 1]); idx += 2\n        ru, rv = find(u), find(v)\n        if ru == rv:\n            print(u, v)\n            return\n        parent[ru] = rv\n    print(-1)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "3\n1 2\n1 3\n2 3\n",
+    "2 3"
+   ],
+   [
+    "5\n1 2\n2 3\n3 4\n1 4\n1 5\n",
+    "1 4"
+   ]
+  ]
+ },
+ {
+  "id": "685",
+  "num": 685,
+  "title": "冗余连接II",
+  "diff": "困难",
+  "tags": "并查集,有向图,图论",
+  "stmt": "有向图由一棵有根树加一条边构成，求删掉后能恢复有根树的那条边，多解取最后出现。",
+  "ex": "edges = [[1,2],[1,3],[2,3]] → [2,3]",
+  "key": "先找入度为 2 的点试删两条边，没有就并查集找有向环",
+  "idea": [
+   "只会有两种情况：某个点入度为 2，或图里存在有向环",
+   "入度为 2 时只有两条候选边，从后往前试删，删后无环即答案",
+   "验环用并查集：合并两端失败说明还剩环，这条不能删",
+   "没有入度为 2 的点，就按顺序并查集，第一次成环的那条边是答案"
+  ],
+  "cx": "时间 O(n·α(n))，空间 O(n)",
+  "trap": "候选边要从后往前试；每试删一次都要重建并查集。",
+  "code": "class Solution:\n    def findRedundantDirectedConnection(self, edges: List[List[int]]) -> List[int]:\n        n = len(edges)\n        indeg = [0] * (n + 1)\n        for u, v in edges:\n            indeg[v] += 1\n        dup = [i for i in range(n) if indeg[edges[i][1]] == 2]\n        if dup:\n            for k in (dup[-1], dup[0]):\n                if self.ok(edges, k, n):\n                    return edges[k]\n        parent = list(range(n + 1))\n\n        def find(x):\n            while parent[x] != x:\n                parent[x] = parent[parent[x]]\n                x = parent[x]\n            return x\n\n        for u, v in edges:\n            ru, rv = find(u), find(v)\n            if ru == rv:\n                return [u, v]\n            parent[ru] = rv\n        return []\n\n    def ok(self, edges, skip, n):\n        parent = list(range(n + 1))\n\n        def find(x):\n            while parent[x] != x:\n                parent[x] = parent[parent[x]]\n                x = parent[x]\n            return x\n\n        for i, (u, v) in enumerate(edges):\n            if i == skip:\n                continue\n            ru, rv = find(u), find(v)\n            if ru == rv:\n                return False\n            parent[ru] = rv\n        return True\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    edges = []\n    idx = 1\n    for _ in range(n):\n        edges.append((int(data[idx]), int(data[idx + 1])))\n        idx += 2\n    indeg = [0] * (n + 1)\n    for u, v in edges:\n        indeg[v] += 1\n\n    def acyclic(skip):\n        parent = list(range(n + 1))\n\n        def find(x):\n            while parent[x] != x:\n                parent[x] = parent[parent[x]]\n                x = parent[x]\n            return x\n\n        for i, (u, v) in enumerate(edges):\n            if i == skip:\n                continue\n            ru, rv = find(u), find(v)\n            if ru == rv:\n                return False\n            parent[ru] = rv\n        return True\n\n    dup = [i for i in range(n) if indeg[edges[i][1]] == 2]\n    if dup:\n        for k in (dup[-1], dup[0]):\n            if acyclic(k):\n                print(edges[k][0], edges[k][1])\n                return\n    parent = list(range(n + 1))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    for u, v in edges:\n        ru, rv = find(u), find(v)\n        if ru == rv:\n            print(u, v)\n            return\n        parent[ru] = rv\n    print(-1)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "3\n1 2\n1 3\n2 3\n",
+    "2 3"
+   ],
+   [
+    "5\n1 2\n2 3\n3 4\n4 1\n1 5\n",
+    "4 1"
+   ],
+   [
+    "4\n1 2\n2 3\n3 1\n4 2\n",
+    "1 2"
+   ]
+  ]
+ },
+ {
+  "id": "695",
+  "num": 695,
+  "title": "岛屿的最大面积",
+  "diff": "中等",
+  "tags": "DFS,矩阵,泛洪",
+  "stmt": "m×n 的 0/1 矩阵，求四方向相连的 1 组成的最大岛屿面积，没有岛屿返回 0。",
+  "ex": "grid = [[0,0,0,0,0,0,0,0]] → 0",
+  "key": "遇到 1 就染色，一次搜索数完整座岛再取最大",
+  "idea": [
+   "遍历每个格子，遇到 1 就以它为起点做 DFS 或 BFS",
+   "搜索时把走过的 1 改成 0，省掉 visited 数组",
+   "每弹出一个格子面积 +1，四方向遇到 1 就继续压栈",
+   "所有岛屿面积取最大，全 0 网格答案就是 0"
+  ],
+  "cx": "时间 O(mn)，空间 O(mn)",
+  "trap": "起点入栈时就要改成 0，否则同一格会被重复入栈把面积算大。",
+  "code": "class Solution:\n    def maxAreaOfIsland(self, grid: List[List[int]]) -> int:\n        m, n = len(grid), len(grid[0])\n        best = 0\n        for i in range(m):\n            for j in range(n):\n                if grid[i][j] != 1:\n                    continue\n                grid[i][j] = 0\n                stack = [(i, j)]\n                area = 0\n                while stack:\n                    x, y = stack.pop()\n                    area += 1\n                    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                        nx, ny = x + dx, y + dy\n                        if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == 1:\n                            grid[nx][ny] = 0\n                            stack.append((nx, ny))\n                if area > best:\n                    best = area\n        return best\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m, n = int(data[0]), int(data[1])\n    grid = [[int(data[2 + i * n + j]) for j in range(n)] for i in range(m)]\n    best = 0\n    for i in range(m):\n        for j in range(n):\n            if grid[i][j] != 1:\n                continue\n            grid[i][j] = 0\n            stack = [(i, j)]\n            area = 0\n            while stack:\n                x, y = stack.pop()\n                area += 1\n                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    nx, ny = x + dx, y + dy\n                    if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == 1:\n                        grid[nx][ny] = 0\n                        stack.append((nx, ny))\n            if area > best:\n                best = area\n    print(best)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "3 4\n0 0 1 0\n1 1 1 0\n0 0 0 1\n",
+    "4"
+   ],
+   [
+    "1 8\n0 0 0 0 0 0 0 0\n",
+    "0"
+   ],
+   [
+    "1 1\n1\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "743",
+  "num": 743,
+  "title": "网络延迟时间",
+  "diff": "中等",
+  "tags": "Dijkstra,最短路,图论",
+  "stmt": "有向带权图，从 k 发信号，求所有节点都收到信号的最短时间，有节点到不了返回 -1。",
+  "ex": "times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2 → 2",
+  "key": "单源最短路跑 Dijkstra，答案是所有最短距离的最大值",
+  "idea": [
+   "先求 k 到每个点的最短路，再取其中的最大值",
+   "朴素 Dijkstra：每轮从未确定的点里挑 dist 最小的",
+   "用它松弛所有出边，dist[v] 取 min(dist[v], dist[u]+w)",
+   "n ≤ 100，O(n²) 朴素版就够，不必上堆",
+   "编号从 1 开始，距离数组开 n+1"
+  ],
+  "cx": "时间 O(n²+e)，空间 O(n+e)",
+  "trap": "最大值只取 1..n；还有 INF 说明不可达，返回 -1。",
+  "code": "class Solution:\n    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:\n        INF = float('inf')\n        graph = [[] for _ in range(n + 1)]\n        for u, v, w in times:\n            graph[u].append((v, w))\n        dist = [INF] * (n + 1)\n        dist[k] = 0\n        done = [False] * (n + 1)\n        for _ in range(n):\n            node = 0\n            for i in range(1, n + 1):\n                if not done[i] and (node == 0 or dist[i] < dist[node]):\n                    node = i\n            if node == 0 or dist[node] == INF:\n                break\n            done[node] = True\n            for v, w in graph[node]:\n                if dist[node] + w < dist[v]:\n                    dist[v] = dist[node] + w\n        ans = max(dist[1:])\n        return -1 if ans == INF else ans\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    m = int(data[idx]); idx += 1\n    k = int(data[idx]); idx += 1\n    graph = [[] for _ in range(n + 1)]\n    for _ in range(m):\n        u = int(data[idx]); v = int(data[idx + 1]); w = int(data[idx + 2])\n        idx += 3\n        graph[u].append((v, w))\n    INF = float('inf')\n    dist = [INF] * (n + 1)\n    dist[k] = 0\n    done = [False] * (n + 1)\n    for _ in range(n):\n        node = 0\n        for i in range(1, n + 1):\n            if not done[i] and (node == 0 or dist[i] < dist[node]):\n                node = i\n        if node == 0 or dist[node] == INF:\n            break\n        done[node] = True\n        for v, w in graph[node]:\n            if dist[node] + w < dist[v]:\n                dist[v] = dist[node] + w\n    ans = max(dist[1:])\n    print(-1 if ans == INF else ans)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4 3 2\n2 1 1\n2 3 1\n3 4 1\n",
+    "2"
+   ],
+   [
+    "2 1 1\n1 2 1\n",
+    "1"
+   ],
+   [
+    "2 1 2\n1 2 1\n",
+    "-1"
+   ]
+  ]
+ },
+ {
+  "id": "787",
+  "num": 787,
+  "title": "K站中转内最便宜的航班",
+  "diff": "中等",
+  "tags": "最短路,Bellman-Ford,动态规划",
+  "stmt": "n 个城市与航班价格，从 src 到 dst 最多经 k 站中转，求最便宜价格，无方案返回 -1。",
+  "ex": "n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1 → 200",
+  "key": "限制边数的 Bellman-Ford，每轮用上一轮副本更新",
+  "idea": [
+   "最多 k 站中转等于路径最多 k+1 条边，属于分层最短路",
+   "做 k+1 轮松弛，每轮只允许再走一条边",
+   "松弛必须基于上一轮的 dist 副本，否则一轮会连走多条边",
+   "结束后 dist[dst] 仍是无穷说明无方案，返回 -1"
+  ],
+  "cx": "时间 O(k·e)，空间 O(n)",
+  "trap": "忘拷贝上一轮数组，会把「最多 k 条边」放大成任意条边。",
+  "code": "class Solution:\n    def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, k: int) -> int:\n        INF = 10 ** 9\n        dist = [INF] * n\n        dist[src] = 0\n        for _ in range(k + 1):\n            prev = dist[:]\n            for u, v, p in flights:\n                if prev[u] + p < dist[v]:\n                    dist[v] = prev[u] + p\n        return -1 if dist[dst] >= INF else dist[dst]\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    m = int(data[idx]); idx += 1\n    src = int(data[idx]); idx += 1\n    dst = int(data[idx]); idx += 1\n    k = int(data[idx]); idx += 1\n    flights = []\n    for _ in range(m):\n        u = int(data[idx]); v = int(data[idx + 1]); p = int(data[idx + 2])\n        idx += 3\n        flights.append((u, v, p))\n    INF = 10 ** 9\n    dist = [INF] * n\n    dist[src] = 0\n    for _ in range(k + 1):\n        prev = dist[:]\n        for u, v, p in flights:\n            if prev[u] + p < dist[v]:\n                dist[v] = prev[u] + p\n    print(-1 if dist[dst] >= INF else dist[dst])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "3 3 0 2 1\n0 1 100\n1 2 100\n0 2 500\n",
+    "200"
+   ],
+   [
+    "3 3 0 2 0\n0 1 100\n1 2 100\n0 2 500\n",
+    "500"
+   ],
+   [
+    "2 1 0 1 1\n0 1 50\n",
+    "50"
+   ]
+  ]
+ },
+ {
+  "id": "797",
+  "num": 797,
+  "title": "所有可能的路径",
+  "diff": "中等",
+  "tags": "DFS,回溯,有向无环图",
+  "stmt": "给 n 个点的有向无环图邻接表，列出所有从 0 到 n-1 的路径。",
+  "ex": "graph = [[1,2],[3],[3],[]] → [[0,1,3],[0,2,3]]",
+  "key": "回溯深搜，走到终点就抄一份路径，回头记得弹出",
+  "idea": [
+   "DAG 无环，不用 visited，直接深搜所有分支即可",
+   "path 里先放起点 0，进入的点等于 n-1 就收一份答案",
+   "否则遍历它的每个邻居：入 path、递归、再弹出",
+   "收答案要写 path[:]，直接 append 同一个列表会被后续修改"
+  ],
+  "cx": "时间 O(路径数×n)，空间 O(n)",
+  "trap": "答案存的是列表引用，必须拷贝；终点判断放在递归入口。",
+  "code": "class Solution:\n    def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:\n        target = len(graph) - 1\n        res = []\n        path = [0]\n\n        def dfs(node):\n            if node == target:\n                res.append(path[:])\n                return\n            for nxt in graph[node]:\n                path.append(nxt)\n                dfs(nxt)\n                path.pop()\n\n        dfs(0)\n        return res\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    graph = []\n    for _ in range(n):\n        c = int(data[idx]); idx += 1\n        graph.append([int(x) for x in data[idx:idx + c]])\n        idx += c\n    res = []\n    path = [0]\n\n    def dfs(node):\n        if node == n - 1:\n            res.append(path[:])\n            return\n        for nxt in graph[node]:\n            path.append(nxt)\n            dfs(nxt)\n            path.pop()\n\n    dfs(0)\n    out = [' '.join(str(x) for x in p) for p in res]\n    print('\\n'.join(out))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4\n2 1 2\n1 3\n1 3\n0\n",
+    "0 1 3\n0 2 3"
+   ],
+   [
+    "2\n1 1\n0\n",
+    "0 1"
+   ]
+  ]
+ },
+ {
+  "id": "827",
+  "num": 827,
+  "title": "最大人工岛",
+  "diff": "困难",
+  "tags": "DFS,染色,矩阵",
+  "stmt": "n×n 的 0/1 矩阵，最多把一个 0 改成 1，求改动后最大的岛屿面积。",
+  "ex": "grid = [[1,0],[0,1]] → 3",
+  "key": "先给每个岛编号存面积，再枚举 0 合并四周的岛",
+  "idea": [
+   "暴力改每个 0 再搜一遍是 O(n⁴)，先做预处理",
+   "第一遍 DFS 给每个岛编号，把面积记进 area 数组",
+   "第二遍枚举每个 0，收集上下左右不同编号的岛并求和",
+   "答案就是 1 加这些面积；一个 0 都没有时直接返回 n²",
+   "邻居编号要用 set 去重，否则同一个岛会被加多次"
+  ],
+  "cx": "时间 O(n²)，空间 O(n²)",
+  "trap": "全 1 网格没有 0 可改，答案仍是 n²；邻居编号必须去重。",
+  "code": "class Solution:\n    def largestIsland(self, grid: List[List[int]]) -> int:\n        n = len(grid)\n        label = [[0] * n for _ in range(n)]\n        area = [0]\n        cur = 0\n        for i in range(n):\n            for j in range(n):\n                if grid[i][j] != 1 or label[i][j] != 0:\n                    continue\n                cur += 1\n                label[i][j] = cur\n                stack = [(i, j)]\n                size = 0\n                while stack:\n                    x, y = stack.pop()\n                    size += 1\n                    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                        nx, ny = x + dx, y + dy\n                        if 0 <= nx < n and 0 <= ny < n and grid[nx][ny] == 1 \\\n                                and label[nx][ny] == 0:\n                            label[nx][ny] = cur\n                            stack.append((nx, ny))\n                area.append(size)\n        best = max(area)\n        for i in range(n):\n            for j in range(n):\n                if grid[i][j] != 0:\n                    continue\n                seen = set()\n                total = 1\n                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    x, y = i + dx, j + dy\n                    if 0 <= x < n and 0 <= y < n and label[x][y] != 0:\n                        lab = label[x][y]\n                        if lab not in seen:\n                            seen.add(lab)\n                            total += area[lab]\n                if total > best:\n                    best = total\n        return best\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    grid = [[int(data[1 + i * n + j]) for j in range(n)] for i in range(n)]\n    label = [[0] * n for _ in range(n)]\n    area = [0]\n    cur = 0\n    for i in range(n):\n        for j in range(n):\n            if grid[i][j] != 1 or label[i][j] != 0:\n                continue\n            cur += 1\n            label[i][j] = cur\n            stack = [(i, j)]\n            size = 0\n            while stack:\n                x, y = stack.pop()\n                size += 1\n                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    nx, ny = x + dx, y + dy\n                    if 0 <= nx < n and 0 <= ny < n and grid[nx][ny] == 1 \\\n                            and label[nx][ny] == 0:\n                        label[nx][ny] = cur\n                        stack.append((nx, ny))\n            area.append(size)\n    best = max(area)\n    for i in range(n):\n        for j in range(n):\n            if grid[i][j] != 0:\n                continue\n            seen = set()\n            total = 1\n            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                x, y = i + dx, j + dy\n                if 0 <= x < n and 0 <= y < n and label[x][y] != 0:\n                    lab = label[x][y]\n                    if lab not in seen:\n                        seen.add(lab)\n                        total += area[lab]\n            if total > best:\n                best = total\n    print(best)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "2\n1 0\n0 1\n",
+    "3"
+   ],
+   [
+    "2\n1 1\n1 1\n",
+    "4"
+   ],
+   [
+    "2\n0 0\n0 0\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "841",
+  "num": 841,
+  "title": "钥匙和房间",
+  "diff": "中等",
+  "tags": "DFS,有向图,连通性",
+  "stmt": "n 个房间，rooms[i] 是房间 i 里能拿到的钥匙，从 0 号房出发，判断能否进入所有房间。",
+  "ex": "rooms = [[1],[2],[3],[]] → true",
+  "key": "有向图从 0 的可达性，用栈染色数个数",
+  "idea": [
+   "房间是点、钥匙是有向边，问题变成 0 能否到达所有点",
+   "不能只用并查集：有向图里所有点连通也可能从 0 走不到",
+   "从 0 入栈，弹出时把手里没拿过的钥匙对应房间入栈并标记",
+   "统计标记个数，等于 n 就是 true"
+  ],
+  "cx": "时间 O(n+钥匙数)，空间 O(n)",
+  "trap": "起点 0 要先标记已访问；只统计标记数，不要重复计数。",
+  "code": "class Solution:\n    def canVisitAllRooms(self, rooms: List[List[int]]) -> bool:\n        n = len(rooms)\n        seen = [False] * n\n        seen[0] = True\n        stack = [0]\n        count = 1\n        while stack:\n            node = stack.pop()\n            for key in rooms[node]:\n                if not seen[key]:\n                    seen[key] = True\n                    count += 1\n                    stack.append(key)\n        return count == n\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    rooms = []\n    for _ in range(n):\n        c = int(data[idx]); idx += 1\n        rooms.append([int(x) for x in data[idx:idx + c]])\n        idx += c\n    seen = [False] * n\n    seen[0] = True\n    stack = [0]\n    count = 1\n    while stack:\n        node = stack.pop()\n        for key in rooms[node]:\n            if not seen[key]:\n                seen[key] = True\n                count += 1\n                stack.append(key)\n    print('true' if count == n else 'false')\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4\n1 1\n1 2\n1 3\n0\n",
+    "true"
+   ],
+   [
+    "4\n2 1 3\n3 3 0 1\n1 2\n1 0\n",
+    "false"
+   ]
+  ]
+ },
+ {
+  "id": "1020",
+  "num": 1020,
+  "title": "飞地的数量",
+  "diff": "中等",
+  "tags": "DFS,矩阵,连通块",
+  "stmt": "m×n 的 0/1 网格，求无法通过四方向移动走到边界的陆地格子数量。",
+  "ex": "grid = [[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]] → 3",
+  "key": "先把边界能到的陆地全淹掉，剩下没被淹的就是飞地",
+  "idea": [
+   "能走到边界等价于与边界上的陆地四方向连通",
+   "从四条边界上的 1 出发泛洪，把连通的陆地改成 0",
+   "再遍历一遍网格，统计还剩下的 1 的个数",
+   "这样不用额外 visited 数组，边界也顺手处理了"
+  ],
+  "cx": "时间 O(mn)，空间 O(mn)",
+  "trap": "改成 0 要和入栈同时做，否则同一块陆地会被反复处理。",
+  "code": "class Solution:\n    def numEnclaves(self, grid: List[List[int]]) -> int:\n        m, n = len(grid), len(grid[0])\n        stack = []\n        for i in range(m):\n            for j in (0, n - 1):\n                if grid[i][j] == 1:\n                    grid[i][j] = 0\n                    stack.append((i, j))\n        for j in range(n):\n            for i in (0, m - 1):\n                if grid[i][j] == 1:\n                    grid[i][j] = 0\n                    stack.append((i, j))\n        while stack:\n            x, y = stack.pop()\n            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                nx, ny = x + dx, y + dy\n                if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == 1:\n                    grid[nx][ny] = 0\n                    stack.append((nx, ny))\n        return sum(sum(row) for row in grid)\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m, n = int(data[0]), int(data[1])\n    grid = [[int(data[2 + i * n + j]) for j in range(n)] for i in range(m)]\n    stack = []\n    for i in range(m):\n        for j in (0, n - 1):\n            if grid[i][j] == 1:\n                grid[i][j] = 0\n                stack.append((i, j))\n    for j in range(n):\n        for i in (0, m - 1):\n            if grid[i][j] == 1:\n                grid[i][j] = 0\n                stack.append((i, j))\n    while stack:\n        x, y = stack.pop()\n        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nx, ny = x + dx, y + dy\n            if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == 1:\n                grid[nx][ny] = 0\n                stack.append((nx, ny))\n    total = 0\n    for row in grid:\n        total += sum(row)\n    print(total)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4 4\n0 0 0 0\n1 0 1 0\n0 1 1 0\n0 0 0 0\n",
+    "3"
+   ],
+   [
+    "4 4\n0 1 1 0\n0 0 1 0\n0 0 1 0\n0 0 0 0\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "1254",
+  "num": 1254,
+  "title": "统计封闭岛屿的数目",
+  "diff": "中等",
+  "tags": "DFS,矩阵,连通块",
+  "stmt": "0 是陆地 1 是水，求完全被水包围、且不接触边界的 0 连通块个数。",
+  "ex": "grid = [[0,0,1,0,0],[0,1,0,1,0],[0,1,1,1,0]] → 1",
+  "key": "先淹掉碰边的陆地，再数剩下的 0 连通块个数",
+  "idea": [
+   "和飞地题同一套：能碰到边界的 0 一定不是封闭岛",
+   "从四条边界上的 0 出发泛洪，把它们改成 1（水）",
+   "再遍历网格，每遇到一个 0 就计数并把整块泛洪掉",
+   "本题 0 是陆地、1 是水，和常见岛屿题正好相反"
+  ],
+  "cx": "时间 O(mn)，空间 O(mn)",
+  "trap": "0/1 含义与常见岛屿题相反；统计的是连通块数不是格子数。",
+  "code": "class Solution:\n    def closedIsland(self, grid: List[List[int]]) -> int:\n        m, n = len(grid), len(grid[0])\n        stack = []\n        for i in range(m):\n            for j in (0, n - 1):\n                if grid[i][j] == 0:\n                    grid[i][j] = 1\n                    stack.append((i, j))\n        for j in range(n):\n            for i in (0, m - 1):\n                if grid[i][j] == 0:\n                    grid[i][j] = 1\n                    stack.append((i, j))\n        while stack:\n            x, y = stack.pop()\n            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                nx, ny = x + dx, y + dy\n                if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == 0:\n                    grid[nx][ny] = 1\n                    stack.append((nx, ny))\n        count = 0\n        for i in range(m):\n            for j in range(n):\n                if grid[i][j] != 0:\n                    continue\n                count += 1\n                grid[i][j] = 1\n                stack = [(i, j)]\n                while stack:\n                    x, y = stack.pop()\n                    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                        nx, ny = x + dx, y + dy\n                        if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == 0:\n                            grid[nx][ny] = 1\n                            stack.append((nx, ny))\n        return count\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m, n = int(data[0]), int(data[1])\n    grid = [[int(data[2 + i * n + j]) for j in range(n)] for i in range(m)]\n    stack = []\n    for i in range(m):\n        for j in (0, n - 1):\n            if grid[i][j] == 0:\n                grid[i][j] = 1\n                stack.append((i, j))\n    for j in range(n):\n        for i in (0, m - 1):\n            if grid[i][j] == 0:\n                grid[i][j] = 1\n                stack.append((i, j))\n    while stack:\n        x, y = stack.pop()\n        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nx, ny = x + dx, y + dy\n            if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == 0:\n                grid[nx][ny] = 1\n                stack.append((nx, ny))\n    count = 0\n    for i in range(m):\n        for j in range(n):\n            if grid[i][j] != 0:\n                continue\n            count += 1\n            grid[i][j] = 1\n            stack = [(i, j)]\n            while stack:\n                x, y = stack.pop()\n                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    nx, ny = x + dx, y + dy\n                    if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == 0:\n                        grid[nx][ny] = 1\n                        stack.append((nx, ny))\n    print(count)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "5 8\n1 1 1 1 1 1 1 0\n1 0 0 0 0 1 1 0\n1 0 1 0 1 1 1 0\n1 0 0 0 0 1 0 1\n1 1 1 1 1 1 1 0\n",
+    "2"
+   ],
+   [
+    "3 5\n0 0 1 0 0\n0 1 0 1 0\n0 1 1 1 0\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "1334",
+  "num": 1334,
+  "title": "阈值距离内邻居最少的城市",
+  "diff": "中等",
+  "tags": "Floyd,最短路,图论",
+  "stmt": "n 个城市的带权无向图，对每个城市数距离不超过阈值的邻居，返回邻居最少且编号最大的城市。",
+  "ex": "n = 4, edges = [[0,1,3],[1,2,1],[1,3,4],[2,3,1]], distanceThreshold = 4 → 3",
+  "key": "Floyd 求全源最短路，按阈值数邻居取最少、编号最大",
+  "idea": [
+   "要任意两点间距离，n ≤ 100，直接跑 Floyd 最省事",
+   "邻接矩阵：自己到自己 0，无边为 INF，无向边两个方向都赋权",
+   "三重循环中中转点 p 必须放最外层",
+   "统计每点距离 ≤ 阈值的邻居数，用 ≤ 更新以取编号更大的城市"
+  ],
+  "cx": "时间 O(n³)，空间 O(n²)",
+  "trap": "无向边要双向赋值；并列时取编号大的，比较写 cnt <= best。",
+  "code": "class Solution:\n    def findTheCity(self, n: int, edges: List[List[int]], distanceThreshold: int) -> int:\n        INF = 10 ** 9\n        dist = [[INF] * n for _ in range(n)]\n        for i in range(n):\n            dist[i][i] = 0\n        for u, v, w in edges:\n            dist[u][v] = w\n            dist[v][u] = w\n        for p in range(n):\n            for i in range(n):\n                if dist[i][p] == INF:\n                    continue\n                for j in range(n):\n                    nd = dist[i][p] + dist[p][j]\n                    if nd < dist[i][j]:\n                        dist[i][j] = nd\n        best = n + 1\n        ans = 0\n        for i in range(n):\n            cnt = 0\n            for j in range(n):\n                if i != j and dist[i][j] <= distanceThreshold:\n                    cnt += 1\n            if cnt <= best:\n                best = cnt\n                ans = i\n        return ans\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    m = int(data[idx]); idx += 1\n    limit = int(data[idx]); idx += 1\n    INF = 10 ** 9\n    dist = [[INF] * n for _ in range(n)]\n    for i in range(n):\n        dist[i][i] = 0\n    for _ in range(m):\n        u = int(data[idx]); v = int(data[idx + 1]); w = int(data[idx + 2])\n        idx += 3\n        dist[u][v] = w\n        dist[v][u] = w\n    for p in range(n):\n        for i in range(n):\n            if dist[i][p] == INF:\n                continue\n            for j in range(n):\n                nd = dist[i][p] + dist[p][j]\n                if nd < dist[i][j]:\n                    dist[i][j] = nd\n    best = n + 1\n    ans = 0\n    for i in range(n):\n        cnt = 0\n        for j in range(n):\n            if i != j and dist[i][j] <= limit:\n                cnt += 1\n        if cnt <= best:\n            best = cnt\n            ans = i\n    print(ans)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "4 4 4\n0 1 3\n1 2 1\n1 3 4\n2 3 1\n",
+    "3"
+   ],
+   [
+    "5 6 2\n0 1 2\n0 4 8\n1 2 3\n1 4 2\n2 3 1\n3 4 1\n",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "1791",
+  "num": 1791,
+  "title": "找出星型图的中心节点",
+  "diff": "简单",
+  "tags": "图论,度数,数学",
+  "stmt": "n 条边的星型无向图，找出与所有其他点都相连的中心节点。",
+  "ex": "edges = [[1,2],[2,3],[4,2]] → 2",
+  "key": "只看前两条边，公共的那个端点就是中心",
+  "idea": [
+   "中心与所有点相连，所以一定同时出现在前两条边里",
+   "取第一条边的两个端点，看哪个在第二条边中出现",
+   "也可以统计度数，度数为 n（边数）的点就是中心",
+   "两种写法分别是 O(1) 和 O(n)，优先用前两条边判断"
+  ],
+  "cx": "时间 O(1)，空间 O(1)",
+  "trap": "边数是 n、点数是 n+1，中心度数是 n 而不是 n-1。",
+  "code": "class Solution:\n    def findCenter(self, edges: List[List[int]]) -> int:\n        a, b = edges[0]\n        return a if a in edges[1] else b\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    edges = []\n    idx = 1\n    for _ in range(n):\n        edges.append((int(data[idx]), int(data[idx + 1])))\n        idx += 2\n    a, b = edges[0]\n    if a in edges[1]:\n        print(a)\n    else:\n        print(b)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "3\n1 2\n2 3\n4 2\n",
+    "2"
+   ],
+   [
+    "3\n1 5\n1 2\n1 3\n",
+    "1"
+   ]
+  ]
+ },
+ {
+  "id": "1971",
+  "num": 1971,
+  "title": "寻找图中是否存在路径",
+  "diff": "简单",
+  "tags": "并查集,无向图,连通性",
+  "stmt": "n 个点的无向图给出边集，判断 source 与 destination 之间是否存在路径。",
+  "ex": "n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2 → true",
+  "key": "只问连通不问路径，并查集合并后比根",
+  "idea": [
+   "只关心两点是否连通，并查集比 DFS 更省事",
+   "初始化每个点的父亲是自己，逐条边合并两端",
+   "find 带路径压缩，沿路把节点挂到祖父上",
+   "最后 find(start) == find(end) 即存在路径"
+  ],
+  "cx": "时间 O((n+e)·α(n))，空间 O(n)",
+  "trap": "无向边合并一次即可；find 用迭代，避免深链递归爆栈。",
+  "code": "class Solution:\n    def validPath(self, n: int, edges: List[List[int]], source: int, destination: int) -> bool:\n        parent = list(range(n))\n\n        def find(x):\n            while parent[x] != x:\n                parent[x] = parent[parent[x]]\n                x = parent[x]\n            return x\n\n        for u, v in edges:\n            ru, rv = find(u), find(v)\n            if ru != rv:\n                parent[ru] = rv\n        return find(source) == find(destination)\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    m = int(data[idx]); idx += 1\n    start = int(data[idx]); idx += 1\n    end = int(data[idx]); idx += 1\n    parent = list(range(n))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    for _ in range(m):\n        u = int(data[idx]); v = int(data[idx + 1]); idx += 2\n        ru, rv = find(u), find(v)\n        if ru != rv:\n            parent[ru] = rv\n    print('true' if find(start) == find(end) else 'false')\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "tests": [
+   [
+    "3 3 0 2\n0 1\n1 2\n2 0\n",
+    "true"
+   ],
+   [
+    "6 5 0 5\n0 1\n0 2\n3 5\n5 4\n4 3\n",
+    "false"
+   ]
+  ]
+ }
+]

@@ -1,0 +1,738 @@
+[
+ {
+  "id": "27",
+  "num": 27,
+  "title": "移除元素",
+  "diff": "简单",
+  "tags": "数组,双指针,快慢指针",
+  "stmt": "给定数组 nums 和值 val，原地删除所有等于 val 的元素，返回新长度。",
+  "ex": "nums = [3,2,2,3], val = 3 → 2（前两个元素均为 2）",
+  "key": "快指针找活口，慢指针盖旧位",
+  "idea": [
+   "数组删除只能覆盖，用快慢两个下标在一次遍历里完成搬移。",
+   "fast 扫描原数组，遇到不等于 val 的值就写到 slow 位置，slow 加一。",
+   "slow 恰好等于已保留元素个数，遍历结束直接返回 slow。",
+   "相对顺序不变，尾部残留值不用清理，题目不检查。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "返回的是新长度而不是数组；slow 必须从 0 开始计数。",
+  "code": "class Solution:\n    def removeElement(self, nums: List[int], val: int) -> int:\n        slow = 0\n        for fast in range(len(nums)):\n            if nums[fast] != val:\n                nums[slow] = nums[fast]\n                slow += 1\n        return slow\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    val = int(data[1 + n])\n    slow = 0\n    for fast in range(n):\n        if nums[fast] != val:\n            nums[slow] = nums[fast]\n            slow += 1\n    print(slow)\n    print(' '.join(str(x) for x in nums[:slow]))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "4 3 2 2 3 3",
+    "2\n2 2"
+   ],
+   [
+    "8 0 1 2 2 3 0 4 2 2",
+    "5\n0 1 3 0 4"
+   ],
+   [
+    "3 3 3 3 3",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "59",
+  "num": 59,
+  "title": "螺旋矩阵II",
+  "diff": "中等",
+  "tags": "数组,模拟,边界",
+  "stmt": "给定正整数 n，生成 1 到 n² 按顺时针螺旋排列的 n×n 方阵。",
+  "ex": "n = 3 → [[1,2,3],[8,9,4],[7,6,5]]",
+  "key": "四条边左闭右开，一圈圈往里收",
+  "idea": [
+   "纯模拟：按上、右、下、左的顺序填四条边，由外向内一圈圈推进。",
+   "每条边都坚持左闭右开，拐角让给下一条边，边界才不会写乱。",
+   "用 top/bottom/left/right 四个边界，每填完一条边就收缩一格。",
+   "只剩一行或一列时后两条边要加 if 判空，否则会重复覆盖。"
+  ],
+  "cx": "时间 O(n²)，空间 O(1)（不计返回矩阵）",
+  "trap": "奇数阶时中间的格子由最后一圈自然填到，无需在循环外补值。",
+  "code": "class Solution:\n    def generateMatrix(self, n: int) -> List[List[int]]:\n        res = [[0] * n for _ in range(n)]\n        top, bottom, left, right = 0, n - 1, 0, n - 1\n        num = 1\n        while top <= bottom and left <= right:\n            for j in range(left, right + 1):\n                res[top][j] = num\n                num += 1\n            top += 1\n            for i in range(top, bottom + 1):\n                res[i][right] = num\n                num += 1\n            right -= 1\n            if top <= bottom:\n                for j in range(right, left - 1, -1):\n                    res[bottom][j] = num\n                    num += 1\n                bottom -= 1\n            if left <= right:\n                for i in range(bottom, top - 1, -1):\n                    res[i][left] = num\n                    num += 1\n                left += 1\n        return res\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    res = [[0] * n for _ in range(n)]\n    top, bottom, left, right = 0, n - 1, 0, n - 1\n    num = 1\n    while top <= bottom and left <= right:\n        for j in range(left, right + 1):\n            res[top][j] = num\n            num += 1\n        top += 1\n        for i in range(top, bottom + 1):\n            res[i][right] = num\n            num += 1\n        right -= 1\n        if top <= bottom:\n            for j in range(right, left - 1, -1):\n                res[bottom][j] = num\n                num += 1\n            bottom -= 1\n        if left <= right:\n            for i in range(bottom, top - 1, -1):\n                res[i][left] = num\n                num += 1\n            left += 1\n    print('\\n'.join(' '.join(str(x) for x in row) for row in res))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "3",
+    "1 2 3\n8 9 4\n7 6 5"
+   ],
+   [
+    "1",
+    "1"
+   ],
+   [
+    "4",
+    "1 2 3 4\n12 13 14 5\n11 16 15 6\n10 9 8 7"
+   ]
+  ]
+ },
+ {
+  "id": "209",
+  "num": 209,
+  "title": "长度最小的子数组",
+  "diff": "中等",
+  "tags": "数组,滑动窗口",
+  "stmt": "给定正整数数组和 target，求和 ≥ target 的最短连续子数组长度，无解返回 0。",
+  "ex": "target = 7, nums = [2,3,1,2,4,3] → 2",
+  "key": "右指针进窗口，够数就缩左边",
+  "idea": [
+   "滑动窗口：right 逐个进窗累加和，和不够就继续右移扩大窗口。",
+   "窗口和一旦 ≥ target，先用当前长度更新答案，再左移 left 收缩。",
+   "收缩到窗口和小于 target 为止，每个元素最多进出窗口一次。",
+   "答案初值取 n+1，结束时仍为 n+1 说明无解，返回 0。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "全数组和都不到 target 时要返回 0，别把 n+1 当答案输出。",
+  "code": "class Solution:\n    def minSubArrayLen(self, target: int, nums: List[int]) -> int:\n        left = 0\n        total = 0\n        best = len(nums) + 1\n        for right in range(len(nums)):\n            total += nums[right]\n            while total >= target:\n                best = min(best, right - left + 1)\n                total -= nums[left]\n                left += 1\n        return 0 if best > len(nums) else best\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    target = int(data[1])\n    nums = [int(x) for x in data[2:2 + n]]\n    left = 0\n    total = 0\n    best = n + 1\n    for right in range(n):\n        total += nums[right]\n        while total >= target:\n            if right - left + 1 < best:\n                best = right - left + 1\n            total -= nums[left]\n            left += 1\n    print(0 if best > n else best)\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "6 7 2 3 1 2 4 3",
+    "2"
+   ],
+   [
+    "3 4 1 4 4",
+    "1"
+   ],
+   [
+    "3 100 1 1 1",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "657",
+  "num": 657,
+  "title": "机器人能否返回原点",
+  "diff": "简单",
+  "tags": "字符串,模拟",
+  "stmt": "机器人从原点按 U/D/L/R 指令移动，判断走完全部指令后是否回到原点。",
+  "ex": "moves = \"UD\" → true",
+  "key": "只数上下左右，回到零就回原点",
+  "idea": [
+   "面朝方向无关，只需维护横纵坐标偏移 x、y，初值都为 0。",
+   "U 让 y 加一，D 让 y 减一，R 让 x 加一，L 让 x 减一。",
+   "遍历结束后判断 x、y 是否同时为 0。",
+   "指令长度为奇数时不可能回原点，可以提前返回 false。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "不要真的去模拟朝向和转向，坐标增量判断就已经足够。",
+  "code": "class Solution:\n    def judgeCircle(self, moves: str) -> bool:\n        x = y = 0\n        for ch in moves:\n            if ch == 'U':\n                y += 1\n            elif ch == 'D':\n                y -= 1\n            elif ch == 'L':\n                x -= 1\n            else:\n                x += 1\n        return x == 0 and y == 0\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    moves = data[0]\n    x = y = 0\n    for ch in moves:\n        if ch == 'U':\n            y += 1\n        elif ch == 'D':\n            y -= 1\n        elif ch == 'L':\n            x -= 1\n        else:\n            x += 1\n    print('true' if x == 0 and y == 0 else 'false')\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "UD",
+    "true"
+   ],
+   [
+    "LL",
+    "false"
+   ],
+   [
+    "LDRU",
+    "true"
+   ]
+  ]
+ },
+ {
+  "id": "704",
+  "num": 704,
+  "title": "二分查找",
+  "diff": "简单",
+  "tags": "数组,二分查找",
+  "stmt": "在升序且无重复的数组 nums 中查找 target，存在返回下标，否则返回 -1。",
+  "ex": "nums = [-1,0,3,5,9,12], target = 9 → 4",
+  "key": "先定区间开闭，mid 不中就砍掉它",
+  "idea": [
+   "前提是有序且无重复，否则同一个目标值可能对应多个下标。",
+   "取左闭右闭区间 [left, right]，循环条件写 left <= right。",
+   "nums[mid] 偏大就 right = mid - 1，偏小就 left = mid + 1。",
+   "循环结束仍未命中说明不存在，返回 -1。"
+  ],
+  "cx": "时间 O(log n)，空间 O(1)",
+  "trap": "区间声明为左闭右闭却写 right = mid，会死循环。",
+  "code": "class Solution:\n    def search(self, nums: List[int], target: int) -> int:\n        left, right = 0, len(nums) - 1\n        while left <= right:\n            mid = (left + right) // 2\n            if nums[mid] == target:\n                return mid\n            if nums[mid] < target:\n                left = mid + 1\n            else:\n                right = mid - 1\n        return -1\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    target = int(data[1])\n    nums = [int(x) for x in data[2:2 + n]]\n    left, right = 0, n - 1\n    ans = -1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] == target:\n            ans = mid\n            break\n        if nums[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    print(ans)\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "6 9 -1 0 3 5 9 12",
+    "4"
+   ],
+   [
+    "6 2 -1 0 3 5 9 12",
+    "-1"
+   ],
+   [
+    "1 5 5",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "724",
+  "num": 724,
+  "title": "寻找数组的中心索引",
+  "diff": "简单",
+  "tags": "数组,前缀和",
+  "stmt": "找中心下标使左侧元素和等于右侧元素和，多个取最左，不存在返回 -1。",
+  "ex": "nums = [1,7,3,6,5,6] → 3",
+  "key": "总和减左和再减自己，等于左和就命中",
+  "idea": [
+   "先求整个数组的总和 total，再从左往右扫描并维护左侧和 left。",
+   "下标 i 右侧和 = total - left - nums[i]，等于 left 时即为答案。",
+   "从左往右第一次满足的下标，就是最靠左的中心下标。",
+   "中心在下标 0 时左侧和视为 0，扫描顺序天然覆盖这种情况。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "要先比较再累加 nums[i]，顺序颠倒会把当前元素多算进左和。",
+  "code": "class Solution:\n    def pivotIndex(self, nums: List[int]) -> int:\n        total = sum(nums)\n        left = 0\n        for i, v in enumerate(nums):\n            if left == total - left - v:\n                return i\n            left += v\n        return -1\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    total = sum(nums)\n    left = 0\n    ans = -1\n    for i, v in enumerate(nums):\n        if left == total - left - v:\n            ans = i\n            break\n        left += v\n    print(ans)\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "6 1 7 3 6 5 6",
+    "3"
+   ],
+   [
+    "3 1 2 3",
+    "-1"
+   ],
+   [
+    "3 2 1 -1",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "922",
+  "num": 922,
+  "title": "按奇偶排序数组II",
+  "diff": "简单",
+  "tags": "数组,双指针",
+  "stmt": "数组奇偶各占一半，重排使偶数落在偶数下标、奇数落在奇数下标，返回任一方案。",
+  "ex": "nums = [4,2,5,7] → [4,5,2,7]",
+  "key": "偶数位放错了，就去奇数位换个偶数",
+  "idea": [
+   "双指针：i 只走偶数下标，j 只走奇数下标，各管半边。",
+   "nums[i] 是奇数时，向后找最近的奇数位置上的偶数，两者交换。",
+   "交换后两个位置同时归位，i 继续加 2。",
+   "题目保证奇偶数量各半，所以奇数位上一定有偶数可换，不会越界。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "j 必须从 1 开始按步长 2 前进，越界说明输入不满足各半的前提。",
+  "code": "class Solution:\n    def sortArrayByParityII(self, nums: List[int]) -> List[int]:\n        j = 1\n        for i in range(0, len(nums), 2):\n            if nums[i] % 2 == 1:\n                while nums[j] % 2 == 1:\n                    j += 2\n                nums[i], nums[j] = nums[j], nums[i]\n        return nums\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    j = 1\n    for i in range(0, n, 2):\n        if nums[i] % 2 == 1:\n            while nums[j] % 2 == 1:\n                j += 2\n            nums[i], nums[j] = nums[j], nums[i]\n    print(' '.join(str(x) for x in nums))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "4 4 2 5 7",
+    "4 5 2 7"
+   ],
+   [
+    "4 1 0 2 3",
+    "0 1 2 3"
+   ]
+  ]
+ },
+ {
+  "id": "941",
+  "num": 941,
+  "title": "有效的山脉数组",
+  "diff": "简单",
+  "tags": "数组,双指针",
+  "stmt": "判断数组是否为山脉数组：先严格递增到山顶再严格递减，长度至少为 3。",
+  "ex": "arr = [0,3,2,1] → true",
+  "key": "先爬到顶，再一路下坡，两头都不能是顶",
+  "idea": [
+   "用 i 从 0 开始，严格递增就右移，停下时停在顶峰位置。",
+   "山顶不能是首元素也不能是末元素，否则就是纯递增或纯递减。",
+   "再从山顶严格递减往后走，走到最后一个元素才算山脉。",
+   "全程用严格不等号，遇到相邻相等立即中断判定。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "漏掉 i==0 与 i==n-1 的判断，会把单调数组误判为山脉。",
+  "code": "class Solution:\n    def validMountainArray(self, arr: List[int]) -> bool:\n        n = len(arr)\n        i = 0\n        while i + 1 < n and arr[i] < arr[i + 1]:\n            i += 1\n        if i == 0 or i == n - 1:\n            return False\n        while i + 1 < n and arr[i] > arr[i + 1]:\n            i += 1\n        return i == n - 1\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    arr = [int(x) for x in data[1:1 + n]]\n    i = 0\n    while i + 1 < n and arr[i] < arr[i + 1]:\n        i += 1\n    if i == 0 or i == n - 1:\n        print('false')\n        return\n    while i + 1 < n and arr[i] > arr[i + 1]:\n        i += 1\n    print('true' if i == n - 1 else 'false')\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "4 0 3 2 1",
+    "true"
+   ],
+   [
+    "2 2 1",
+    "false"
+   ],
+   [
+    "3 3 5 5",
+    "false"
+   ],
+   [
+    "3 1 2 3",
+    "false"
+   ]
+  ]
+ },
+ {
+  "id": "977",
+  "num": 977,
+  "title": "有序数组的平方",
+  "diff": "简单",
+  "tags": "数组,双指针",
+  "stmt": "给定非递减整数数组，返回每个元素平方后仍非递减的新数组。",
+  "ex": "nums = [-4,-1,0,3,10] → [0,1,9,16,100]",
+  "key": "平方最大在两头，从后往前填",
+  "idea": [
+   "负数平方后会变大，所以平方后的最大值一定出现在数组两端。",
+   "双指针 i 在头、j 在尾，比较两者平方，大的那个填到结果末尾。",
+   "结果数组从后往前填，指针 k 从 n-1 递减到 0。",
+   "i 超过 j 时填满，正好用掉 n 个位置。"
+  ],
+  "cx": "时间 O(n)，空间 O(n)",
+  "trap": "别先整体平方再排序，那丢了有序条件，退化成 O(n log n)。",
+  "code": "class Solution:\n    def sortedSquares(self, nums: List[int]) -> List[int]:\n        n = len(nums)\n        res = [0] * n\n        i, j, k = 0, n - 1, n - 1\n        while i <= j:\n            a, b = nums[i] * nums[i], nums[j] * nums[j]\n            if a > b:\n                res[k] = a\n                i += 1\n            else:\n                res[k] = b\n                j -= 1\n            k -= 1\n        return res\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    res = [0] * n\n    i, j, k = 0, n - 1, n - 1\n    while i <= j:\n        a, b = nums[i] * nums[i], nums[j] * nums[j]\n        if a > b:\n            res[k] = a\n            i += 1\n        else:\n            res[k] = b\n            j -= 1\n        k -= 1\n    print(' '.join(str(x) for x in res))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "5 -4 -1 0 3 10",
+    "0 1 9 16 100"
+   ],
+   [
+    "5 -7 -3 2 3 11",
+    "4 9 9 49 121"
+   ]
+  ]
+ },
+ {
+  "id": "1356",
+  "num": 1356,
+  "title": "根据数字二进制下1的数目排序",
+  "diff": "简单",
+  "tags": "数组,位运算,排序",
+  "stmt": "按二进制中 1 的个数升序排列数组，个数相同时按数值升序。",
+  "ex": "arr = [0,1,2,3,4,5,6,7,8] → [0,1,2,4,8,3,5,6,7]",
+  "key": "先比 1 的个数，个数相同再比大小",
+  "idea": [
+   "核心是快速算出整数二进制里 1 的个数，这是排序的第一关键字。",
+   "v & (v - 1) 每次消掉最低位的 1，循环次数就等于 1 的个数。",
+   "排序键写成 (1 的个数, 数值) 的元组，一次排序满足双关键字。",
+   "数值较大时按位统计比转字符串更快，也避免负数处理的坑。"
+  ],
+  "cx": "时间 O(n log n)，空间 O(n)",
+  "trap": "只按 1 的个数排序会打乱同组内部顺序，必须带数值作第二关键字。",
+  "code": "class Solution:\n    def sortByBits(self, arr: List[int]) -> List[int]:\n        def ones(v: int) -> int:\n            c = 0\n            while v:\n                v &= v - 1\n                c += 1\n            return c\n\n        return sorted(arr, key=lambda v: (ones(v), v))\n",
+  "acm": "import sys\n\n\ndef ones(v):\n    c = 0\n    while v:\n        v &= v - 1\n        c += 1\n    return c\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    arr = [int(x) for x in data[1:1 + n]]\n    arr.sort(key=lambda v: (ones(v), v))\n    print(' '.join(str(x) for x in arr))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "9 0 1 2 3 4 5 6 7 8",
+    "0 1 2 4 8 3 5 6 7"
+   ],
+   [
+    "8 2 3 5 7 11 13 17 19",
+    "2 3 5 17 7 11 13 19"
+   ]
+  ]
+ },
+ {
+  "id": "1365",
+  "num": 1365,
+  "title": "有多少小于当前数字的数字",
+  "diff": "简单",
+  "tags": "数组,哈希表,排序",
+  "stmt": "对数组中每个元素，统计比它小的元素个数，按原顺序返回结果数组。",
+  "ex": "nums = [8,1,2,2,3] → [4,0,1,1,3]",
+  "key": "排序后的首次下标，就是比它小的个数",
+  "idea": [
+   "排序后某个值第一次出现的下标，恰好等于比它小的元素个数。",
+   "对排序数组扫描一遍，把每个值首次出现的下标存进哈希表。",
+   "再按原数组顺序查表输出，重复的值直接复用同一下标。",
+   "数值范围只有 0 到 100 时，用计数前缀和也能做到线性。"
+  ],
+  "cx": "时间 O(n log n)，空间 O(n)",
+  "trap": "必须记首次出现的下标，记最后一个会让重复元素的答案偏大。",
+  "code": "class Solution:\n    def smallerNumbersThanCurrent(self, nums: List[int]) -> List[int]:\n        order = sorted(nums)\n        first = {}\n        for i, v in enumerate(order):\n            if v not in first:\n                first[v] = i\n        return [first[v] for v in nums]\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    order = sorted(nums)\n    first = {}\n    for i, v in enumerate(order):\n        if v not in first:\n            first[v] = i\n    print(' '.join(str(first[v]) for v in nums))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "5 8 1 2 2 3",
+    "4 0 1 1 3"
+   ],
+   [
+    "4 6 5 4 8",
+    "2 1 0 3"
+   ],
+   [
+    "4 7 7 7 7",
+    "0 0 0 0"
+   ]
+  ]
+ },
+ {
+  "id": "143",
+  "num": 143,
+  "title": "重排链表",
+  "diff": "中等",
+  "tags": "链表,双指针,反转链表",
+  "stmt": "把链表 L0→L1→…→Ln 原地重排为 L0→Ln→L1→Ln-1→L2→…",
+  "ex": "head = [1,2,3,4] → [1,4,2,3]",
+  "key": "找中点、反后半、再交替合并",
+  "idea": [
+   "快慢指针找中点，把链表断成前后两段，前半从 head 开始。",
+   "把后半段整体反转，就得到从尾部往前接的顺序。",
+   "两个指针分别指向前半和反转后的后半，交替把节点串起来。",
+   "合并前先存好两个 next，否则改指针后链就断了。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "快慢指针的判断要写 fast.next 和 fast.next.next，防止空指针。",
+  "code": "class Solution:\n    def reorderList(self, head: Optional[ListNode]) -> None:\n        if not head:\n            return\n        slow = fast = head\n        while fast.next and fast.next.next:\n            slow = slow.next\n            fast = fast.next.next\n        mid = slow.next\n        slow.next = None\n        prev = None\n        while mid:\n            nxt = mid.next\n            mid.next = prev\n            prev = mid\n            mid = nxt\n        first, second = head, prev\n        while second:\n            nxt_first = first.next\n            nxt_second = second.next\n            first.next = second\n            second.next = nxt_first\n            first = nxt_first\n            second = nxt_second\n",
+  "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    dummy = ListNode(0)\n    tail = dummy\n    for i in range(n):\n        tail.next = ListNode(int(data[1 + i]))\n        tail = tail.next\n    head = dummy.next\n    if head is not None:\n        slow = fast = head\n        while fast.next and fast.next.next:\n            slow = slow.next\n            fast = fast.next.next\n        mid = slow.next\n        slow.next = None\n        prev = None\n        while mid:\n            nxt = mid.next\n            mid.next = prev\n            prev = mid\n            mid = nxt\n        first, second = head, prev\n        while second:\n            nxt_first = first.next\n            nxt_second = second.next\n            first.next = second\n            second.next = nxt_first\n            first = nxt_first\n            second = nxt_second\n    out = []\n    cur = head\n    while cur:\n        out.append(str(cur.val))\n        cur = cur.next\n    print(' '.join(out))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "4 1 2 3 4",
+    "1 4 2 3"
+   ],
+   [
+    "5 1 2 3 4 5",
+    "1 5 2 4 3"
+   ],
+   [
+    "2 1 2",
+    "1 2"
+   ]
+  ]
+ },
+ {
+  "id": "203",
+  "num": 203,
+  "title": "移除链表元素",
+  "diff": "简单",
+  "tags": "链表,虚拟头结点",
+  "stmt": "删除链表中所有值等于 val 的节点，返回新的头节点。",
+  "ex": "head = [1,2,6,3,4,5,6], val = 6 → [1,2,3,4,5]",
+  "key": "加个虚拟头，删谁都一样",
+  "idea": [
+   "头节点也可能被删，用虚拟头结点统一处理，省掉特判。",
+   "cur 从虚拟头出发，每次检查 cur.next 的值是否等于 val。",
+   "相等就让 cur.next 跳过该节点，等于把它摘掉。",
+   "不相等才让 cur 前移，否则连续相同值只能删掉一个。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "删除后 cur 不能前移，否则相邻的连续目标值会被漏删。",
+  "code": "class Solution:\n    def removeElements(self, head: Optional[ListNode], val: int) -> Optional[ListNode]:\n        dummy = ListNode(0, head)\n        cur = dummy\n        while cur.next:\n            if cur.next.val == val:\n                cur.next = cur.next.next\n            else:\n                cur = cur.next\n        return dummy.next\n",
+  "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    dummy = ListNode(0)\n    tail = dummy\n    for i in range(n):\n        tail.next = ListNode(int(data[1 + i]))\n        tail = tail.next\n    val = int(data[1 + n])\n    cur = dummy\n    while cur.next:\n        if cur.next.val == val:\n            cur.next = cur.next.next\n        else:\n            cur = cur.next\n    out = []\n    cur = dummy.next\n    while cur:\n        out.append(str(cur.val))\n        cur = cur.next\n    print(' '.join(out))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "7 1 2 6 3 4 5 6 6",
+    "1 2 3 4 5"
+   ],
+   [
+    "4 7 7 7 7 7",
+    ""
+   ],
+   [
+    "5 1 2 3 4 5 3",
+    "1 2 4 5"
+   ]
+  ]
+ },
+ {
+  "id": "707",
+  "num": 707,
+  "title": "设计链表",
+  "diff": "中等",
+  "tags": "链表,设计,虚拟头结点",
+  "stmt": "实现链表类，支持按下标取值、头尾插入、指定位置插入与按下标删除。",
+  "ex": "addAtHead(1), addAtTail(3), addAtIndex(1,2), get(1) → 2",
+  "key": "带虚拟头加 size，插删都不特判",
+  "idea": [
+   "内部用虚拟头结点加 size 计数，所有操作都不用单独处理头结点。",
+   "get 先判越界返回 -1，再从虚拟头往后走 index 步取节点。",
+   "addAtIndex 中 index 大于 size 直接忽略，小于 0 按 0 处理。",
+   "头插等价 addAtIndex(0)，尾插等价 addAtIndex(size)。"
+  ],
+  "cx": "各操作时间 O(index)，空间 O(1)",
+  "trap": "插入删除后都要维护 size；删除要求 0 ≤ index < size。",
+  "code": "class MyLinkedList:\n    def __init__(self):\n        self.dummy = ListNode(0)\n        self.size = 0\n\n    def get(self, index: int) -> int:\n        if index < 0 or index >= self.size:\n            return -1\n        cur = self.dummy.next\n        for _ in range(index):\n            cur = cur.next\n        return cur.val\n\n    def addAtHead(self, val: int) -> None:\n        self.addAtIndex(0, val)\n\n    def addAtTail(self, val: int) -> None:\n        self.addAtIndex(self.size, val)\n\n    def addAtIndex(self, index: int, val: int) -> None:\n        if index > self.size:\n            return\n        if index < 0:\n            index = 0\n        cur = self.dummy\n        for _ in range(index):\n            cur = cur.next\n        cur.next = ListNode(val, cur.next)\n        self.size += 1\n\n    def deleteAtIndex(self, index: int) -> None:\n        if index < 0 or index >= self.size:\n            return\n        cur = self.dummy\n        for _ in range(index):\n            cur = cur.next\n        cur.next = cur.next.next\n        self.size -= 1\n",
+  "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\nclass MyLinkedList:\n    def __init__(self):\n        self.dummy = ListNode(0)\n        self.size = 0\n\n    def get(self, index):\n        if index < 0 or index >= self.size:\n            return -1\n        cur = self.dummy.next\n        for _ in range(index):\n            cur = cur.next\n        return cur.val\n\n    def addAtHead(self, val):\n        self.addAtIndex(0, val)\n\n    def addAtTail(self, val):\n        self.addAtIndex(self.size, val)\n\n    def addAtIndex(self, index, val):\n        if index > self.size:\n            return\n        if index < 0:\n            index = 0\n        cur = self.dummy\n        for _ in range(index):\n            cur = cur.next\n        cur.next = ListNode(val, cur.next)\n        self.size += 1\n\n    def deleteAtIndex(self, index):\n        if index < 0 or index >= self.size:\n            return\n        cur = self.dummy\n        for _ in range(index):\n            cur = cur.next\n        cur.next = cur.next.next\n        self.size -= 1\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m = int(data[0])\n    idx = 1\n    lst = MyLinkedList()\n    out = []\n    for _ in range(m):\n        op = data[idx]\n        idx += 1\n        if op == 'get':\n            out.append(str(lst.get(int(data[idx]))))\n            idx += 1\n        elif op == 'addAtHead':\n            lst.addAtHead(int(data[idx]))\n            idx += 1\n        elif op == 'addAtTail':\n            lst.addAtTail(int(data[idx]))\n            idx += 1\n        elif op == 'addAtIndex':\n            lst.addAtIndex(int(data[idx]), int(data[idx + 1]))\n            idx += 2\n        else:\n            lst.deleteAtIndex(int(data[idx]))\n            idx += 1\n    print('\\n'.join(out))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "6\naddAtHead 1\naddAtTail 3\naddAtIndex 1 2\nget 1\ndeleteAtIndex 1\nget 1",
+    "2\n3"
+   ],
+   [
+    "4\naddAtIndex 0 10\naddAtTail 20\naddAtIndex 1 15\nget 1",
+    "15"
+   ],
+   [
+    "3\nget 0\naddAtHead 9\nget 0",
+    "-1\n9"
+   ]
+  ]
+ },
+ {
+  "id": "18",
+  "num": 18,
+  "title": "四数之和",
+  "diff": "中等",
+  "tags": "数组,双指针,排序,去重",
+  "stmt": "在数组中找出所有和为 target 且互不重复的四元组。",
+  "ex": "nums = [1,0,-1,0,-2,2], target = 0 → [[-1,0,0,1],[-2,-1,1,2],[-2,0,0,2]]",
+  "key": "排序后两层定数，剩下两个双指针夹",
+  "idea": [
+   "先排序，两层 for 固定前两个数，后两个用左右双指针向中间夹。",
+   "四数之和偏小就 left 右移，偏大就 right 左移，相等收答案再同时内移。",
+   "每层循环开头去重：与上一个元素相等就跳过，避免重复四元组。",
+   "剪枝不能只看 nums[i] > target，target 为负时不能提前退出。"
+  ],
+  "cx": "时间 O(n³)，空间 O(1)（不计结果）",
+  "trap": "去重条件要写成 i>0、j>i+1，写错会漏解或产生重复。",
+  "code": "class Solution:\n    def fourSum(self, nums: List[int], target: int) -> List[List[int]]:\n        nums.sort()\n        n = len(nums)\n        res = []\n        for i in range(n - 3):\n            if i > 0 and nums[i] == nums[i - 1]:\n                continue\n            for j in range(i + 1, n - 2):\n                if j > i + 1 and nums[j] == nums[j - 1]:\n                    continue\n                left, right = j + 1, n - 1\n                while left < right:\n                    s = nums[i] + nums[j] + nums[left] + nums[right]\n                    if s == target:\n                        res.append([nums[i], nums[j], nums[left], nums[right]])\n                        left += 1\n                        right -= 1\n                        while left < right and nums[left] == nums[left - 1]:\n                            left += 1\n                        while left < right and nums[right] == nums[right + 1]:\n                            right -= 1\n                    elif s < target:\n                        left += 1\n                    else:\n                        right -= 1\n        return res\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    target = int(data[1])\n    nums = sorted(int(x) for x in data[2:2 + n])\n    res = []\n    for i in range(n - 3):\n        if i > 0 and nums[i] == nums[i - 1]:\n            continue\n        for j in range(i + 1, n - 2):\n            if j > i + 1 and nums[j] == nums[j - 1]:\n                continue\n            left, right = j + 1, n - 1\n            while left < right:\n                s = nums[i] + nums[j] + nums[left] + nums[right]\n                if s == target:\n                    res.append([nums[i], nums[j], nums[left], nums[right]])\n                    left += 1\n                    right -= 1\n                    while left < right and nums[left] == nums[left - 1]:\n                        left += 1\n                    while left < right and nums[right] == nums[right + 1]:\n                        right -= 1\n                elif s < target:\n                    left += 1\n                else:\n                    right -= 1\n    res.sort()\n    lines = [str(len(res))]\n    lines.extend(' '.join(str(x) for x in q) for q in res)\n    print('\\n'.join(lines))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "6 0 1 0 -1 0 -2 2",
+    "3\n-2 -1 1 2\n-2 0 0 2\n-1 0 0 1"
+   ],
+   [
+    "5 8 2 2 2 2 2",
+    "1\n2 2 2 2"
+   ],
+   [
+    "5 0 2 2 2 2 2",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "202",
+  "num": 202,
+  "title": "快乐数",
+  "diff": "简单",
+  "tags": "哈希表,数学,快慢指针",
+  "stmt": "反复把 n 换成各位数字的平方和，能变成 1 就是快乐数，否则不是。",
+  "ex": "n = 19 → true",
+  "key": "平方和进集合，重复出现就是死循环",
+  "idea": [
+   "按定义迭代：把当前数各位数字平方求和，作为下一个数。",
+   "不是快乐数就一定会绕圈，所以用集合记录出现过的和。",
+   "某个和再次出现，说明永远到不了 1，立即返回 false。",
+   "等于 1 立即返回 true；想省空间可以用快慢指针判环。"
+  ],
+  "cx": "时间 O(log n)，空间 O(log n)",
+  "trap": "要先判断重复再更新数值；另外 1 本身就是快乐数。",
+  "code": "class Solution:\n    def isHappy(self, n: int) -> bool:\n        seen = set()\n        while n != 1 and n not in seen:\n            seen.add(n)\n            n = sum(int(c) ** 2 for c in str(n))\n        return n == 1\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    seen = set()\n    while n != 1 and n not in seen:\n        seen.add(n)\n        n = sum(int(c) ** 2 for c in str(n))\n    print('true' if n == 1 else 'false')\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "19",
+    "true"
+   ],
+   [
+    "2",
+    "false"
+   ],
+   [
+    "1",
+    "true"
+   ]
+  ]
+ },
+ {
+  "id": "205",
+  "num": 205,
+  "title": "同构字符串",
+  "diff": "简单",
+  "tags": "哈希表,字符串",
+  "stmt": "判断 s 能否按字符一一替换成 t，同字符映射相同、不同字符不得映射同一字符。",
+  "ex": "s = \"egg\", t = \"add\" → true",
+  "key": "双向映射都要查，单向会放过冲突",
+  "idea": [
+   "本质是字符之间的双射：s 的字符映射到 t，t 的字符也要映射回 s。",
+   "只维护一个方向的映射不够，两个不同字符映射到同一字符会被漏判。",
+   "遍历时若已有映射且与新字符不符，立即返回 false。",
+   "两串长度不等直接返回 false，题目虽保证相等也应防御。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)（字符集有限）",
+  "trap": "只建单向映射时，像 s=ab、t=cc 会被误判成同构。",
+  "code": "class Solution:\n    def isIsomorphic(self, s: str, t: str) -> bool:\n        if len(s) != len(t):\n            return False\n        m1, m2 = {}, {}\n        for a, b in zip(s, t):\n            if m1.setdefault(a, b) != b or m2.setdefault(b, a) != a:\n                return False\n        return True\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s, t = data[0], data[1]\n    ok = len(s) == len(t)\n    m1, m2 = {}, {}\n    if ok:\n        for a, b in zip(s, t):\n            if m1.setdefault(a, b) != b or m2.setdefault(b, a) != a:\n                ok = False\n                break\n    print('true' if ok else 'false')\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "egg add",
+    "true"
+   ],
+   [
+    "foo bar",
+    "false"
+   ],
+   [
+    "paper title",
+    "true"
+   ],
+   [
+    "badc baba",
+    "false"
+   ]
+  ]
+ },
+ {
+  "id": "242",
+  "num": 242,
+  "title": "有效的字母异位词",
+  "diff": "简单",
+  "tags": "哈希表,字符串",
+  "stmt": "判断 t 是否为 s 的字母异位词，即两串字母的种类和出现次数完全相同。",
+  "ex": "s = \"anagram\", t = \"nagaram\" → true",
+  "key": "26 格计数，s 加 t 减，最后全零",
+  "idea": [
+   "只有小写字母，用长度 26 的数组当哈希表最省空间也最快。",
+   "遍历 s 把对应位置加一，再遍历 t 把对应位置减一。",
+   "最后检查 26 个计数是否全为 0，全零才是异位词。",
+   "长度不同可以提前返回 false，省掉一次遍历。"
+  ],
+  "cx": "时间 O(n)，空间 O(1)",
+  "trap": "数组大小要按字符集定，下标别写成 ord(ch) 超出 26。",
+  "code": "class Solution:\n    def isAnagram(self, s: str, t: str) -> bool:\n        if len(s) != len(t):\n            return False\n        cnt = [0] * 26\n        for ch in s:\n            cnt[ord(ch) - ord('a')] += 1\n        for ch in t:\n            cnt[ord(ch) - ord('a')] -= 1\n        return all(v == 0 for v in cnt)\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s, t = data[0], data[1]\n    if len(s) != len(t):\n        print('false')\n        return\n    cnt = [0] * 26\n    for ch in s:\n        cnt[ord(ch) - ord('a')] += 1\n    for ch in t:\n        cnt[ord(ch) - ord('a')] -= 1\n    print('true' if all(v == 0 for v in cnt) else 'false')\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "anagram nagaram",
+    "true"
+   ],
+   [
+    "rat car",
+    "false"
+   ]
+  ]
+ },
+ {
+  "id": "349",
+  "num": 349,
+  "title": "两个数组的交集",
+  "diff": "简单",
+  "tags": "哈希表,集合",
+  "stmt": "求两个数组的交集，结果中每个元素只出现一次，顺序不限。",
+  "ex": "nums1 = [1,2,2,1], nums2 = [2,2] → [2]",
+  "key": "一个集合去重，另一个集合判存在",
+  "idea": [
+   "结果要求去重，先把其中一个数组的元素全部放进集合。",
+   "遍历另一个数组，元素在集合里就收进结果集合，天然去重。",
+   "最后把结果集合转成列表返回，顺序任意。",
+   "数值范围没有限制时用 set，范围小且集中才考虑数组计数。"
+  ],
+  "cx": "时间 O(n+m)，空间 O(n+m)",
+  "trap": "同一元素在两个数组里出现多次，结果里也只能保留一次。",
+  "code": "class Solution:\n    def intersection(self, nums1: List[int], nums2: List[int]) -> List[int]:\n        return list(set(nums1) & set(nums2))\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a = [int(x) for x in data[1:1 + n]]\n    m = int(data[1 + n])\n    b = [int(x) for x in data[2 + n:2 + n + m]]\n    print(' '.join(str(x) for x in sorted(set(a) & set(b))))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "4 1 2 2 1 2 2 2",
+    "2"
+   ],
+   [
+    "3 4 9 5 3 9 4 8",
+    "4 9"
+   ],
+   [
+    "3 1 2 3 2 4 5",
+    ""
+   ]
+  ]
+ },
+ {
+  "id": "383",
+  "num": 383,
+  "title": "赎金信",
+  "diff": "简单",
+  "tags": "哈希表,字符串,计数",
+  "stmt": "判断 ransom 能否只用 magazine 中的字符拼出，每个字符只能用一次。",
+  "ex": "ransomNote = \"aa\", magazine = \"aab\" → true",
+  "key": "杂志建库存，赎金信逐字扣减",
+  "idea": [
+   "先统计 magazine 中 26 个小写字母各自的可用库存。",
+   "再遍历 ransomNote，每用一个字符就把对应库存减一。",
+   "某字符库存已为 0 却还要用，说明拼不出来，返回 false。",
+   "ransomNote 比 magazine 长时必然失败，可以提前判断。"
+  ],
+  "cx": "时间 O(n+m)，空间 O(1)",
+  "trap": "magazine 的字符不能复用，所以必须先扣库存再判断下一位。",
+  "code": "class Solution:\n    def canConstruct(self, ransomNote: str, magazine: str) -> bool:\n        cnt = [0] * 26\n        for ch in magazine:\n            cnt[ord(ch) - ord('a')] += 1\n        for ch in ransomNote:\n            i = ord(ch) - ord('a')\n            if cnt[i] == 0:\n                return False\n            cnt[i] -= 1\n        return True\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    ransom, magazine = data[0], data[1]\n    cnt = [0] * 26\n    for ch in magazine:\n        cnt[ord(ch) - ord('a')] += 1\n    ok = True\n    for ch in ransom:\n        i = ord(ch) - ord('a')\n        if cnt[i] == 0:\n            ok = False\n            break\n        cnt[i] -= 1\n    print('true' if ok else 'false')\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "a b",
+    "false"
+   ],
+   [
+    "aa ab",
+    "false"
+   ],
+   [
+    "aa aab",
+    "true"
+   ]
+  ]
+ },
+ {
+  "id": "454",
+  "num": 454,
+  "title": "四数相加II",
+  "diff": "中等",
+  "tags": "哈希表,分组,计数",
+  "stmt": "四个等长数组，统计有多少个下标元组 (i,j,k,l) 使四数之和为 0。",
+  "ex": "nums1=[1,2], nums2=[-2,-1], nums3=[-1,2], nums4=[0,2] → 2",
+  "key": "两两求和存次数，再倒查相反数",
+  "idea": [
+   "四层暴力是 O(n⁴)，把 nums1+nums2 的所有和连同出现次数存进哈希表。",
+   "枚举 nums3+nums4 的和，去表里查 -(c+d) 的出现次数并累加到答案。",
+   "哈希表存次数而不是布尔值，才能把全部下标元组都统计进来。",
+   "四个数组相互独立，所以不用考虑元组内部去重的问题。"
+  ],
+  "cx": "时间 O(n²)，空间 O(n²)",
+  "trap": "统计的是下标元组个数，不是不同的和的种类数，别去重。",
+  "code": "class Solution:\n    def fourSumCount(self, nums1: List[int], nums2: List[int],\n                     nums3: List[int], nums4: List[int]) -> int:\n        cnt = {}\n        for a in nums1:\n            for b in nums2:\n                cnt[a + b] = cnt.get(a + b, 0) + 1\n        total = 0\n        for c in nums3:\n            for d in nums4:\n                total += cnt.get(-(c + d), 0)\n        return total\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    p = 1\n    arrays = []\n    for _ in range(4):\n        arrays.append([int(x) for x in data[p:p + n]])\n        p += n\n    cnt = {}\n    for a in arrays[0]:\n        for b in arrays[1]:\n            cnt[a + b] = cnt.get(a + b, 0) + 1\n    total = 0\n    for c in arrays[2]:\n        for d in arrays[3]:\n            total += cnt.get(-(c + d), 0)\n    print(total)\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "2 1 2 -2 -1 -1 2 0 2",
+    "2"
+   ],
+   [
+    "1 1 1 1 1",
+    "0"
+   ]
+  ]
+ },
+ {
+  "id": "1002",
+  "num": 1002,
+  "title": "查找常用字符",
+  "diff": "简单",
+  "tags": "哈希表,计数,字符串",
+  "stmt": "找出所有在每个字符串中都出现过的字符（含重复），以字符数组返回。",
+  "ex": "words = [\"bella\",\"label\",\"roller\"] → [\"e\",\"l\",\"l\"]",
+  "key": "26 格逐串取最小频率，再摊开",
+  "idea": [
+   "统计第一个字符串的 26 个字母频率，作为当前的公共频率表。",
+   "逐个统计后续字符串的频率，与当前表逐位取较小值。",
+   "全部比完，表里每个字母的次数就是它在所有串中的最小出现次数。",
+   "最后按字母顺序把字符按次数摊开，输出顺序不限。"
+  ],
+  "cx": "时间 O(k·L)，空间 O(1)",
+  "trap": "取的是每个字符在各串中的最小次数，而不是它是否出现过。",
+  "code": "class Solution:\n    def commonChars(self, words: List[str]) -> List[str]:\n        base = [0] * 26\n        for ch in words[0]:\n            base[ord(ch) - ord('a')] += 1\n        for w in words[1:]:\n            cur = [0] * 26\n            for ch in w:\n                cur[ord(ch) - ord('a')] += 1\n            for i in range(26):\n                if cur[i] < base[i]:\n                    base[i] = cur[i]\n        res = []\n        for i in range(26):\n            res.extend([chr(ord('a') + i)] * base[i])\n        return res\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    k = int(data[0])\n    words = data[1:1 + k]\n    base = [0] * 26\n    for ch in words[0]:\n        base[ord(ch) - ord('a')] += 1\n    for w in words[1:]:\n        cur = [0] * 26\n        for ch in w:\n            cur[ord(ch) - ord('a')] += 1\n        for i in range(26):\n            if cur[i] < base[i]:\n                base[i] = cur[i]\n    out = []\n    for i in range(26):\n        out.extend([chr(ord('a') + i)] * base[i])\n    print(' '.join(out))\n\n\nif __name__ == '__main__':\n    main()\n",
+  "tests": [
+   [
+    "3 bella label roller",
+    "e l l"
+   ],
+   [
+    "3 cool lock cook",
+    "c o"
+   ],
+   [
+    "3 ll ll ll",
+    "l l"
+   ]
+  ]
+ }
+]
