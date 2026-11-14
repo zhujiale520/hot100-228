@@ -62,6 +62,7 @@
 │   ├── chapters_cpp.json      同上，C++
 │   ├── chapters_java.json     同上，Java
 │   ├── chapters_go.json       同上，Go
+│   ├── acm_appendix_cpp.json  附录 C 的 15 个模板（C++/Java/Go 各一份）
 │   ├── python/g01..g11.json   每题内容（题意/示例/口诀/思路/复杂度/易错/两套代码/用例）
 │   ├── cpp/g01..g11.json      C++ 版两套代码
 │   ├── java/g01..g11.json     Java 版两套代码
@@ -71,7 +72,8 @@
     ├── mkpdf.py               数据加载
     ├── chapters.py            题型说明源文件
     ├── acm_appendix.py        附录 C 的 15 个模板
-    ├── verify_lang.py         校验入口（本地 → 远程编译运行）
+    ├── acm_appendix_cpp.json  附录 C 模板的 C++/Java/Go 版本（与 data/ 同源）
+    ├── verify_lang.py         校验入口（本地跑，或 BUILD_HOST 远程跑）
     └── verify.py              远程校验器（编译 + 跑用例）
 ```
 
