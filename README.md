@@ -5,7 +5,7 @@
 
 | 语言 | PDF | 页数 | 大小 |
 |---|---|---|---|
-| Python | [leetcode-228-python.pdf](book/leetcode-228-python.pdf) | 482 | 2.6 MB |
+| Python | [leetcode-228-python.pdf](book/leetcode-228-python.pdf) | 482 | 2.5 MB |
 | C++ | [leetcode-228-cpp.pdf](book/leetcode-228-cpp.pdf) | 434 | 2.4 MB |
 | Java | [leetcode-228-java.pdf](book/leetcode-228-java.pdf) | 475 | 2.7 MB |
 | Go | [leetcode-228-go.pdf](book/leetcode-228-go.pdf) | 505 | 2.5 MB |
