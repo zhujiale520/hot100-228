@@ -1,11 +1,11 @@
 # LeetCode 速成 · Hot 100 + 代码随想录
 
 > 项目名：**LeetCode 速成**（Hot 100 + 代码随想录）。力扣「热题 100」+ 代码随想录补充题单，每题一句话记忆、思路要点、复杂度、易错点，外加
-> **LeetCode 提交版**和 **ACM 模式完整程序** 两套代码。四种语言各一本，排版按学位论文规范。
+> 每题给**朴素解法**（最直白、能看懂怎么想出来的）和**优化解法**（能过题的写法）两段 LeetCode 代码，外加一段 **ACM 模式完整程序**。四种语言各一本，排版按学位论文规范。
 
 | 语言 | PDF | 页数 | 大小 |
 |---|---|---|---|
-| Python | [leetcode-228-python.pdf](book/leetcode-228-python.pdf) | 406 | 2.2 MB |
+| Python | [leetcode-228-python.pdf](book/leetcode-228-python.pdf) | 482 | 2.6 MB |
 | C++ | [leetcode-228-cpp.pdf](book/leetcode-228-cpp.pdf) | 434 | 2.4 MB |
 | Java | [leetcode-228-java.pdf](book/leetcode-228-java.pdf) | 475 | 2.7 MB |
 | Go | [leetcode-228-go.pdf](book/leetcode-228-go.pdf) | 505 | 2.5 MB |
@@ -20,7 +20,7 @@
   4. 思路要点：3~6 条，顺序就是面试口述的顺序
   5. 复杂度
   6. 易错点
-  7. 两套代码：**LeetCode 版**（可直接粘贴提交）+ **ACM 版**（完整可运行，自己读标准输入、自己建链表和树）
+  7. 三段代码：**朴素解法**（先看这个，复杂度如实写清，允许超时）→ **优化解法**（提交用）→ **ACM 版**（完整可运行，自己读标准输入、自己建链表和树）
 - **三个附录**：
   - 附录 A：228 句口诀速查（表格）
   - 附录 B：228 条易错点速查（表格）
@@ -61,10 +61,11 @@
 │   ├── chapters_java.json     同上，Java
 │   ├── chapters_go.json       同上，Go
 │   ├── acm_appendix_cpp.json  附录 C 的 15 个模板（C++/Java/Go 各一份）
-│   ├── python/g01..g11.json   每题内容（题意/示例/口诀/思路/复杂度/易错/两套代码/用例）
-│   ├── cpp/g01..g11.json      C++ 版两套代码
-│   ├── java/g01..g11.json     Java 版两套代码
-│   └── go/g01..g11.json       Go 版两套代码
+│   ├── python/g01..g11.json   每题内容（题意/示例/口诀/思路/复杂度/易错/两套代码/用例；
+│   │                          其中 code=朴素解、code_opt=优化解、acm=完整程序）
+│   ├── cpp/g01..g11.json      C++ 版代码（暂为单解 + ACM，待同步朴素/优化）
+│   ├── java/g01..g11.json     Java 版代码（同上）
+│   └── go/g01..g11.json       Go 版代码（同上）
 └── tools/
     ├── mktex.py               由 data/ 生成 .tex（含词法高亮，输出 VSCode 配色）
     ├── mkpdf.py               数据加载
@@ -92,6 +93,11 @@ python3 tools/verify_lang.py go  --appendix tools/acm_appendix_go.json      # �
 ```
 
 `tools/mktex.py` 里改 `PREAMBLE` 可以调字号、行距、页边距；改 `COL` 字典可以换代码配色。
+
+## 更新记录
+
+- **v1.1（2026-11）**：Python 版改成「先朴素、再优化」结构——每题先给最直白的解法（二维 `dp[i][j]` 表、暴力枚举、递归等），再给能过题的优化解，`idea` 也改成「朴素想法 → 慢在哪 → 怎么优化 → 复杂度」的叙事。共 188 题补了朴素解法、147 题补了优化解法块，页数 406 → 482。
+- C++ / Java / Go 三本仍是单解结构，后续按同样规范同步。
 
 ## 说明
 

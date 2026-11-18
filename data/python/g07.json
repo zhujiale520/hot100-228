@@ -9,15 +9,15 @@
   "ex": "arr = [1,2,2,1,1,3] → true",
   "key": "先数频率，再把频率去重比个数",
   "idea": [
-   "用哈希表统计每个数字出现的次数，key 是数字，value 是次数。",
-   "把所有次数放进 set，集合大小等于次数个数就说明互不相同。",
-   "也可开布尔数组标记某个次数是否出现过，重复即返回 false。",
-   "边界：只有一种数字时次数集合只有一个元素，必定为 true。",
-   "数组长度不超过 1000，次数也在 1~1000，标记数组开 1001 够用。"
+   "朴素：对每种数字都两层循环数它出现了几次（同一个数只数第一次），O(n²)；再两两比较这些次数看有没有重复。",
+   "慢在一个数被反复数：n 个位置每个都扫一遍数组，次数之间又要两两比，n 上万就 TLE，需要后面的优化。",
+   "优化：用哈希表一次遍历把频率数完，再把频率丢进 set 去重，集合大小等于频率个数就说明互不相同。",
+   "时间 O(n)、空间 O(n)。",
+   "边界：只有一种数字时频率集合只有一个元素，必定为 true；判断的是次数重复，不是数字重复。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
   "trap": "判断的是次数之间是否重复，不是数字本身是否重复。",
-  "code": "class Solution:\n    def uniqueOccurrences(self, arr: List[int]) -> bool:\n        cnt = {}\n        for x in arr:\n            cnt[x] = cnt.get(x, 0) + 1\n        freqs = list(cnt.values())\n        return len(set(freqs)) == len(freqs)",
+  "code": "class Solution:\n    def uniqueOccurrences(self, arr: List[int]) -> bool:\n        # 每种数字都重新数一遍它出现了几次\n        freqs = []\n        for i in range(len(arr)):\n            if arr[i] in arr[:i]:      # 同一个数只数第一次\n                continue\n            c = 0\n            for j in range(len(arr)):\n                if arr[j] == arr[i]:\n                    c += 1\n            freqs.append(c)\n        # 再两两比较，看有没有两个数出现次数相同\n        for i in range(len(freqs)):\n            for j in range(i + 1, len(freqs)):\n                if freqs[i] == freqs[j]:\n                    return False\n        return True",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    cnt = {}\n    for i in range(1, n + 1):\n        x = int(data[i])\n        cnt[x] = cnt.get(x, 0) + 1\n    freqs = list(cnt.values())\n    ok = len(set(freqs)) == len(freqs)\n    print(\"true\" if ok else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -32,7 +32,8 @@
     "10\n-3 0 1 -3 1 1 1 -3 10 0",
     "true"
    ]
-  ]
+  ],
+  "code_opt": "class Solution:\n    def uniqueOccurrences(self, arr: List[int]) -> bool:\n        cnt = {}\n        for x in arr:\n            cnt[x] = cnt.get(x, 0) + 1\n        freqs = list(cnt.values())\n        return len(set(freqs)) == len(freqs)"
  },
  {
   "id": "LCR122",
@@ -44,15 +45,15 @@
   "ex": "s = \"We are happy.\" → \"We%20are%20happy.\"",
   "key": "先数空格扩容，再从后往前填 %20",
   "idea": [
-   "先数出空格个数，新串长度为原长加上 2 倍的空格数。",
-   "双指针：i 指向旧串末尾，j 指向新串末尾，从后往前搬运。",
-   "遇到空格就在 j 处倒着写入 0、2、%，j 一次后退 3 格。",
-   "从后往前是为了不覆盖还没读到的字符，时间仍是 O(n)。",
-   "边界：没有空格时原样返回；Python 串不可变，用列表拼接更快。"
+   "朴素：新建结果串，逐字符扫 s，遇到空格就往后接 %20，否则接原字符。",
+   "慢在 Python 字符串不可变：每次 res = res + ... 都要把已有内容整段复制一遍，总代价 O(n²)，长串会 TLE。",
+   "优化：用列表把字符片段收集起来，最后 join 一次拼成串，拼接只发生一次。",
+   "时间 O(n)、空间 O(n)。",
+   "边界：没有空格时原样返回；一个空格要扩成三个字符，顺序是 %、2、0，别写反。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
   "trap": "写入顺序是 %、2、0 三个字符，别写反；扩容长度要加 2 倍空格数。",
-  "code": "class Solution:\n    def replaceSpace(self, s: str) -> str:\n        res = []\n        for ch in s:\n            if ch == \" \":\n                res.append(\"%20\")\n            else:\n                res.append(ch)\n        return \"\".join(res)",
+  "code": "class Solution:\n    def replaceSpace(self, s: str) -> str:\n        res = \"\"\n        for ch in s:\n            if ch == \" \":\n                res = res + \"%20\"\n            else:\n                res = res + ch\n        return res",
   "acm": "import sys\n\n\ndef main():\n    lines = sys.stdin.read().splitlines()\n    s = lines[0] if lines else \"\"\n    out = []\n    for ch in s:\n        if ch == \" \":\n            out.append(\"%20\")\n        else:\n            out.append(ch)\n    print(\"\".join(out))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -67,7 +68,8 @@
     "a b",
     "a%20b"
    ]
-  ]
+  ],
+  "code_opt": "class Solution:\n    def replaceSpace(self, s: str) -> str:\n        res = []\n        for ch in s:\n            if ch == \" \":\n                res.append(\"%20\")\n            else:\n                res.append(ch)\n        return \"\".join(res)"
  },
  {
   "id": "LCR182",
@@ -79,14 +81,15 @@
   "ex": "s = \"abcdefg\", n = 2 → \"cdefgab\"",
   "key": "前段反、后段反、整体再反，就是左移",
   "idea": [
-   "左移 n 位等价于把串分成前 n 个和后 len-n 个两段，交换两段位置。",
-   "先分别翻转这两段，再对整个串翻转一次，段内顺序正好恢复。",
-   "三次翻转都在原数组上交换，只需要 O(1) 的额外空间。",
-   "边界：n 可能大于串长，先对长度取模；n 为 0 时原样返回。"
+   "朴素：左移一位就是把第一个字符搬到末尾，重复 n 次；n 先对串长取模。",
+   "慢在每次搬动都要把后面所有字符往前挪一格（pop(0) 是 O(len)），n 次就是 O(n²)，长串会 TLE。",
+   "优化：把串看成前后两段，先在原地分别翻转两段，再整体翻转一次，段内顺序刚好恢复。",
+   "时间 O(n)、空间 O(1)（转成列表那一步除外）。",
+   "边界：n 为 0 时原样返回；空串要单独处理，否则对长度取模会除零。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
   "trap": "只做两次局部翻转、漏掉整体翻转，得到的是反过来的串。",
-  "code": "class Solution:\n    def reverseLeftWords(self, s: str, n: int) -> str:\n        a = list(s)\n        n %= len(a)\n\n        def rev(i: int, j: int) -> None:\n            while i < j:\n                a[i], a[j] = a[j], a[i]\n                i += 1\n                j -= 1\n\n        rev(0, n - 1)\n        rev(n, len(a) - 1)\n        rev(0, len(a) - 1)\n        return \"\".join(a)",
+  "code": "class Solution:\n    def reverseLeftWords(self, s: str, n: int) -> str:\n        a = list(s)\n        if not a:\n            return \"\"\n        n %= len(a)\n        # 左移一位就是把第一个字符搬到末尾，重复 n 次\n        for _ in range(n):\n            first = a.pop(0)\n            a.append(first)\n        return \"\".join(a)",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a = list(data[1]) if len(data) > 1 else []\n    if a:\n        n %= len(a)\n\n    def rev(i, j):\n        while i < j:\n            a[i], a[j] = a[j], a[i]\n            i += 1\n            j -= 1\n\n    rev(0, n - 1)\n    rev(n, len(a) - 1)\n    rev(0, len(a) - 1)\n    print(\"\".join(a))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -101,7 +104,8 @@
     "0\nabc",
     "abc"
    ]
-  ]
+  ],
+  "code_opt": "class Solution:\n    def reverseLeftWords(self, s: str, n: int) -> str:\n        a = list(s)\n        n %= len(a)\n\n        def rev(i: int, j: int) -> None:\n            while i < j:\n                a[i], a[j] = a[j], a[i]\n                i += 1\n                j -= 1\n\n        rev(0, n - 1)\n        rev(n, len(a) - 1)\n        rev(0, len(a) - 1)\n        return \"\".join(a)"
  },
  {
   "id": "28",
@@ -113,15 +117,15 @@
   "ex": "haystack = \"hello\", needle = \"ll\" → 2",
   "key": "失配只退模式串，主串指针永不回头",
   "idea": [
-   "先求 needle 的 next 数组，next[i] 是前 i+1 个字符的最长相等前后缀长度。",
-   "建 next 时 j 指向前缀末尾，字符不等就让 j 退到 next[j-1] 再比。",
-   "匹配时主串指针 i 只增不减，失配让模式串指针 j 退到 next[j-1]。",
-   "j 等于 needle 长度说明匹配完成，返回 i - len(needle) + 1。",
-   "边界：needle 为空返回 0，needle 比 haystack 长直接返回 -1。"
+   "朴素：枚举主串每个起点 i，从 i 开始和 needle 逐字符比对，全对就返回 i。",
+   "慢在失配后主串指针退回 i+1 从头比，最坏每个起点都要比 m 个字符，O(n·m)，长文本会 TLE。",
+   "优化：先求 needle 的 next 数组（最长相等前后缀），失配时只把模式串指针退到 next[j-1]，主串指针永不回头。",
+   "时间 O(n+m)、空间 O(m)。",
+   "边界：needle 为空返回 0；needle 比 haystack 长时循环一次都不进，直接返回 -1。"
   ],
   "cx": "时间 O(n+m)，空间 O(m)",
   "trap": "回退的是模式串指针，主串下标 i 不能回退，否则退化成暴力匹配。",
-  "code": "class Solution:\n    def strStr(self, haystack: str, needle: str) -> int:\n        m = len(needle)\n        if m == 0:\n            return 0\n        nxt = [0] * m\n        j = 0\n        for i in range(1, m):\n            while j > 0 and needle[i] != needle[j]:\n                j = nxt[j - 1]\n            if needle[i] == needle[j]:\n                j += 1\n            nxt[i] = j\n        j = 0\n        for i in range(len(haystack)):\n            while j > 0 and haystack[i] != needle[j]:\n                j = nxt[j - 1]\n            if haystack[i] == needle[j]:\n                j += 1\n            if j == m:\n                return i - m + 1\n        return -1",
+  "code": "class Solution:\n    def strStr(self, haystack: str, needle: str) -> int:\n        n, m = len(haystack), len(needle)\n        if m == 0:\n            return 0\n        for i in range(n - m + 1):\n            # 从 i 开始和 needle 逐字符比一遍\n            j = 0\n            while j < m and haystack[i + j] == needle[j]:\n                j += 1\n            if j == m:\n                return i\n        return -1",
   "acm": "import sys\n\n\ndef kmp(haystack, needle):\n    m = len(needle)\n    if m == 0:\n        return 0\n    nxt = [0] * m\n    j = 0\n    for i in range(1, m):\n        while j > 0 and needle[i] != needle[j]:\n            j = nxt[j - 1]\n        if needle[i] == needle[j]:\n            j += 1\n        nxt[i] = j\n    j = 0\n    for i in range(len(haystack)):\n        while j > 0 and haystack[i] != needle[j]:\n            j = nxt[j - 1]\n        if haystack[i] == needle[j]:\n            j += 1\n        if j == m:\n            return i - m + 1\n    return -1\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if len(data) < 2:\n        return\n    print(kmp(data[0], data[1]))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -136,7 +140,8 @@
     "mississippi issip",
     "4"
    ]
-  ]
+  ],
+  "code_opt": "class Solution:\n    def strStr(self, haystack: str, needle: str) -> int:\n        m = len(needle)\n        if m == 0:\n            return 0\n        nxt = [0] * m\n        j = 0\n        for i in range(1, m):\n            while j > 0 and needle[i] != needle[j]:\n                j = nxt[j - 1]\n            if needle[i] == needle[j]:\n                j += 1\n            nxt[i] = j\n        j = 0\n        for i in range(len(haystack)):\n            while j > 0 and haystack[i] != needle[j]:\n                j = nxt[j - 1]\n            if haystack[i] == needle[j]:\n                j += 1\n            if j == m:\n                return i - m + 1\n        return -1"
  },
  {
   "id": "151",
@@ -148,11 +153,11 @@
   "ex": "s = \"the sky is blue\" → \"blue is sky the\"",
   "key": "整体翻转再逐词翻转，空格顺手压成一个",
   "idea": [
-   "先清洗：去掉首尾空格，单词之间只保留一个空格。",
-   "整体翻转后单词顺序反了，但每个单词内部的字母也反了。",
-   "再对每个单词内部翻转一次，字母顺序恢复，答案就出来了。",
-   "Python 里 split() 再逆序 join 一步完成清洗，代码最短。",
-   "边界：全是空格时返回空串；单词之间多个空格也只能输出一个。"
+   "朴素：先用 split() 按空白切出单词（自动去掉多余空格），把列表整体逆序，再用一个空格 join 回去。",
+   "慢在哪：没有更慢的常见写法——每个字符至少要看一遍，O(n) 就是下界，这题不需要额外优化。",
+   "优化：唯一要注意的是必须用无参 split()，它会把连续空格吃掉；手工逐字符扫一遍也是一个等价写法。",
+   "时间 O(n)、空间 O(n)。",
+   "边界：全是空格时 split() 得到空列表，返回空串；单词之间的多个空格只会输出一个。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
   "trap": "用 split(' ') 会把连续空格拆成空串，必须用无参数的 split()。",
@@ -183,11 +188,11 @@
   "ex": "s = [\"h\",\"e\",\"l\",\"l\",\"o\"] → [\"o\",\"l\",\"l\",\"e\",\"h\"]",
   "key": "左右指针向中间夹，边走边交换",
   "idea": [
-   "左指针从 0 出发，右指针从末尾出发，同时向中间靠拢。",
-   "每次交换 s[i] 和 s[j]，然后 i 加一、j 减一。",
-   "i 大于等于 j 时结束，中间那个元素不需要动。",
-   "必须原地交换，不能新建数组，额外空间是 O(1)。",
-   "边界：长度 0 或 1 的数组循环体一次都不进，直接返回原数组。"
+   "朴素：左右指针从两头向中间夹，交换 s[i] 和 s[j]，然后 i 加一、j 减一。",
+   "慢在哪：没有更慢的地方——每个字符都必须被读一次，O(n) 就是下界，这题不需要额外优化。",
+   "优化：双指针原地交换同时满足 O(n) 时间和 O(1) 额外空间，已经是题目要求的最优解。",
+   "时间 O(n)、空间 O(1)。",
+   "边界：长度 0 或 1 时循环体一次都不进；条件写 i < j，写成 i <= j 会把中间元素又换回去。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
   "trap": "循环条件写成 i <= j 会多交换一次，等于把中间元素又换回原位。",
@@ -214,15 +219,15 @@
   "ex": "s = \"abab\" → true",
   "key": "s+s 掐头去尾，里面还能搜到 s 就成立",
   "idea": [
-   "若 s 由一个子串重复构成，则 s+s 中间必然还完整出现一次 s。",
-   "把 s+s 去掉首尾各一个字符，再判断 s 是否是它的子串。",
-   "去掉首尾是为了排除 s 刚好匹配自己原来那一段的情况。",
-   "KMP 写法：n 能被 n - next[n-1] 整除且 next[n-1] 大于 0。",
-   "边界：长度小于 2 的串没有更短子串，直接返回 false。"
+   "朴素：枚举子串长度 L（必须整除 n），再逐字符检查 s[i] == s[i-L]，全对就说明由长度 L 的子串重复而成。",
+   "慢在长度 L 最多有 n/2 种，每种都要把整串扫一遍，最坏 O(n²)，长串会 TLE。",
+   "优化：s 能由某个子串重复而成的充要条件是 s 在 (s+s) 掐头去尾后还能找到；也可以用 KMP 的 next 数组，看 n 能否被 n-next[n-1] 整除。",
+   "s+s 写法时间 O(n)、空间 O(n)；KMP 写法同样 O(n)。",
+   "边界：长度小于 2 的串没有更短的子串，直接返回 false；掐头去尾是为了排除 s 匹配到原来那一段。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
   "trap": "忘记去掉首尾字符，s 总能匹配到 s+s 的前半段，答案恒为 true。",
-  "code": "class Solution:\n    def repeatedSubstringPattern(self, s: str) -> bool:\n        n = len(s)\n        if n < 2:\n            return False\n        return s in (s + s)[1:-1]",
+  "code": "class Solution:\n    def repeatedSubstringPattern(self, s: str) -> bool:\n        n = len(s)\n        # 枚举子串长度，必须能整除 n\n        for L in range(1, n // 2 + 1):\n            if n % L:\n                continue\n            ok = True\n            for i in range(L, n):\n                if s[i] != s[i - L]:\n                    ok = False\n                    break\n            if ok:\n                return True\n        return False",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s = data[0]\n    n = len(s)\n    ok = n >= 2 and s in (s + s)[1:-1]\n    print(\"true\" if ok else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -237,7 +242,8 @@
     "abcabcabcabc",
     "true"
    ]
-  ]
+  ],
+  "code_opt": "class Solution:\n    def repeatedSubstringPattern(self, s: str) -> bool:\n        n = len(s)\n        if n < 2:\n            return False\n        return s in (s + s)[1:-1]"
  },
  {
   "id": "541",
@@ -249,11 +255,11 @@
   "ex": "s = \"abcdefg\", k = 2 → \"bacdfeg\"",
   "key": "循环步长写 2k，每段只反前 k 个",
   "idea": [
-   "i 从 0 开始每次加 2k，i 就是每个区间的起点。",
-   "每段要反转的是 [i, min(i+k, n)-1]，越界时自动截断。",
-   "剩余长度不足 k 时 min 取到 n，等于把剩下的字符全部反转。",
-   "剩余正好 k 个时只反这 k 个，后面没有字符需要保留。",
-   "边界：k 大于串长时整个串被反转一次。"
+   "朴素：每 2k 个字符为一段，把这一段的前 k 个翻转；剩余不足 k 个就全部翻转。",
+   "慢在哪：其实没有更慢的写法——每个字符最多被翻一次，O(n) 已经是下界，这题不需要额外优化。",
+   "优化：不用换算法，只要别用计数器累加判断位置，直接让 i 每次跳 2k、让切片自动截断边界。",
+   "时间 O(n)、空间 O(n)（切片会建临时列表）。",
+   "边界：k 大于串长时整串被翻一次；剩余恰好 k 个时只翻这 k 个，后面没有字符要保留。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
   "trap": "不要用计数器累加判断位置，直接让 i 每次跳 2k，不容易写错。",
@@ -284,11 +290,11 @@
   "ex": "s = \"ab#c\", t = \"ad#c\" → true",
   "key": "遇 # 就弹栈，最后比两个栈是否一样",
   "idea": [
-   "普通字符入栈，# 表示删掉前一个字符，也就是弹出栈顶。",
-   "栈空时遇到 # 什么也不做，退格对空文本没有效果。",
-   "两个字符串各跑一遍，最后比较两个栈的内容即可。",
-   "进阶：双指针从后往前扫，数需要跳过的字符个数，空间 O(1)。",
-   "边界：整个串被退格删完时两个栈都为空，结果为 true。"
+   "朴素：照着题意用栈模拟，普通字符入栈，# 就弹掉栈顶（栈空时忽略，等于退格无效），最后比两个栈的内容。",
+   "慢在哪：如果真去字符串里反复找 # 再删它和前一个字符，每次删除都要搬移后面的字符，O(n²)。",
+   "优化：栈把「删掉前一个字符」变成 O(1) 弹栈，两个串各扫一遍即可，这就是最直接的模拟。",
+   "时间 O(n)、空间 O(n)；想省空间可以从后往前双指针扫，空间 O(1)。",
+   "边界：整串被删空时两个栈都为空，返回 true；# 可能连续出现，弹栈前必须判空。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
   "trap": "# 可能连续出现，弹栈前必须判空，否则会下标越界。",
@@ -319,11 +325,11 @@
   "ex": "name = \"alex\", typed = \"aaleex\" → true",
   "key": "逐字符对齐，多出来的必须和上一个相同",
   "idea": [
-   "两个指针同时扫 name 和 typed，字符相同就一起后移。",
-   "字符不同时看 typed 当前字符，和前一个相同说明是长按，只动 j。",
-   "既对不上又不是长按，直接返回 false。",
-   "name 扫完后 typed 剩下的字符必须全是最后一个字符的长按。",
-   "边界：typed 比 name 短一定失败；typed 首字符无法长按。"
+   "朴素：i、j 两个指针同时扫 name 和 typed，字符相同就一起后移。",
+   "慢在哪：字符不同时不能直接判错——typed[j] 可能只是长按多出来的，要和 typed[j-1] 比；漏了这一步会把「alex」和「aaleex」判错。",
+   "优化：把长按当成跳过条件，typed[j] == typed[j-1] 就只移 j，否则返回 false；扫完还要检查 name 也扫完了。",
+   "时间 O(n+m)、空间 O(1)。",
+   "边界：typed 比 name 短一定失败；typed 首字符无法长按，j == 0 时不能走长按分支。"
   ],
   "cx": "时间 O(n+m)，空间 O(1)",
   "trap": "只比较前缀会漏掉 typed 末尾多出的字符，最后要检查 name 是否扫完。",
@@ -354,11 +360,11 @@
   "ex": "tokens = [\"2\",\"1\",\"+\",\"3\",\"*\"] → 9",
   "key": "数字入栈，遇运算符弹两个算完再入栈",
   "idea": [
-   "从左往右扫 token，遇到数字就转成整数压入栈。",
-   "遇到运算符先弹右操作数 b，再弹左操作数 a，计算 a op b。",
-   "两个操作数的顺序不能反，减法和除法反了结果就错。",
-   "Python 的 // 向下取整，本题除法要向零截断，负数要先取绝对值。",
-   "边界：最后一个 token 处理完，栈里只剩一个数，它就是答案。"
+   "朴素：从左往右扫 token，遇到数字就转成整数入栈；遇到运算符就弹出两个数，算完再入栈。",
+   "慢在哪：没有更慢的常见写法——表达式总得按顺序算一遍，O(n) 是下界；硬改成递归求值反而更绕。",
+   "优化：不需要换算法，栈就是这题最直接的模拟；关键是先弹右操作数、再弹左操作数，顺序不能反。",
+   "时间 O(n)、空间 O(n)。",
+   "边界：除法向零截断，Python 的 // 是向下取整，负数要先按绝对值算再补符号。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
   "trap": "-7/2 用 // 得 -4，本题要求 -3，必须按绝对值除完再补符号。",
@@ -389,15 +395,15 @@
   "ex": "push(1), push(2), top() → 2",
   "key": "入队后把前面的元素全转到队尾，队头即栈顶",
   "idea": [
-   "核心是让队头始终是最后进来的元素，也就是栈顶。",
-   "每次 push 先把新元素放队尾，再把前面 n-1 个元素依次搬到队尾。",
-   "这样新元素被转到队头，pop 和 top 直接取队头，都是 O(1)。",
-   "两个队列也能做，另一个只当备份，思路相同但要多搬一次。",
-   "边界：只有 push 是 O(n)，其余三个操作都是 O(1)。"
+   "朴素：push 直接入队；pop/top 时把前面 len-1 个元素搬到另一个队列，只留下队尾那个当栈顶。",
+   "慢在哪：每次 pop/top 都要搬 n-1 个元素，连续 n 次操作就是 O(n²)。",
+   "优化：把搬运挪到 push——新元素入队后立刻把前面 n-1 个元素依次搬到队尾，队头永远是最新元素。",
+   "push O(n)，pop/top/empty 都是 O(1)，空间 O(n)。",
+   "边界：空栈不能 pop/top；一个队列就够，另一个只当临时中转。"
   ],
   "cx": "push O(n)，pop/top/empty O(1)，空间 O(n)",
   "trap": "一个队列就够，别为模拟栈申请两个队列还把搬运顺序写反。",
-  "code": "class MyStack:\n    def __init__(self):\n        self.q = []\n\n    def push(self, x: int) -> None:\n        self.q.append(x)\n        for _ in range(len(self.q) - 1):\n            self.q.append(self.q.pop(0))\n\n    def pop(self) -> int:\n        return self.q.pop(0)\n\n    def top(self) -> int:\n        return self.q[0]\n\n    def empty(self) -> bool:\n        return not self.q",
+  "code": "class MyStack:\n    def __init__(self):\n        self.q = []\n\n    def push(self, x: int) -> None:\n        self.q.append(x)\n\n    def pop(self) -> int:\n        # 把前面 len-1 个元素搬到另一个队列，队尾那个就是栈顶\n        tmp = []\n        while len(self.q) > 1:\n            tmp.append(self.q.pop(0))\n        top = self.q.pop(0)\n        self.q = tmp\n        return top\n\n    def top(self) -> int:\n        tmp = []\n        while len(self.q) > 1:\n            tmp.append(self.q.pop(0))\n        top = self.q.pop(0)\n        tmp.append(top)\n        self.q = tmp\n        return top\n\n    def empty(self) -> bool:\n        return not self.q",
   "acm": "import sys\n\n\nclass MyStack:\n    def __init__(self):\n        self.q = []\n\n    def push(self, x):\n        self.q.append(x)\n        for _ in range(len(self.q) - 1):\n            self.q.append(self.q.pop(0))\n\n    def pop(self):\n        return self.q.pop(0)\n\n    def top(self):\n        return self.q[0]\n\n    def empty(self):\n        return not self.q\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    m = int(data[idx])\n    idx += 1\n    st = MyStack()\n    out = []\n    for _ in range(m):\n        op = data[idx]\n        idx += 1\n        if op == \"push\":\n            st.push(int(data[idx]))\n            idx += 1\n        elif op == \"pop\":\n            out.append(str(st.pop()))\n        elif op == \"top\":\n            out.append(str(st.top()))\n        else:\n            out.append(str(st.empty()))\n    for line in out:\n        print(line)\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -408,7 +414,8 @@
     "6\npush 1\npush 2\npop\npush 3\ntop\nempty",
     "2\n3\nFalse"
    ]
-  ]
+  ],
+  "code_opt": "class MyStack:\n    def __init__(self):\n        self.q = []\n\n    def push(self, x: int) -> None:\n        self.q.append(x)\n        for _ in range(len(self.q) - 1):\n            self.q.append(self.q.pop(0))\n\n    def pop(self) -> int:\n        return self.q.pop(0)\n\n    def top(self) -> int:\n        return self.q[0]\n\n    def empty(self) -> bool:\n        return not self.q"
  },
  {
   "id": "232",
@@ -420,15 +427,15 @@
   "ex": "push(1), push(2), peek() → 1",
   "key": "一进一出两个栈，出栈空了才整批倒过去",
   "idea": [
-   "in 栈只负责 push，out 栈只负责 pop 和 peek。",
-   "要出队时若 out 为空，就把 in 全部弹出压进 out，顺序正好翻转。",
-   "out 不空时绝对不能倒，否则顺序会被打乱。",
-   "每个元素最多进 out 一次、出 out 一次，均摊到每次是 O(1)。",
-   "边界：peek 和 pop 共用同一套倒栈逻辑，peek 只是不删除元素。"
+   "朴素：每次 push 都用一个临时栈把已有元素倒出来，把新元素垫到栈底，再把临时栈倒回去。",
+   "慢在哪：一次 push 要倒腾两遍，n 次 push 就是 O(n²)。",
+   "优化：两个栈分工，in 只管进、out 只管出；只有 out 空时才把 in 整批倒过去，每个元素一辈子最多倒一次。",
+   "均摊时间 O(1)、空间 O(n)。",
+   "边界：out 不空时绝对不能倒，否则顺序被打乱；peek 和 pop 共用同一套倒栈逻辑。"
   ],
   "cx": "均摊时间 O(1)，空间 O(n)",
   "trap": "每次 pop 都倒一次栈会打乱顺序，必须等 out 空了再整批倒。",
-  "code": "class MyQueue:\n    def __init__(self):\n        self.st_in = []\n        self.st_out = []\n\n    def push(self, x: int) -> None:\n        self.st_in.append(x)\n\n    def pop(self) -> int:\n        self.peek()\n        return self.st_out.pop()\n\n    def peek(self) -> int:\n        if not self.st_out:\n            while self.st_in:\n                self.st_out.append(self.st_in.pop())\n        return self.st_out[-1]\n\n    def empty(self) -> bool:\n        return not self.st_in and not self.st_out",
+  "code": "class MyQueue:\n    def __init__(self):\n        self.st = []\n\n    def push(self, x: int) -> None:\n        # 用临时栈把已有元素倒出来，把新元素垫到栈底，再倒回去\n        tmp = []\n        while self.st:\n            tmp.append(self.st.pop())\n        self.st.append(x)\n        while tmp:\n            self.st.append(tmp.pop())\n\n    def pop(self) -> int:\n        return self.st.pop()\n\n    def peek(self) -> int:\n        return self.st[-1]\n\n    def empty(self) -> bool:\n        return not self.st",
   "acm": "import sys\n\n\nclass MyQueue:\n    def __init__(self):\n        self.st_in = []\n        self.st_out = []\n\n    def push(self, x):\n        self.st_in.append(x)\n\n    def pop(self):\n        self.peek()\n        return self.st_out.pop()\n\n    def peek(self):\n        if not self.st_out:\n            while self.st_in:\n                self.st_out.append(self.st_in.pop())\n        return self.st_out[-1]\n\n    def empty(self):\n        return not self.st_in and not self.st_out\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    m = int(data[idx])\n    idx += 1\n    q = MyQueue()\n    out = []\n    for _ in range(m):\n        op = data[idx]\n        idx += 1\n        if op == \"push\":\n            q.push(int(data[idx]))\n            idx += 1\n        elif op == \"pop\":\n            out.append(str(q.pop()))\n        elif op == \"peek\":\n            out.append(str(q.peek()))\n        else:\n            out.append(str(q.empty()))\n    for line in out:\n        print(line)\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -439,7 +446,8 @@
     "6\npush 1\npush 2\npop\npush 3\npeek\npop",
     "1\n2\n2"
    ]
-  ]
+  ],
+  "code_opt": "class MyQueue:\n    def __init__(self):\n        self.st_in = []\n        self.st_out = []\n\n    def push(self, x: int) -> None:\n        self.st_in.append(x)\n\n    def pop(self) -> int:\n        self.peek()\n        return self.st_out.pop()\n\n    def peek(self) -> int:\n        if not self.st_out:\n            while self.st_in:\n                self.st_out.append(self.st_in.pop())\n        return self.st_out[-1]\n\n    def empty(self) -> bool:\n        return not self.st_in and not self.st_out"
  },
  {
   "id": "649",
@@ -451,15 +459,15 @@
   "ex": "senate = \"RD\" → \"Radiant\"",
   "key": "两队列存下标，小的先出手，把对手踢掉",
   "idea": [
-   "两个队列分别存 R 和 D 的下标，下标小的人先发言。",
-   "先发言的人禁言对方，也就是把对方队首直接弹出丢掉。",
-   "发言者把下标加 n 后放回队尾，表示下一轮还能继续投票。",
-   "反复比较两个队首，某队为空时另一方获胜。",
-   "边界：只有一个参议员时，直接就是该阵营获胜。"
+   "朴素：用一个列表存还活着的议员，谁发言就绕圈找下一个活着的对手，直接把他从列表里删掉。",
+   "慢在哪：每删一个都要扫一圈找对手、再搬移列表，最多删 n 次，整体 O(n²)。",
+   "优化：两个队列分别存 R 和 D 的下标，每次各取队首，下标小的先发言，把对手队首丢掉、自己加 n 后回队尾。",
+   "时间 O(n)、空间 O(n)。",
+   "边界：只剩一个议员时直接获胜；下标加 n 表示下一轮再发言，不用真的模拟轮次。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
   "trap": "不要真的按轮去循环整个字符串，用下标加 n 表示进入下一轮更简单。",
-  "code": "class Solution:\n    def predictPartyVictory(self, senate: str) -> str:\n        n = len(senate)\n        r = [i for i, ch in enumerate(senate) if ch == \"R\"]\n        d = [i for i, ch in enumerate(senate) if ch == \"D\"]\n        while r and d:\n            a, b = r.pop(0), d.pop(0)\n            if a < b:\n                r.append(a + n)\n            else:\n                d.append(b + n)\n        return \"Radiant\" if r else \"Dire\"",
+  "code": "class Solution:\n    def predictPartyVictory(self, senate: str) -> str:\n        alive = list(senate)\n        i = 0\n        while \"R\" in alive and \"D\" in alive:\n            enemy = \"D\" if alive[i] == \"R\" else \"R\"\n            # 从 i 后面绕圈找第一个还活着的对手\n            j = (i + 1) % len(alive)\n            while alive[j] != enemy:\n                j = (j + 1) % len(alive)\n            alive.pop(j)          # 对手被禁言\n            if j < i:\n                i -= 1            # 删的是前面的人，i 要跟着前移\n            i = (i + 1) % len(alive)\n        return \"Radiant\" if alive[0] == \"R\" else \"Dire\"",
   "acm": "import sys\n\n\ndef predict(senate):\n    n = len(senate)\n    r = [i for i, ch in enumerate(senate) if ch == \"R\"]\n    d = [i for i, ch in enumerate(senate) if ch == \"D\"]\n    while r and d:\n        a, b = r.pop(0), d.pop(0)\n        if a < b:\n            r.append(a + n)\n        else:\n            d.append(b + n)\n    return \"Radiant\" if r else \"Dire\"\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    print(predict(data[0]))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -474,7 +482,8 @@
     "DDRRR",
     "Dire"
    ]
-  ]
+  ],
+  "code_opt": "class Solution:\n    def predictPartyVictory(self, senate: str) -> str:\n        n = len(senate)\n        r = [i for i, ch in enumerate(senate) if ch == \"R\"]\n        d = [i for i, ch in enumerate(senate) if ch == \"D\"]\n        while r and d:\n            a, b = r.pop(0), d.pop(0)\n            if a < b:\n                r.append(a + n)\n            else:\n                d.append(b + n)\n        return \"Radiant\" if r else \"Dire\""
  },
  {
   "id": "1047",
@@ -486,11 +495,11 @@
   "ex": "s = \"abbaca\" → \"ca\"",
   "key": "栈顶相同就弹出，不同就压入",
   "idea": [
-   "扫一遍字符串，用栈保存还没被消除的字符。",
-   "当前字符和栈顶相同，说明出现相邻重复，弹出栈顶即可。",
-   "不同就压入；删除之后新的相邻关系由栈自动维护。",
-   "答案唯一，最后把栈里的字符拼成字符串就是结果。",
-   "边界：全部消完时返回空串；栈空时不能弹，要先判空。"
+   "朴素：按题意把 s 从左到右过一遍，用栈记下还没被消掉的字符；当前字符和栈顶相同就弹栈，否则入栈。",
+   "慢在哪：如果真去字符串里反复扫描、删掉一对相邻相同字符再从头来，最坏删 n/2 次、每次 O(n)，整体 O(n²)。",
+   "优化：栈把「删除」变成 O(1) 弹栈，栈顶天然就是左边还没被消掉的最后一个字符，一遍扫完。",
+   "时间 O(n)、空间 O(n)。",
+   "边界：全部消完返回空串；栈空时不能弹，要先判空。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
   "trap": "消除后不能用旧下标回退重扫，栈顶本身就是新的相邻字符。",
@@ -521,15 +530,15 @@
   "ex": "nums1 = [4,1,2], nums2 = [1,3,4,2] → [-1,3,-1]",
   "key": "nums2 上跑单调栈，答案记字典再查",
   "idea": [
-   "只对 nums2 跑单调栈，栈里元素从栈底到栈顶递减。",
-   "遍历到 x 时，栈顶所有比 x 小的元素都找到了答案，弹出并记录。",
-   "把答案存进字典，x 自己再入栈，继续等右边更大的数。",
-   "最后按 nums1 的顺序查字典，查不到的位置就是 -1。",
-   "边界：nums2 严格递减时，所有答案都是 -1。"
+   "朴素：对 nums1 的每个 x，先在 nums2 里找到它的位置，再从它右边扫第一个比它大的数。",
+   "慢在哪：nums1 里每个元素都要把 nums2 扫两遍，O(n·m)，很多比较被重复做，数据大了会 TLE。",
+   "优化：只对 nums2 跑一次单调栈（栈内从栈底到栈顶递减），元素被弹出时就找到了答案，答案记进字典。",
+   "时间 O(n+m)、空间 O(m)。",
+   "边界：nums2 严格递减时没有任何元素被弹出，所有答案都是 -1。"
   ],
   "cx": "时间 O(n+m)，空间 O(m)",
   "trap": "不要对 nums2 每个元素都往右暴力找，那是 O(n²)，一次单调栈就够。",
-  "code": "class Solution:\n    def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:\n        st = []\n        nxt = {}\n        for x in nums2:\n            while st and st[-1] < x:\n                nxt[st.pop()] = x\n            st.append(x)\n        return [nxt.get(x, -1) for x in nums1]",
+  "code": "class Solution:\n    def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:\n        res = []\n        for x in nums1:\n            ans = -1\n            # 先在 nums2 里找到 x 的位置\n            for j in range(len(nums2)):\n                if nums2[j] == x:\n                    # 再从它右边找第一个更大的数\n                    for k in range(j + 1, len(nums2)):\n                        if nums2[k] > x:\n                            ans = nums2[k]\n                            break\n                    break\n            res.append(ans)\n        return res",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n1 = int(data[idx])\n    idx += 1\n    nums1 = [int(v) for v in data[idx:idx + n1]]\n    idx += n1\n    n2 = int(data[idx])\n    idx += 1\n    nums2 = [int(v) for v in data[idx:idx + n2]]\n    st = []\n    nxt = {}\n    for x in nums2:\n        while st and st[-1] < x:\n            nxt[st.pop()] = x\n        st.append(x)\n    print([nxt.get(x, -1) for x in nums1])\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -540,7 +549,8 @@
     "2\n2 4\n4\n1 2 3 4",
     "[3, -1]"
    ]
-  ]
+  ],
+  "code_opt": "class Solution:\n    def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:\n        st = []\n        nxt = {}\n        for x in nums2:\n            while st and st[-1] < x:\n                nxt[st.pop()] = x\n            st.append(x)\n        return [nxt.get(x, -1) for x in nums1]"
  },
  {
   "id": "503",
@@ -552,15 +562,15 @@
   "ex": "nums = [1,2,1] → [2,-1,2]",
   "key": "数组走两遍，下标取模，答案只填前 n 个",
   "idea": [
-   "环形可以拉直成走两遍，循环 2n 次，下标用 i % n 取模。",
-   "栈里存下标，栈内下标对应的值从栈底到栈顶递减。",
-   "当前值大于栈顶下标的值，栈顶就找到了答案，弹出并写入。",
-   "第二遍只是给第一遍没找到答案的位置补答案。",
-   "边界：元素全相同或严格递减时，答案全是 -1。"
+   "朴素：对每个位置 i，从它右边开始绕圈往后找（下标取模），遇到第一个比 nums[i] 大的就记下来。",
+   "慢在哪：每个位置最多要扫 n-1 个数，n 个位置就是 O(n²)，会 TLE。",
+   "优化：把数组拉直成 2n 长度跑单调栈，栈里存下标，遇到更大的就弹栈写答案，答案只填前 n 个位置。",
+   "时间 O(n)、空间 O(n)。",
+   "边界：元素全相同或严格递减时答案全是 -1；必须严格大于才弹栈，相等不能弹。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
   "trap": "严格大于才弹栈，遇到相等不能弹，否则相同元素会互相误判。",
-  "code": "class Solution:\n    def nextGreaterElements(self, nums: List[int]) -> List[int]:\n        n = len(nums)\n        res = [-1] * n\n        st = []\n        for i in range(2 * n):\n            x = nums[i % n]\n            while st and nums[st[-1]] < x:\n                res[st.pop()] = x\n            st.append(i % n)\n        return res",
+  "code": "class Solution:\n    def nextGreaterElements(self, nums: List[int]) -> List[int]:\n        n = len(nums)\n        res = []\n        for i in range(n):\n            ans = -1\n            # 绕圈往后找，下标取模\n            for k in range(1, n):\n                x = nums[(i + k) % n]\n                if x > nums[i]:\n                    ans = x\n                    break\n            res.append(ans)\n        return res",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(v) for v in data[1:1 + n]]\n    res = [-1] * n\n    st = []\n    for i in range(2 * n):\n        x = nums[i % n]\n        while st and nums[st[-1]] < x:\n            res[st.pop()] = x\n        st.append(i % n)\n    print(res)\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -575,7 +585,8 @@
     "1\n5",
     "[-1]"
    ]
-  ]
+  ],
+  "code_opt": "class Solution:\n    def nextGreaterElements(self, nums: List[int]) -> List[int]:\n        n = len(nums)\n        res = [-1] * n\n        st = []\n        for i in range(2 * n):\n            x = nums[i % n]\n            while st and nums[st[-1]] < x:\n                res[st.pop()] = x\n            st.append(i % n)\n        return res"
  },
  {
   "id": "100",
@@ -587,10 +598,11 @@
   "ex": "p = [1,2,3], q = [1,2,3] → true",
   "key": "两棵树一起递归，空对空、值比值",
   "idea": [
-   "递归比较两个节点：都为空返回 true，只有一个为空返回 false。",
-   "两个节点值不同返回 false，否则继续比较左子树和右子树。",
-   "左右子树都相同才返回 true，用 and 连接可以短路。",
-   "边界：两棵都是空树算相同；节点值可能为负，只比相等不比大小。"
+   "朴素：递归同时走两棵树，两个都空返回 true，只有一个空或者值不同返回 false。",
+   "慢在哪：没有更快的做法——必须比完每个节点，O(n) 是下界，这题不需要额外优化。",
+   "优化：保持递归即可，左右子树用 and 连接可以短路，一发现不同就立刻返回。",
+   "时间 O(n)、空间 O(h)，h 是树高（递归栈）。",
+   "边界：两个空树算相同；节点值可能为负，只比相等不比大小；必须先判空再取 val。"
   ],
   "cx": "时间 O(n)，空间 O(h)",
   "trap": "必须先判空再取 val，否则访问 None 的 val 会直接报错。",
@@ -621,15 +633,15 @@
   "ex": "inorder = [9,3,15,20,7], postorder = [9,15,7,20,3] → [3,9,20,null,null,15,7]",
   "key": "后序末尾是根，按中序切成左右两半",
   "idea": [
-   "后序最后一个元素就是当前子树的根，先建出根节点。",
-   "在中序里找到根的位置，左边是左子树，右边是右子树。",
-   "用哈希表存值到中序下标的映射，查找从 O(n) 降到 O(1)。",
-   "递归只传区间下标：右子树后序右端是 pr-1，左子树再减右子树长度。",
-   "边界：区间为空返回 None；题目保证没有重复值。"
+   "朴素：后序最后一个元素是根，在中序里找到它的位置 k，左边是左子树、右边是右子树，然后递归。",
+   "慢在哪：每次都用 inorder.index 线性找根，还靠切片切子数组，链状树退化成 O(n²)，会 TLE。",
+   "优化：先用哈希表记下每个值在中序里的下标，查询变 O(1)；递归只传区间下标，不再切片。",
+   "时间 O(n)、空间 O(n)。",
+   "边界：区间为空返回 None；右子树在后序里的右端是 pr-1，左子树的根还要再减去右子树长度。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
   "trap": "左子树根在后序里的位置是 pr-(右子树长度)-1，写成 pr-1 会切错。",
-  "code": "class Solution:\n    def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:\n        pos = {v: i for i, v in enumerate(inorder)}\n\n        def build(l: int, r: int, pr: int) -> Optional[TreeNode]:\n            if l > r:\n                return None\n            root = TreeNode(postorder[pr])\n            k = pos[root.val]\n            root.left = build(l, k - 1, pr - (r - k) - 1)\n            root.right = build(k + 1, r, pr - 1)\n            return root\n\n        return build(0, len(inorder) - 1, len(postorder) - 1)",
+  "code": "class Solution:\n    def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:\n        if not inorder:\n            return None\n        root = TreeNode(postorder[-1])\n        # 每次都在中序里线性找根的位置\n        k = inorder.index(postorder[-1])\n        root.left = self.buildTree(inorder[:k], postorder[:k])\n        root.right = self.buildTree(inorder[k + 1:], postorder[k:-1])\n        return root",
   "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(inorder, postorder):\n    pos = {}\n    for i, v in enumerate(inorder):\n        pos[v] = i\n\n    def go(l, r, pr):\n        if l > r:\n            return None\n        root = TreeNode(postorder[pr])\n        k = pos[root.val]\n        root.left = go(l, k - 1, pr - (r - k) - 1)\n        root.right = go(k + 1, r, pr - 1)\n        return root\n\n    return go(0, len(inorder) - 1, len(postorder) - 1)\n\n\ndef serialize(root):\n    if not root:\n        return \"[]\"\n    parts = []\n    q = [root]\n    while q:\n        node = q.pop(0)\n        if node is None:\n            parts.append(\"null\")\n            continue\n        parts.append(str(node.val))\n        q.append(node.left)\n        q.append(node.right)\n    while parts and parts[-1] == \"null\":\n        parts.pop()\n    return \"[\" + \",\".join(parts) + \"]\"\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx])\n    idx += 1\n    inorder = [int(v) for v in data[idx:idx + n]]\n    idx += n\n    m = int(data[idx])\n    idx += 1\n    postorder = [int(v) for v in data[idx:idx + m]]\n    print(serialize(build_tree(inorder, postorder)))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -644,7 +656,8 @@
     "3\n2 1 3\n3\n2 3 1",
     "[1,2,3]"
    ]
-  ]
+  ],
+  "code_opt": "class Solution:\n    def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:\n        pos = {v: i for i, v in enumerate(inorder)}\n\n        def build(l: int, r: int, pr: int) -> Optional[TreeNode]:\n            if l > r:\n                return None\n            root = TreeNode(postorder[pr])\n            k = pos[root.val]\n            root.left = build(l, k - 1, pr - (r - k) - 1)\n            root.right = build(k + 1, r, pr - 1)\n            return root\n\n        return build(0, len(inorder) - 1, len(postorder) - 1)"
  },
  {
   "id": "110",
@@ -656,15 +669,15 @@
   "ex": "root = [3,9,20,null,null,15,7] → true",
   "key": "后序求高度，一旦不平衡立刻返回 -1",
   "idea": [
-   "写一个返回高度的函数，空节点的高度为 0。",
-   "递归拿到左右子树高度，任一为 -1 说明已不平衡，直接返回 -1。",
-   "高度差大于 1 返回 -1，否则返回 1 加左右高度的较大值。",
-   "最后看根节点的返回值是不是 -1 就能得到答案。",
-   "边界：空树和单节点树都算平衡；不要在自顶向下时反复求高度。"
+   "朴素：从上往下判——先求左右子树高度看差是否超过 1，再递归判左右子树是否平衡。",
+   "慢在哪：求高度要遍历整棵子树，而每个节点又都会当一次根再求一遍高度，链状树退化成 O(n²)。",
+   "优化：改成后序自底向上，height 一边求高度一边判平衡，不平衡就返回 -1，一次遍历搞定。",
+   "时间 O(n)、空间 O(h)。",
+   "边界：空树和单节点都算平衡；某棵子树一旦返回 -1 就立刻向上短路。"
   ],
   "cx": "时间 O(n)，空间 O(h)",
   "trap": "自顶向下每个节点都重新求一次高度会退化成 O(n²)，要边求高度边判断。",
-  "code": "class Solution:\n    def isBalanced(self, root: Optional[TreeNode]) -> bool:\n        def height(node: Optional[TreeNode]) -> int:\n            if not node:\n                return 0\n            lh = height(node.left)\n            if lh == -1:\n                return -1\n            rh = height(node.right)\n            if rh == -1:\n                return -1\n            if abs(lh - rh) > 1:\n                return -1\n            return 1 + max(lh, rh)\n\n        return height(root) != -1",
+  "code": "class Solution:\n    def isBalanced(self, root: Optional[TreeNode]) -> bool:\n        def height(node: Optional[TreeNode]) -> int:\n            if not node:\n                return 0\n            return 1 + max(height(node.left), height(node.right))\n\n        if not root:\n            return True\n        if abs(height(root.left) - height(root.right)) > 1:\n            return False\n        return self.isBalanced(root.left) and self.isBalanced(root.right)",
   "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(arr):\n    if not arr or arr[0] == \"null\":\n        return None\n    root = TreeNode(int(arr[0]))\n    q = [root]\n    i = 1\n    while q and i < len(arr):\n        node = q.pop(0)\n        if i < len(arr):\n            if arr[i] != \"null\":\n                node.left = TreeNode(int(arr[i]))\n                q.append(node.left)\n            i += 1\n        if i < len(arr):\n            if arr[i] != \"null\":\n                node.right = TreeNode(int(arr[i]))\n                q.append(node.right)\n            i += 1\n    return root\n\n\ndef height(node):\n    if not node:\n        return 0\n    lh = height(node.left)\n    if lh == -1:\n        return -1\n    rh = height(node.right)\n    if rh == -1:\n        return -1\n    if abs(lh - rh) > 1:\n        return -1\n    return 1 + max(lh, rh)\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    root = build(data[1:1 + n])\n    print(\"true\" if height(root) != -1 else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -675,7 +688,8 @@
     "9\n1 2 2 3 3 null null 4 4",
     "false"
    ]
-  ]
+  ],
+  "code_opt": "class Solution:\n    def isBalanced(self, root: Optional[TreeNode]) -> bool:\n        def height(node: Optional[TreeNode]) -> int:\n            if not node:\n                return 0\n            lh = height(node.left)\n            if lh == -1:\n                return -1\n            rh = height(node.right)\n            if rh == -1:\n                return -1\n            if abs(lh - rh) > 1:\n                return -1\n            return 1 + max(lh, rh)\n\n        return height(root) != -1"
  },
  {
   "id": "111",
@@ -687,11 +701,11 @@
   "ex": "root = [3,9,20,null,null,15,7] → 2",
   "key": "只有叶子才算到底，单边空就走另一边",
   "idea": [
-   "空节点返回 0；根节点左右都空时返回 1。",
-   "左子树为空时，最小深度只能来自右子树，返回右子树结果加 1。",
-   "右子树为空时同理，直接取左子树结果加 1。",
-   "左右都不空才取两者较小值加 1。",
-   "边界：不能直接对左右取 min，否则单边树会错误地返回 1。"
+   "朴素：递归求最小深度，空节点返回 0，叶子返回 1，其余取左右子树的较小值加 1。",
+   "慢在哪：不能直接对左右子树取 min——只有一边为空时，那条空路径不算走到叶子，会错误地返回 1。",
+   "优化：所以先单独处理只有一个孩子的情况，交给有孩子的那边继续走；两边都非空才取较小值加 1。",
+   "时间 O(n)、空间 O(h)。",
+   "边界：单边链状树要一直走到唯一的叶子；空树返回 0。"
   ],
   "cx": "时间 O(n)，空间 O(h)",
   "trap": "把最大深度的 max 改成 min 就交，遇到只有一个孩子的节点会算成 1。",
@@ -722,11 +736,11 @@
   "ex": "root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22 → true",
   "key": "边走边减目标值，到叶子看是否减成 0",
   "idea": [
-   "递归时用目标值减去当前节点值，把剩下的和继续往下传。",
-   "必须走到叶子才能判断，到叶子时比较剩余值和叶子的值。",
-   "左右子树任意一边找到就返回 true，用 or 连接可以短路。",
-   "空节点直接返回 false，本条路径上不需要回溯恢复现场。",
-   "边界：节点值和目标值都可能为负，不能靠大小比较提前剪枝。"
+   "朴素：递归往下走，用 targetSum 减去当前节点值，把剩下的和传给子树。",
+   "慢在哪：必须走到叶子才能判断，中途剩余为 0 不算数；这题递归就已经是 O(n)，没有更快的做法。",
+   "优化：不用换算法，左右子树用 or 连接可以短路，找到一条就立刻返回。",
+   "时间 O(n)、空间 O(h)。",
+   "边界：节点值和目标值都可能为负，不能靠大小比较提前剪枝；空节点返回 false。"
   ],
   "cx": "时间 O(n)，空间 O(h)",
   "trap": "中途剩余为 0 就返回 true 是错的，路径必须在叶子节点结束。",

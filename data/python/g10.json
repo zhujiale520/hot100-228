@@ -9,15 +9,16 @@
   "ex": "s = \"aab\" → 1",
   "key": "先判回文表，再拿切点 j 往后接一段回文",
   "idea": [
-   "先预处理 pal[i][j]：s[i..j] 是否回文，i 从后往前扫才能用到内层结果。",
-   "dp[i] 表示前缀 s[0..i] 的最少切割数，最坏情况初值取 i（每个字符切一刀）。",
-   "pal[0][i] 为真直接 dp[i]=0，否则枚举切点 j，取 dp[j]+1 的最小值。",
-   "答案是 dp[n-1]，整串回文时为 0，不要把它当成 1。"
+   "pal[i][j] 记 s[i..j] 是否回文；dp[i] 是前 i 个字符的最少切割数。",
+   "初始化 dp[0]=0；pal 由 i 从 n-1 倒推、j 从 i 正推填出。",
+   "转移：pal[0][i-1] 为真则 dp[i]=0，否则 dp[i]=min(dp[j]+1)，j<i 且 pal[j][i-1] 为真。",
+   "遍历 i=1..n，答案 dp[n]；pal 表的 i 必须倒序。",
+   "dp 已是一维、pal 表压不动，没有空间优化版。"
   ],
   "cx": "时间 O(n²)，空间 O(n²)",
-  "trap": "递推里判断的是 pal[j+1][i]，写错成 pal[j][i] 会把已切掉的那段重复算进去。",
-  "code": "class Solution:\n    def minCut(self, s: str) -> int:\n        n = len(s)\n        pal = [[False] * n for _ in range(n)]\n        for i in range(n - 1, -1, -1):\n            for j in range(i, n):\n                if s[i] == s[j] and (j - i <= 2 or pal[i + 1][j - 1]):\n                    pal[i][j] = True\n        dp = [0] * n\n        for i in range(n):\n            if pal[0][i]:\n                dp[i] = 0\n                continue\n            dp[i] = i\n            for j in range(i):\n                if pal[j + 1][i]:\n                    dp[i] = min(dp[i], dp[j] + 1)\n        return dp[n - 1]\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s = data[0]\n    n = len(s)\n    pal = [[False] * n for _ in range(n)]\n    for i in range(n - 1, -1, -1):\n        for j in range(i, n):\n            if s[i] == s[j] and (j - i <= 2 or pal[i + 1][j - 1]):\n                pal[i][j] = True\n    dp = [0] * n\n    for i in range(n):\n        if pal[0][i]:\n            dp[i] = 0\n            continue\n        dp[i] = i\n        for j in range(i):\n            if pal[j + 1][i]:\n                dp[i] = min(dp[i], dp[j] + 1)\n    print(dp[n - 1])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "trap": "表 DP 坑：回文段是 pal[j][i-1]（i 从 1 起），pal 的 i 要倒序推。",
+  "code": "class Solution:\n    def minCut(self, s: str) -> int:\n        n = len(s)\n        # pal[i][j]：s[i..j] 是否回文，i 要倒着推才能用到内层结果\n        pal = [[False] * n for _ in range(n)]\n        for i in range(n - 1, -1, -1):\n            for j in range(i, n):\n                if s[i] == s[j] and (j - i <= 2 or pal[i + 1][j - 1]):\n                    pal[i][j] = True\n        # dp[i]：前 i 个字符的最少切割数，dp[0] 是空串\n        dp = [0] * (n + 1)\n        for i in range(1, n + 1):\n            dp[i] = i - 1\n            if pal[0][i - 1]:\n                dp[i] = 0\n                continue\n            for j in range(1, i):\n                if pal[j][i - 1]:\n                    dp[i] = min(dp[i], dp[j] + 1)\n        return dp[n]\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s = data[0]\n    n = len(s)\n    pal = [[False] * n for _ in range(n)]\n    for i in range(n - 1, -1, -1):\n        for j in range(i, n):\n            if s[i] == s[j] and (j - i <= 2 or pal[i + 1][j - 1]):\n                pal[i][j] = True\n    dp = [0] * (n + 1)\n    for i in range(1, n + 1):\n        dp[i] = i - 1\n        if pal[0][i - 1]:\n            dp[i] = 0\n            continue\n        for j in range(1, i):\n            if pal[j][i - 1]:\n                dp[i] = min(dp[i], dp[j] + 1)\n    print(dp[n])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "aab",
@@ -43,15 +44,17 @@
   "ex": "k = 2, prices = [2,4,1] → 2",
   "key": "持股与空仓两组数组，按交易额度 1 到 k 滚动",
   "idea": [
-   "hold[j]：已用掉 j 次交易额度、此刻持股的最大现金；free[j]：空仓时的最大利润。",
-   "hold[j] 用 free[j-1]-p 更新，free[j] 用 hold[j]+p 更新，均取昨日值。",
-   "一处交易额度只在买入时消耗，所以买要用 free[j-1]，不能在同一天反复滚动。",
-   "k=0 或价格为空返回 0；k 超过 n//2 时相当于不限次数。"
+   "dp[j][0]：至多 j 次交易且空仓的最大现金；dp[j][1]：同额度持股的最大现金。",
+   "初始化 dp[j][0]=0、dp[j][1]=-inf，j=0..k。",
+   "转移（现价 p）：dp[j][0]=max(旧0, 旧1+p)，dp[j][1]=max(旧1, dp[j-1][0]-p)。",
+   "外层按天推进、内层 j=1..k，每天用新表承接旧表；答案 max_j dp[j][0]。",
+   "空间可优化成一对 hold/free 数组，见空间优化版。"
   ],
   "cx": "时间 O(nk)，空间 O(k)",
-  "trap": "必须拿上一日快照更新，原地改会让同一天反复买卖被多算成几笔交易。",
-  "code": "class Solution:\n    def maxProfit(self, k: int, prices: List[int]) -> int:\n        if not prices or k == 0:\n            return 0\n        NEG = -10 ** 18\n        hold = [NEG] * (k + 1)\n        free = [0] * (k + 1)\n        for p in prices:\n            nh, nf = hold[:], free[:]\n            for j in range(1, k + 1):\n                nh[j] = max(hold[j], free[j - 1] - p)\n                nf[j] = max(free[j], hold[j] + p)\n            hold, free = nh, nf\n        return max(free)\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    k = int(data[0])\n    n = int(data[1])\n    prices = [int(x) for x in data[2:2 + n]]\n    if not prices or k == 0:\n        print(0)\n        return\n    NEG = -10 ** 18\n    hold = [NEG] * (k + 1)\n    free = [0] * (k + 1)\n    for p in prices:\n        nh, nf = hold[:], free[:]\n        for j in range(1, k + 1):\n            nh[j] = max(hold[j], free[j - 1] - p)\n            nf[j] = max(free[j], hold[j] + p)\n        hold, free = nh, nf\n    print(max(free))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "trap": "表 DP 坑：j 从 1 开始；转移只能读上一行，原地改会同日反复买卖。",
+  "code": "class Solution:\n    def maxProfit(self, k: int, prices: List[int]) -> int:\n        n = len(prices)\n        if n == 0 or k == 0:\n            return 0\n        NEG = -10 ** 18\n        # dp[j][0]：至多 j 次额度且空仓；dp[j][1]：至多 j 次额度且持股\n        dp = [[0, NEG] for _ in range(k + 1)]\n        for i in range(1, n + 1):\n            p = prices[i - 1]\n            ndp = [row[:] for row in dp]  # 先承接「今天不操作」\n            for j in range(1, k + 1):\n                ndp[j][0] = max(dp[j][0], dp[j][1] + p)\n                ndp[j][1] = max(dp[j][1], dp[j - 1][0] - p)\n            dp = ndp\n        return max(row[0] for row in dp)\n",
+  "code_opt": "class Solution:\n    def maxProfit(self, k: int, prices: List[int]) -> int:\n        if not prices or k == 0:\n            return 0\n        NEG = -10 ** 18\n        hold = [NEG] * (k + 1)\n        free = [0] * (k + 1)\n        for p in prices:\n            nh, nf = hold[:], free[:]\n            for j in range(1, k + 1):\n                nh[j] = max(hold[j], free[j - 1] - p)\n                nf[j] = max(free[j], hold[j] + p)\n            hold, free = nh, nf\n        return max(free)\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    k = int(data[0])\n    n = int(data[1])\n    prices = [int(x) for x in data[2:2 + n]]\n    if n == 0 or k == 0:\n        print(0)\n        return\n    NEG = -10 ** 18\n    dp = [[0, NEG] for _ in range(k + 1)]\n    for i in range(1, n + 1):\n        p = prices[i - 1]\n        ndp = [row[:] for row in dp]\n        for j in range(1, k + 1):\n            ndp[j][0] = max(dp[j][0], dp[j][1] + p)\n            ndp[j][1] = max(dp[j][1], dp[j - 1][0] - p)\n        dp = ndp\n    print(max(row[0] for row in dp))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "2 3 2 4 1",
@@ -73,15 +76,17 @@
   "ex": "nums = [2,3,2] → 3",
   "key": "环拆两段：不要首、不要尾，各跑一遍线性版",
   "idea": [
-   "首尾相邻，所以「首」和「尾」最多只能要一个，按此分两种情况。",
-   "情况一取 [0, n-2]，情况二取 [1, n-1]，各自做线性打家劫舍。",
-   "线性部分只留两个变量：cur=max(cur, prev+nums[i])，再滚动。",
-   "只有一间房时直接返回它，否则答案是两种情况里的较大值。"
+   "线性段内 dp[i]：该段前 i 间房能偷到的最大金额（下标是间数）。",
+   "初始化 dp[0]=0（空前缀）、dp[1]=该段第一间的金额。",
+   "转移：dp[i]=max(dp[i-1], dp[i-2]+nums[该段第 i 间])。",
+   "环拆 [0,n-2] 与 [1,n-1] 各跑一遍，答案取两段 dp[m] 的较大值。",
+   "空间可优化成两个滚动变量，见空间优化版。"
   ],
-  "cx": "时间 O(n)，空间 O(1)",
-  "trap": "区间写成左闭右开，[0,n-1) 与 [1,n) 别搞错，否则会重偷首尾。",
-  "code": "class Solution:\n    def rob(self, nums: List[int]) -> int:\n        if len(nums) == 1:\n            return nums[0]\n\n        def line(lo: int, hi: int) -> int:\n            prev, cur = 0, 0\n            for i in range(lo, hi):\n                prev, cur = cur, max(cur, prev + nums[i])\n            return cur\n\n        return max(line(0, len(nums) - 1), line(1, len(nums)))\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    if n == 1:\n        print(nums[0])\n        return\n\n    def line(lo, hi):\n        prev, cur = 0, 0\n        for i in range(lo, hi):\n            prev, cur = cur, max(cur, prev + nums[i])\n        return cur\n\n    print(max(line(0, n - 1), line(1, n)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "cx": "时间 O(n)，空间 O(n)",
+  "trap": "表 DP 坑：dp[0]=0 的空前缀要留；两段是 [0,n-2] 与 [1,n-1]，别把首尾一起偷。",
+  "code": "class Solution:\n    def rob(self, nums: List[int]) -> int:\n        n = len(nums)\n        if n == 1:\n            return nums[0]\n\n        def line(lo: int, hi: int) -> int:\n            m = hi - lo + 1\n            # dp[i]：该段前 i 间房能偷到的最大金额，dp[0] 表示没房可偷\n            dp = [0] * (m + 1)\n            dp[1] = nums[lo]\n            for i in range(2, m + 1):\n                dp[i] = max(dp[i - 1], dp[i - 2] + nums[lo + i - 1])\n            return dp[m]\n\n        return max(line(0, n - 2), line(1, n - 1))\n",
+  "code_opt": "class Solution:\n    def rob(self, nums: List[int]) -> int:\n        if len(nums) == 1:\n            return nums[0]\n\n        def line(lo: int, hi: int) -> int:\n            prev, cur = 0, 0\n            for i in range(lo, hi):\n                prev, cur = cur, max(cur, prev + nums[i])\n            return cur\n\n        return max(line(0, len(nums) - 1), line(1, len(nums)))\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    if n == 1:\n        print(nums[0])\n        return\n\n    def line(lo, hi):\n        m = hi - lo + 1\n        dp = [0] * (m + 1)\n        dp[1] = nums[lo]\n        for i in range(2, m + 1):\n            dp[i] = max(dp[i - 1], dp[i - 2] + nums[lo + i - 1])\n        return dp[m]\n\n    print(max(line(0, n - 2), line(1, n - 1)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "3 2 3 2",
@@ -107,15 +112,17 @@
   "ex": "prices = [1,2,3,0,2] → 3",
   "key": "持股、今天卖出、空仓可买，三个状态逐日轮转",
   "idea": [
-   "用三个状态：hold 持股、sold 今天刚卖出（明天冷冻）、rest 空仓且可买。",
-   "hold=max(hold,rest-p)，sold=hold+p，rest 与旧 rest 取大。",
-   "sold 必须用昨天的 hold 计算，rest 只能来自昨天的 rest 或昨天的 sold。",
-   "答案是 max(sold, rest)；hold 是负数，说明股票还套在手里，不能当利润。"
+   "dp[i][0] 持股、dp[i][1] 今天卖出（次日冷冻）、dp[i][2] 空仓可买。",
+   "初始化 dp[0][0]=-prices[0]、dp[0][1]=-inf、dp[0][2]=0。",
+   "转移：0=max(昨0, 昨2-p)；1=昨0+p；2=max(昨2, 昨1)。",
+   "i 从 1 到 n-1，只依赖上一行；答案 max(dp[n-1][1], dp[n-1][2])。",
+   "空间可优化成 3 个滚动变量，见空间优化版。"
   ],
-  "cx": "时间 O(n)，空间 O(1)",
-  "trap": "「明天的冷冻」体现为 rest 只能接昨天的 sold；写成今天的 sold 就白送一天。",
-  "code": "class Solution:\n    def maxProfit(self, prices: List[int]) -> int:\n        NEG = -10 ** 9\n        hold, sold, rest = NEG, NEG, 0\n        for p in prices:\n            hold, sold, rest = max(hold, rest - p), hold + p, max(rest, sold)\n        return max(sold, rest)\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    prices = [int(x) for x in data[1:1 + n]]\n    NEG = -10 ** 9\n    hold, sold, rest = NEG, NEG, 0\n    for p in prices:\n        hold, sold, rest = max(hold, rest - p), hold + p, max(rest, sold)\n    print(max(sold, rest))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "cx": "时间 O(n)，空间 O(n)",
+  "trap": "表 DP 坑：dp[0][1] 必须设 -inf；冷冻期是 2 只接昨 1。",
+  "code": "class Solution:\n    def maxProfit(self, prices: List[int]) -> int:\n        n = len(prices)\n        if n == 0:\n            return 0\n        NEG = -10 ** 9\n        # dp[i][0] 持股 / [1] 今天卖出 / [2] 空仓可买\n        dp = [[NEG, NEG, 0] for _ in range(n)]\n        dp[0][0] = -prices[0]\n        for i in range(1, n):\n            p = prices[i]\n            dp[i][0] = max(dp[i - 1][0], dp[i - 1][2] - p)\n            dp[i][1] = dp[i - 1][0] + p\n            dp[i][2] = max(dp[i - 1][2], dp[i - 1][1])\n        return max(dp[n - 1][1], dp[n - 1][2])\n",
+  "code_opt": "class Solution:\n    def maxProfit(self, prices: List[int]) -> int:\n        NEG = -10 ** 9\n        hold, sold, rest = NEG, NEG, 0\n        for p in prices:\n            hold, sold, rest = max(hold, rest - p), hold + p, max(rest, sold)\n        return max(sold, rest)\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    prices = [int(x) for x in data[1:1 + n]]\n    if n == 0:\n        print(0)\n        return\n    NEG = -10 ** 9\n    dp = [[NEG, NEG, 0] for _ in range(n)]\n    dp[0][0] = -prices[0]\n    for i in range(1, n):\n        p = prices[i]\n        dp[i][0] = max(dp[i - 1][0], dp[i - 1][2] - p)\n        dp[i][1] = dp[i - 1][0] + p\n        dp[i][2] = max(dp[i - 1][2], dp[i - 1][1])\n    print(max(dp[n - 1][1], dp[n - 1][2]))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "5 1 2 3 0 2",
@@ -137,13 +144,14 @@
   "ex": "root = [3,2,3,null,3,null,1] → 7",
   "key": "后序返回两个值：偷本节点、不偷本节点",
   "idea": [
-   "树形 DP：递归函数返回 (偷当前节点的最大值, 不偷当前节点的最大值)。",
-   "偷当前 = node.val + 左孩子「不偷」+ 右孩子「不偷」。",
-   "不偷当前 = 左孩子两值取大 + 右孩子两值取大，注意是各自取大而非都偷。",
-   "必须后序遍历，先拿到孩子结果再算自己；空节点返回 (0, 0)。"
+   "每节点两个状态：dp[node][1] 偷它的最大值，dp[node][0] 不偷它的最大值。",
+   "初始化：空节点返回 (0, 0)。",
+   "转移：偷=node.val+左[0]+右[0]；不偷=max(左[0],左[1])+max(右[0],右[1])。",
+   "后序遍历，先拿孩子结果再算自己；答案 max(dp[root][0], dp[root][1])。",
+   "每节点只向上返回两个值，没有可压缩的数组，故无空间优化版。"
   ],
   "cx": "时间 O(n)，空间 O(h)",
-  "trap": "「不偷当前」不代表孩子一定偷，要 max(偷, 不偷) 分别取大再相加。",
+  "trap": "不偷自己时孩子要各自 max 再相加；空节点必须返回 (0,0)。",
   "code": "class Solution:\n    def rob(self, root: Optional[TreeNode]) -> int:\n        def dfs(node):\n            if not node:\n                return 0, 0\n            l_take, l_skip = dfs(node.left)\n            r_take, r_skip = dfs(node.right)\n            take = node.val + l_skip + r_skip\n            skip = max(l_take, l_skip) + max(r_take, r_skip)\n            return take, skip\n\n        return max(dfs(root))\n",
   "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(vals):\n    if not vals or vals[0] == \"null\":\n        return None\n    root = TreeNode(int(vals[0]))\n    queue = [root]\n    head = 0\n    i = 1\n    while head < len(queue) and i < len(vals):\n        node = queue[head]\n        head += 1\n        if i < len(vals):\n            if vals[i] != \"null\":\n                node.left = TreeNode(int(vals[i]))\n                queue.append(node.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] != \"null\":\n                node.right = TreeNode(int(vals[i]))\n                queue.append(node.right)\n            i += 1\n    return root\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    root = build(data[1:1 + n])\n\n    def dfs(node):\n        if not node:\n            return 0, 0\n        l_take, l_skip = dfs(node.left)\n        r_take, r_skip = dfs(node.right)\n        take = node.val + l_skip + r_skip\n        skip = max(l_take, l_skip) + max(r_take, r_skip)\n        return take, skip\n\n    print(max(dfs(root)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
@@ -167,14 +175,15 @@
   "ex": "n = 10 → 36",
   "key": "枚举第一刀 j，比两种拆法：只拆两段、继续拆后段",
   "idea": [
-   "dp[i] 表示把 i 拆开（至少两段）能得到的最大乘积。",
-   "枚举 j 从 1 到 i//2：dp[i]=max(dp[i], j*(i-j), j*dp[i-j])。",
-   "j*(i-j) 是只拆成两段，j*dp[i-j] 是后一段继续拆。",
-   "只枚举到 i//2 即可，对称情况重复；dp[2]=1，n≤58 用 O(n²) 足够。"
+   "dp[i]：把 i 拆成至少两个正整数之和能得到的最大乘积。",
+   "初始化 dp[0]=dp[1]=0，数组开 n+1。",
+   "转移：dp[i]=max(dp[i], j*(i-j), j*dp[i-j])，j=1..i//2。",
+   "i 从 2 到 n 递增，j 到 i//2 即对称够用；答案 dp[n]。",
+   "一维 dp 已是最简形态，没有空间优化版。"
   ],
   "cx": "时间 O(n²)，空间 O(n)",
-  "trap": "两种拆法都要比，漏掉 j*(i-j) 会让 dp[2]、dp[3] 这类结果偏小。",
-  "code": "class Solution:\n    def integerBreak(self, n: int) -> int:\n        dp = [0] * (n + 1)\n        for i in range(2, n + 1):\n            for j in range(1, i // 2 + 1):\n                dp[i] = max(dp[i], j * (i - j), j * dp[i - j])\n        return dp[n]\n",
+  "trap": "表 DP 坑：dp[0]、dp[1] 无解取 0，循环从 i=2 起；两种拆法都要比。",
+  "code": "class Solution:\n    def integerBreak(self, n: int) -> int:\n        # dp[i]：把 i 拆成至少两段能得到的最大乘积\n        dp = [0] * (n + 1)\n        for i in range(2, n + 1):\n            for j in range(1, i // 2 + 1):\n                dp[i] = max(dp[i], j * (i - j), j * dp[i - j])\n        return dp[n]\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    dp = [0] * (n + 1)\n    for i in range(2, n + 1):\n        for j in range(1, i // 2 + 1):\n            dp[i] = max(dp[i], j * (i - j), j * dp[i - j])\n    print(dp[n])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -197,15 +206,16 @@
   "ex": "nums = [1,2,3], target = 4 → 7",
   "key": "外层容量内层物品，数出来的是排列数",
   "idea": [
-   "完全背包求排列：dp[t] 表示凑出 t 的方案数，dp[0]=1。",
-   "外层 t 从小到大，内层枚举每个数 x，dp[t]+=dp[t-x]。",
-   "先容量后物品，等于把不同顺序分别统计，正好是排列而非组合。",
-   "要求 t>=x 才累加；答案保证在 32 位整数范围内。"
+   "dp[j]：凑出金额 j 的排列数，[1,2] 与 [2,1] 算两种。",
+   "初始化 dp[0]=1：凑 0 只有「什么都不选」一种。",
+   "转移：dp[j]=Σ dp[j-x]（对所有 x≤j）。",
+   "外层金额递增、内层枚举 nums 才数出排列；答案 dp[target]。",
+   "一维已是最简形态，没有空间优化版。"
   ],
   "cx": "时间 O(target·n)，空间 O(target)",
-  "trap": "两层循环顺序反了就变成组合数（那是 518 零钱兑换 II 的答案）。",
-  "code": "class Solution:\n    def combinationSum4(self, nums: List[int], target: int) -> int:\n        dp = [0] * (target + 1)\n        dp[0] = 1\n        for t in range(1, target + 1):\n            for x in nums:\n                if t >= x:\n                    dp[t] += dp[t - x]\n        return dp[target]\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    target = int(data[1 + n])\n    dp = [0] * (target + 1)\n    dp[0] = 1\n    for t in range(1, target + 1):\n        for x in nums:\n            if t >= x:\n                dp[t] += dp[t - x]\n    print(dp[target])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "trap": "表 DP 坑：先物品后金额会变成组合数；dp[0]=1 漏了全表全 0。",
+  "code": "class Solution:\n    def combinationSum4(self, nums: List[int], target: int) -> int:\n        # dp[j]：凑出金额 j 的排列数（顺序不同算不同）\n        dp = [0] * (target + 1)\n        dp[0] = 1\n        for j in range(1, target + 1):\n            for x in nums:\n                if j >= x:\n                    dp[j] += dp[j - x]\n        return dp[target]\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    target = int(data[1 + n])\n    dp = [0] * (target + 1)\n    dp[0] = 1\n    for j in range(1, target + 1):\n        for x in nums:\n            if j >= x:\n                dp[j] += dp[j - x]\n    print(dp[target])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "3 1 2 3 4",
@@ -227,13 +237,14 @@
   "ex": "s = \"abc\", t = \"ahbgdc\" → true",
   "key": "一根指针盯着 s，扫 t 对上就往前走",
   "idea": [
-   "双指针贪心：i 指向 s 待匹配位置，顺序扫 t。",
-   "t 当前字符等于 s[i] 就 i++，匹配越早越不会亏。",
-   "扫完 t 后 i==len(s) 即返回 true。",
-   "s 为空时应返回 true；s 比 t 长必定 false。"
+   "DP 视角：f[i][j] 表示 s 前 i 个是否为 t 前 j 个的子序列。",
+   "初始化 f[0][j]=True（空串），f[i][0]=False（i>0）。",
+   "转移：f[i][j]=f[i][j-1] 或 (s[i-1]==t[j-1] 且 f[i-1][j-1])。",
+   "i、j 递增，答案 f[n][m]；双指针等价于把这张表压成一个变量。",
+   "双指针已是 O(1) 空间的最简形态，没有空间优化版。"
   ],
   "cx": "时间 O(n+m)，空间 O(1)",
-  "trap": "s 为空是任何串的子序列，别漏这个边界；字符不等时不要推进 i。",
+  "trap": "s 为空要返回 true；字符不等时只推进 t 的指针，别动 i。",
   "code": "class Solution:\n    def isSubsequence(self, s: str, t: str) -> bool:\n        i = 0\n        for ch in t:\n            if i < len(s) and s[i] == ch:\n                i += 1\n        return i == len(s)\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    if len(data) == 1:\n        s, t = \"\", data[0]\n    else:\n        s, t = data[0], data[1]\n    i = 0\n    for ch in t:\n        if i < len(s) and s[i] == ch:\n            i += 1\n    print(\"true\" if i == len(s) else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
@@ -257,14 +268,15 @@
   "ex": "strs = [\"10\",\"0001\",\"111001\",\"1\",\"0\"], m = 5, n = 3 → 4",
   "key": "二维 01 背包，0 和 1 各占一维容量",
   "idea": [
-   "每个串是物品，代价为（0 的个数, 1 的个数），价值恒为 1。",
-   "dp[i][j] 表示用至多 i 个 0、j 个 1 能装下的最大串数。",
-   "01 背包，两维容量都从大到小倒序，保证同一串只用一次。",
-   "zeros=s.count('0')，ones=len(s)-zeros；装不下就跳过该串。"
+   "dp[i][j]：至多 i 个 0、j 个 1 能装下的最多字符串个数。",
+   "整表初始化为 0：容量为 0 时一个也装不下。",
+   "转移：dp[i][j]=max(dp[i][j], dp[i-z][j-o]+1)，z/o 是当前串的 0、1 个数。",
+   "外层串、两维容量都倒序，答案 dp[m][n]。",
+   "二维容量就是主版本，压不动，没有空间优化版。"
   ],
   "cx": "时间 O(L·m·n)，空间 O(m·n)",
-  "trap": "循环上界要倒着来，改成从小到大就成了完全背包，同一串会被重复计数。",
-  "code": "class Solution:\n    def findMaxForm(self, strs: List[str], m: int, n: int) -> int:\n        dp = [[0] * (n + 1) for _ in range(m + 1)]\n        for s in strs:\n            zeros = s.count(\"0\")\n            ones = len(s) - zeros\n            for i in range(m, zeros - 1, -1):\n                for j in range(n, ones - 1, -1):\n                    dp[i][j] = max(dp[i][j], dp[i - zeros][j - ones] + 1)\n        return dp[m][n]\n",
+  "trap": "表 DP 坑：两维都要倒序，正序会重复用同一个串。",
+  "code": "class Solution:\n    def findMaxForm(self, strs: List[str], m: int, n: int) -> int:\n        # dp[i][j]：至多 i 个 0、j 个 1 能装下的最多串数\n        dp = [[0] * (n + 1) for _ in range(m + 1)]\n        for s in strs:\n            zeros = s.count(\"0\")\n            ones = len(s) - zeros\n            for i in range(m, zeros - 1, -1):\n                for j in range(n, ones - 1, -1):\n                    dp[i][j] = max(dp[i][j], dp[i - zeros][j - ones] + 1)\n        return dp[m][n]\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    k = int(data[0])\n    m = int(data[1])\n    n = int(data[2])\n    strs = data[3:3 + k]\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for s in strs:\n        zeros = s.count(\"0\")\n        ones = len(s) - zeros\n        for i in range(m, zeros - 1, -1):\n            for j in range(n, ones - 1, -1):\n                dp[i][j] = max(dp[i][j], dp[i - zeros][j - ones] + 1)\n    print(dp[m][n])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -287,15 +299,17 @@
   "ex": "nums = [1,1,1,1,1], target = 3 → 5",
   "key": "正号集的和固定，转成 01 背包数方案",
   "idea": [
-   "设正号部分和为 P、总和为 S，则 P-(S-P)=target，解出 P=(S+target)/2。",
-   "问题变成：从 nums 里选若干数凑出 P，有多少种选法。",
-   "01 背包计数：dp[0]=1，对每个数倒序更新 dp[j]+=dp[j-x]。",
-   "S+target 为奇数、为负，或 |target|>S 时无解，直接返回 0。"
+   "dp[i][j]：前 i 个数凑出和 (j-off) 的方案数，off=sum(nums) 用来平移负下标。",
+   "初始化 dp[0][off]=1（一个数不用、和为 0），其余为 0。",
+   "转移：dp[i][j]=dp[i-1][j-x]+dp[i-1][j+x]，x=nums[i-1]。",
+   "i 从 1 到 n、j 扫全表；答案 dp[n][target+off]，|target|>sum 先返回 0。",
+   "空间可压成一维滚动；还能转成 0/1 背包一维倒序，见空间优化版。"
   ],
-  "cx": "时间 O(n·bag)，空间 O(bag)",
-  "trap": "容量必须倒序，正序就变成每个数可重复使用；先判奇偶再开数组。",
-  "code": "class Solution:\n    def findTargetSumWays(self, nums: List[int], target: int) -> int:\n        total = sum(nums)\n        if total + target < 0 or (total + target) % 2:\n            return 0\n        bag = (total + target) // 2\n        dp = [0] * (bag + 1)\n        dp[0] = 1\n        for x in nums:\n            for j in range(bag, x - 1, -1):\n                dp[j] += dp[j - x]\n        return dp[bag]\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    target = int(data[1])\n    nums = [int(x) for x in data[2:2 + n]]\n    total = sum(nums)\n    if total + target < 0 or (total + target) % 2:\n        print(0)\n        return\n    bag = (total + target) // 2\n    dp = [0] * (bag + 1)\n    dp[0] = 1\n    for x in nums:\n        for j in range(bag, x - 1, -1):\n            dp[j] += dp[j - x]\n    print(dp[bag])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "cx": "时间 O(n·S)，空间 O(n·S)",
+  "trap": "表 DP 坑：dp[0][off] 才是「和为 0」的起点；每行只能从上一行取。",
+  "code": "class Solution:\n    def findTargetSumWays(self, nums: List[int], target: int) -> int:\n        total = sum(nums)\n        if abs(target) > total:\n            return 0\n        off = total  # 和的范围 [-total, total] 统一右移，避免负下标\n        W = 2 * total + 1\n        # dp[i][j]：用前 i 个数凑出和 (j - off) 的方案数\n        dp = [[0] * W for _ in range(len(nums) + 1)]\n        dp[0][off] = 1\n        for i in range(1, len(nums) + 1):\n            x = nums[i - 1]\n            for j in range(W):\n                if j - x >= 0:\n                    dp[i][j] += dp[i - 1][j - x]\n                if j + x < W:\n                    dp[i][j] += dp[i - 1][j + x]\n        return dp[len(nums)][target + off]\n",
+  "code_opt": "class Solution:\n    def findTargetSumWays(self, nums: List[int], target: int) -> int:\n        total = sum(nums)\n        if total + target < 0 or (total + target) % 2:\n            return 0\n        bag = (total + target) // 2\n        dp = [0] * (bag + 1)\n        dp[0] = 1\n        for x in nums:\n            for j in range(bag, x - 1, -1):\n                dp[j] += dp[j - x]\n        return dp[bag]\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    target = int(data[1])\n    nums = [int(x) for x in data[2:2 + n]]\n    total = sum(nums)\n    if abs(target) > total:\n        print(0)\n        return\n    off = total\n    W = 2 * total + 1\n    dp = [[0] * W for _ in range(n + 1)]\n    dp[0][off] = 1\n    for i in range(1, n + 1):\n        x = nums[i - 1]\n        for j in range(W):\n            if j - x >= 0:\n                dp[i][j] += dp[i - 1][j - x]\n            if j + x < W:\n                dp[i][j] += dp[i - 1][j + x]\n    print(dp[n][target + off])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "5 3 1 1 1 1 1",
@@ -317,15 +331,17 @@
   "ex": "n = 4 → 3",
   "key": "两个变量滚动：a, b = b, a+b，跑 n 轮",
   "idea": [
-   "递推式 dp[i]=dp[i-1]+dp[i-2]，只需保留最近两项。",
-   "循环 n 次，每轮 a,b=b,a+b，循环结束时 a 就是 F(n)。",
-   "n=0 返回 0、n=1 返回 1，滚动写法天然覆盖这两个边界。",
-   "不要用裸递归，F(30) 的重复计算已经非常慢。"
+   "dp[i] 表示第 i 个斐波那契数。",
+   "初始化 dp[0]=0、dp[1]=1；n=0 先特判返回 0。",
+   "转移：dp[i]=dp[i-1]+dp[i-2]。",
+   "i 从 2 到 n 递增，答案 dp[n]。",
+   "空间可优化成两个滚动变量，见空间优化版。"
   ],
-  "cx": "时间 O(n)，空间 O(1)",
-  "trap": "循环次数差一就会错位；最后要返回 a（旧值），不是 b。",
-  "code": "class Solution:\n    def fib(self, n: int) -> int:\n        a, b = 0, 1\n        for _ in range(n):\n            a, b = b, a + b\n        return a\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    print(a)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "cx": "时间 O(n)，空间 O(n)",
+  "trap": "表 DP 坑：n=0 时 dp[1] 越界，要先特判；循环从 i=2 起。",
+  "code": "class Solution:\n    def fib(self, n: int) -> int:\n        if n == 0:\n            return 0\n        # dp[i]：第 i 个斐波那契数\n        dp = [0] * (n + 1)\n        dp[1] = 1\n        for i in range(2, n + 1):\n            dp[i] = dp[i - 1] + dp[i - 2]\n        return dp[n]\n",
+  "code_opt": "class Solution:\n    def fib(self, n: int) -> int:\n        a, b = 0, 1\n        for _ in range(n):\n            a, b = b, a + b\n        return a\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    if n == 0:\n        print(0)\n        return\n    dp = [0] * (n + 1)\n    dp[1] = 1\n    for i in range(2, n + 1):\n        dp[i] = dp[i - 1] + dp[i - 2]\n    print(dp[n])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "2",
@@ -351,14 +367,16 @@
   "ex": "s = \"bbbab\" → 4",
   "key": "区间 DP：首尾相同就加 2，不同就掐掉一头",
   "idea": [
-   "dp[i][j] 表示 s[i..j] 的最长回文子序列长度，i 必须从后往前推。",
-   "s[i]==s[j] 时 dp[i][j]=dp[i+1][j-1]+2。",
-   "不等时取 max(dp[i+1][j], dp[i][j-1])，即丢掉左端或右端。",
-   "先把 dp[i][i] 初始化为 1；答案在 dp[0][n-1]。"
+   "dp[i][j]：s[i..j] 的最长回文子序列长度（区间 DP，可不连续）。",
+   "初始化 dp[i][i]=1，其余为 0（i>j 的空区间算 0）。",
+   "s[i]==s[j] 时 dp[i][j]=dp[i+1][j-1]+2，否则 max(dp[i+1][j], dp[i][j-1])。",
+   "i 从 n-1 倒推、j 从 i+1 正推，答案 dp[0][n-1]。",
+   "空间可优化成一行倒序滚动，见空间优化版。"
   ],
   "cx": "时间 O(n²)，空间 O(n²)",
-  "trap": "子序列可以跳过字符，别按回文子串只比较相邻位置那样写。",
-  "code": "class Solution:\n    def longestPalindromeSubseq(self, s: str) -> int:\n        n = len(s)\n        dp = [[0] * n for _ in range(n)]\n        for i in range(n):\n            dp[i][i] = 1\n        for i in range(n - 1, -1, -1):\n            for j in range(i + 1, n):\n                if s[i] == s[j]:\n                    dp[i][j] = dp[i + 1][j - 1] + 2\n                else:\n                    dp[i][j] = max(dp[i + 1][j], dp[i][j - 1])\n        return dp[0][n - 1]\n",
+  "trap": "表 DP 坑：i 必须倒序推；长度 1 的格子要先填 1，否则会读到 0。",
+  "code": "class Solution:\n    def longestPalindromeSubseq(self, s: str) -> int:\n        n = len(s)\n        # dp[i][j]：s[i..j] 的最长回文子序列长度（区间 DP）\n        dp = [[0] * n for _ in range(n)]\n        for i in range(n):\n            dp[i][i] = 1\n        for i in range(n - 1, -1, -1):\n            for j in range(i + 1, n):\n                if s[i] == s[j]:\n                    dp[i][j] = dp[i + 1][j - 1] + 2\n                else:\n                    dp[i][j] = max(dp[i + 1][j], dp[i][j - 1])\n        return dp[0][n - 1]\n",
+  "code_opt": "class Solution:\n    def longestPalindromeSubseq(self, s: str) -> int:\n        n = len(s)\n        dp = [0] * n  # 更新前 dp[j] 就是 dp[i+1][j]\n        for i in range(n - 1, -1, -1):\n            dp[i] = 1\n            prev = 0  # dp[i+1][j-1]\n            for j in range(i + 1, n):\n                tmp = dp[j]\n                if s[i] == s[j]:\n                    dp[j] = prev + 2\n                else:\n                    dp[j] = max(dp[j], dp[j - 1])\n                prev = tmp\n        return dp[n - 1]\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s = data[0]\n    n = len(s)\n    dp = [[0] * n for _ in range(n)]\n    for i in range(n):\n        dp[i][i] = 1\n    for i in range(n - 1, -1, -1):\n        for j in range(i + 1, n):\n            if s[i] == s[j]:\n                dp[i][j] = dp[i + 1][j - 1] + 2\n            else:\n                dp[i][j] = max(dp[i + 1][j], dp[i][j - 1])\n    print(dp[0][n - 1])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -381,15 +399,17 @@
   "ex": "amount = 5, coins = [1,2,5] → 4",
   "key": "外层物品内层容量正序，数出来的是组合数",
   "idea": [
-   "完全背包求组合：dp[j] 表示凑出金额 j 的方案数，dp[0]=1。",
-   "外层遍历硬币，内层容量从小到大正序，同一硬币才可重复使用。",
-   "先物品后容量，保证每种组合只按硬币顺序被统计一次。",
-   "amount=0 时返回 1（一枚都不选）；凑不出返回 0。"
+   "dp[i][j]：只用前 i 种硬币凑出金额 j 的组合数（顺序不计）。",
+   "初始化 dp[i][0]=1（凑 0 元只有空组合），dp[0][j]=0。",
+   "转移：dp[i][j]=dp[i-1][j]+dp[i][j-c]，后者表示再用一枚第 i 种。",
+   "外层物品、内层金额正序（同一行才能继续拿这枚）；答案 dp[k][amount]。",
+   "空间可优化成一维正序滚动，见空间优化版。"
   ],
-  "cx": "时间 O(amount·k)，空间 O(amount)",
-  "trap": "内外层一交换就变成排列数（377 题）；两种循环方向的目的完全不同。",
-  "code": "class Solution:\n    def change(self, amount: int, coins: List[int]) -> int:\n        dp = [0] * (amount + 1)\n        dp[0] = 1\n        for c in coins:\n            for j in range(c, amount + 1):\n                dp[j] += dp[j - c]\n        return dp[amount]\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    amount = int(data[0])\n    k = int(data[1])\n    coins = [int(x) for x in data[2:2 + k]]\n    dp = [0] * (amount + 1)\n    dp[0] = 1\n    for c in coins:\n        for j in range(c, amount + 1):\n            dp[j] += dp[j - c]\n    print(dp[amount])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "cx": "时间 O(k·amount)，空间 O(k·amount)",
+  "trap": "表 DP 坑：必须引 dp[i][j-c] 才能无限用；内外层反了变排列数。",
+  "code": "class Solution:\n    def change(self, amount: int, coins: List[int]) -> int:\n        k = len(coins)\n        # dp[i][j]：用前 i 种硬币凑出金额 j 的组合数\n        dp = [[0] * (amount + 1) for _ in range(k + 1)]\n        for i in range(k + 1):\n            dp[i][0] = 1  # 凑 0 元：一枚都不选\n        for i in range(1, k + 1):\n            c = coins[i - 1]\n            for j in range(1, amount + 1):\n                dp[i][j] = dp[i - 1][j]\n                if j >= c:\n                    dp[i][j] += dp[i][j - c]\n        return dp[k][amount]\n",
+  "code_opt": "class Solution:\n    def change(self, amount: int, coins: List[int]) -> int:\n        dp = [0] * (amount + 1)\n        dp[0] = 1\n        for c in coins:\n            for j in range(c, amount + 1):\n                dp[j] += dp[j - c]\n        return dp[amount]\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    amount = int(data[0])\n    k = int(data[1])\n    coins = [int(x) for x in data[2:2 + k]]\n    dp = [[0] * (amount + 1) for _ in range(k + 1)]\n    for i in range(k + 1):\n        dp[i][0] = 1\n    for i in range(1, k + 1):\n        c = coins[i - 1]\n        for j in range(1, amount + 1):\n            dp[i][j] = dp[i - 1][j]\n            if j >= c:\n                dp[i][j] += dp[i][j - c]\n    print(dp[k][amount])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "5 3 1 2 5",
@@ -411,14 +431,16 @@
   "ex": "word1 = \"sea\", word2 = \"eat\" → 2",
   "key": "先求最长公共子序列，答案 = 两长之和 - 2×LCS",
   "idea": [
-   "两个串最终保留下来的一定是它们的公共子序列，且越长删得越少。",
-   "dp[i][j] 表示 word1 前 i 个与 word2 前 j 个的 LCS 长度。",
-   "字符相同则 dp[i][j]=dp[i-1][j-1]+1，否则取上、左两方向较大值。",
-   "结果 = n+m-2*dp[n][m]；某一串为空时答案就是另一串的长度。"
+   "dp[i][j]：word1 前 i 个与 word2 前 j 个的最长公共子序列长度。",
+   "初始化第 0 行、第 0 列都为 0（任一串为空时 LCS 为 0）。",
+   "相等 dp[i][j]=dp[i-1][j-1]+1，否则 max(dp[i-1][j], dp[i][j-1])。",
+   "i、j 都从 1 递增；答案 n+m-2*dp[n][m]。",
+   "空间可优化成一行滚动 + prev，见空间优化版。"
   ],
   "cx": "时间 O(nm)，空间 O(nm)",
-  "trap": "答案里 2×LCS 的系数别漏，公共部分两边都要保留、不删。",
-  "code": "class Solution:\n    def minDistance(self, word1: str, word2: str) -> int:\n        n, m = len(word1), len(word2)\n        dp = [[0] * (m + 1) for _ in range(n + 1)]\n        for i in range(1, n + 1):\n            for j in range(1, m + 1):\n                if word1[i - 1] == word2[j - 1]:\n                    dp[i][j] = dp[i - 1][j - 1] + 1\n                else:\n                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\n        return n + m - 2 * dp[n][m]\n",
+  "trap": "表 DP 坑：比较 word1[i-1] 与 word2[j-1]；答案里的 2× 别漏。",
+  "code": "class Solution:\n    def minDistance(self, word1: str, word2: str) -> int:\n        n, m = len(word1), len(word2)\n        # dp[i][j]：word1 前 i 个与 word2 前 j 个的 LCS 长度\n        dp = [[0] * (m + 1) for _ in range(n + 1)]\n        for i in range(1, n + 1):\n            for j in range(1, m + 1):\n                if word1[i - 1] == word2[j - 1]:\n                    dp[i][j] = dp[i - 1][j - 1] + 1\n                else:\n                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\n        return n + m - 2 * dp[n][m]\n",
+  "code_opt": "class Solution:\n    def minDistance(self, word1: str, word2: str) -> int:\n        n, m = len(word1), len(word2)\n        dp = [0] * (m + 1)  # 更新前 dp[j] 就是 dp[i-1][j]\n        for i in range(1, n + 1):\n            prev = 0  # dp[i-1][0]\n            for j in range(1, m + 1):\n                tmp = dp[j]\n                if word1[i - 1] == word2[j - 1]:\n                    dp[j] = prev + 1\n                else:\n                    dp[j] = max(dp[j], dp[j - 1])\n                prev = tmp\n        return n + m - 2 * dp[m]\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    w1 = data[0]\n    w2 = data[1] if len(data) > 1 else \"\"\n    n, m = len(w1), len(w2)\n    dp = [[0] * (m + 1) for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        for j in range(1, m + 1):\n            if w1[i - 1] == w2[j - 1]:\n                dp[i][j] = dp[i - 1][j - 1] + 1\n            else:\n                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\n    print(n + m - 2 * dp[n][m])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -441,14 +463,16 @@
   "ex": "s = \"aaa\" → 6",
   "key": "区间 dp 打回文标记，标一个计数加一",
   "idea": [
-   "dp[i][j] 表示 s[i..j] 是否回文，i 从后往前枚举才能用到内层结论。",
-   "s[i]==s[j] 且（长度不超过 3 或 dp[i+1][j-1] 为真）时成立。",
-   "每标记成功一次 ans 加一，遍历完就是答案。",
-   "单字符必然回文；中心扩展法同样 O(n²)，但空间只要 O(1)。"
+   "dp[i][j]：s[i..j] 是否回文，按布尔区间表计数。",
+   "整表初始化为 False（空区间和未算的格子都不是回文）。",
+   "s[i]==s[j] 且 (j-i<=2 或 dp[i+1][j-1]) 时置真并让答案加一。",
+   "i 从 n-1 倒推、j 从 i 正推；答案就是计数总和。",
+   "空间可优化成中心扩展（O(1) 空间），见空间优化版。"
   ],
   "cx": "时间 O(n²)，空间 O(n²)",
-  "trap": "长度≤3 的短路判断不能漏，否则 dp[i+1][j-1] 会取到无意义的格子。",
-  "code": "class Solution:\n    def countSubstrings(self, s: str) -> int:\n        n = len(s)\n        dp = [[False] * n for _ in range(n)]\n        ans = 0\n        for i in range(n - 1, -1, -1):\n            for j in range(i, n):\n                if s[i] == s[j] and (j - i <= 2 or dp[i + 1][j - 1]):\n                    dp[i][j] = True\n                    ans += 1\n        return ans\n",
+  "trap": "表 DP 坑：j-i<=2 的短路不能漏，否则会读无意义的 dp[i+1][j-1]。",
+  "code": "class Solution:\n    def countSubstrings(self, s: str) -> int:\n        n = len(s)\n        # dp[i][j]：s[i..j] 是否回文\n        dp = [[False] * n for _ in range(n)]\n        ans = 0\n        for i in range(n - 1, -1, -1):\n            for j in range(i, n):\n                if s[i] == s[j] and (j - i <= 2 or dp[i + 1][j - 1]):\n                    dp[i][j] = True\n                    ans += 1\n        return ans\n",
+  "code_opt": "class Solution:\n    def countSubstrings(self, s: str) -> int:\n        n = len(s)\n        ans = 0\n        for c in range(2 * n - 1):  # 2n-1 个中心：单字符 + 字符间隙\n            l, r = c // 2, c // 2 + c % 2\n            while l >= 0 and r < n and s[l] == s[r]:\n                ans += 1\n                l -= 1\n                r += 1\n        return ans\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    s = data[0]\n    n = len(s)\n    dp = [[False] * n for _ in range(n)]\n    ans = 0\n    for i in range(n - 1, -1, -1):\n        for j in range(i, n):\n            if s[i] == s[j] and (j - i <= 2 or dp[i + 1][j - 1]):\n                dp[i][j] = True\n                ans += 1\n    print(ans)\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -471,14 +495,15 @@
   "ex": "nums = [1,3,5,4,7] → 2",
   "key": "长度与个数两个数组：更长就覆盖，等长就累加",
   "idea": [
-   "len[i] 是以 nums[i] 结尾的最长递增子序列长度，cnt[i] 是对应条数。",
-   "nums[j]<nums[i] 时：len[j]+1>len[i] 就覆盖长度，cnt[i]=cnt[j]。",
-   "若 len[j]+1==len[i]，说明又找到同样长的另一支，cnt[i]+=cnt[j]。",
-   "先记住全局最大长度，最后把所有 len 等于它的 cnt 求和。"
+   "length[i]：以 nums[i] 结尾的 LIS 长度；cnt[i]：达到该长度的条数。",
+   "初始化 length、cnt 全为 1（每个数自己是一条长度 1 的序列）。",
+   "更长则覆盖 length[i]、cnt[i]=cnt[j]；等长则 cnt[i]+=cnt[j]。",
+   "i 递增、j<i，边算边记 best；答案把所有 length==best 的 cnt 求和。",
+   "两个一维数组已最简，没有空间优化版。"
   ],
   "cx": "时间 O(n²)，空间 O(n)",
-  "trap": "「更长」是覆盖、「等长」是累加，写反会让条数成倍膨胀或丢失。",
-  "code": "class Solution:\n    def findNumberOfLIS(self, nums: List[int]) -> int:\n        n = len(nums)\n        length = [1] * n\n        cnt = [1] * n\n        best = 1\n        for i in range(n):\n            for j in range(i):\n                if nums[j] < nums[i]:\n                    if length[j] + 1 > length[i]:\n                        length[i] = length[j] + 1\n                        cnt[i] = cnt[j]\n                    elif length[j] + 1 == length[i]:\n                        cnt[i] += cnt[j]\n            best = max(best, length[i])\n        return sum(c for l, c in zip(length, cnt) if l == best)\n",
+  "trap": "表 DP 坑：更长覆盖、等长累加别写反；最后按 best 求和，不能返回 cnt[n-1]。",
+  "code": "class Solution:\n    def findNumberOfLIS(self, nums: List[int]) -> int:\n        n = len(nums)\n        # length[i]：以 i 结尾的 LIS 长度；cnt[i]：达到该长度的条数\n        length = [1] * n\n        cnt = [1] * n\n        best = 1\n        for i in range(n):\n            for j in range(i):\n                if nums[j] < nums[i]:\n                    if length[j] + 1 > length[i]:\n                        length[i] = length[j] + 1\n                        cnt[i] = cnt[j]\n                    elif length[j] + 1 == length[i]:\n                        cnt[i] += cnt[j]\n            best = max(best, length[i])\n        return sum(c for l, c in zip(length, cnt) if l == best)\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    length = [1] * n\n    cnt = [1] * n\n    best = 1\n    for i in range(n):\n        for j in range(i):\n            if nums[j] < nums[i]:\n                if length[j] + 1 > length[i]:\n                    length[i] = length[j] + 1\n                    cnt[i] = cnt[j]\n                elif length[j] + 1 == length[i]:\n                    cnt[i] += cnt[j]\n        best = max(best, length[i])\n    print(sum(c for l, c in zip(length, cnt) if l == best))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -501,15 +526,17 @@
   "ex": "nums = [1,3,5,4,7] → 3",
   "key": "比前一个大就加一，否则归 1，顺手记最大",
   "idea": [
-   "dp[i] 表示以 i 结尾的连续递增段长度。",
-   "nums[i]>nums[i-1] 时 dp[i]=dp[i-1]+1，否则段断掉，dp[i]=1。",
-   "只需一个滚动变量 cur 加一个 best，空间 O(1)。",
-   "空数组返回 0、单元素返回 1，这是两个易漏的边界。"
+   "dp[i]：以 nums[i] 结尾的最长连续递增子序列长度。",
+   "初始化 dp[i]=1，每个元素自己就是长度 1 的段。",
+   "nums[i]>nums[i-1] 时 dp[i]=dp[i-1]+1，否则 dp[i]=1。",
+   "i 从 1 到 n-1；答案是 max(dp)，不是 dp[n-1]。",
+   "空间可优化成一个变量 + best，见空间优化版。"
   ],
-  "cx": "时间 O(n)，空间 O(1)",
-  "trap": "必须是严格大于，相等时也要断开重新计数；空数组不能返回 1。",
-  "code": "class Solution:\n    def findLengthOfLCIS(self, nums: List[int]) -> int:\n        if not nums:\n            return 0\n        best = cur = 1\n        for i in range(1, len(nums)):\n            cur = cur + 1 if nums[i] > nums[i - 1] else 1\n            best = max(best, cur)\n        return best\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    if not nums:\n        print(0)\n        return\n    best = cur = 1\n    for i in range(1, n):\n        cur = cur + 1 if nums[i] > nums[i - 1] else 1\n        best = max(best, cur)\n    print(best)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "cx": "时间 O(n)，空间 O(n)",
+  "trap": "表 DP 坑：答案取全表 max；空数组先返回 0；相等不算递增，要断开。",
+  "code": "class Solution:\n    def findLengthOfLCIS(self, nums: List[int]) -> int:\n        n = len(nums)\n        if n == 0:\n            return 0\n        # dp[i]：以 nums[i] 结尾的最长连续递增段长度\n        dp = [1] * n\n        for i in range(1, n):\n            if nums[i] > nums[i - 1]:\n                dp[i] = dp[i - 1] + 1\n        return max(dp)\n",
+  "code_opt": "class Solution:\n    def findLengthOfLCIS(self, nums: List[int]) -> int:\n        if not nums:\n            return 0\n        best = cur = 1\n        for i in range(1, len(nums)):\n            cur = cur + 1 if nums[i] > nums[i - 1] else 1\n            best = max(best, cur)\n        return best\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    if n == 0:\n        print(0)\n        return\n    dp = [1] * n\n    for i in range(1, n):\n        if nums[i] > nums[i - 1]:\n            dp[i] = dp[i - 1] + 1\n    print(max(dp))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "5 1 3 5 4 7",
@@ -531,15 +558,17 @@
   "ex": "prices = [1,3,2,8,4,9], fee = 2 → 8",
   "key": "持股与空仓两个状态，卖出时扣一次 fee",
   "idea": [
-   "hold 表示此刻持股的最大现金，free 表示空仓时的最大利润。",
-   "每天更新：hold=max(hold, free-p)，free=max(free, hold+p-fee)。",
-   "手续费只在卖出的那一侧扣一次，买入时不扣。",
-   "答案就是 free；价格不涨或只有一天时利润为 0。"
+   "dp[i][0]：第 i 天空仓的最大利润；dp[i][1]：第 i 天持股的最大现金。",
+   "初始化 dp[0][0]=0、dp[0][1]=-prices[0]（第 0 天买入）。",
+   "转移：0=max(昨0, 昨1+p-fee)；1=max(昨1, 昨0-p)。",
+   "i 从 1 到 n-1，只依赖上一行；答案是 dp[n-1][0]。",
+   "空间可优化成两个滚动变量，见空间优化版。"
   ],
-  "cx": "时间 O(n)，空间 O(1)",
-  "trap": "fee 扣在卖出侧，扣在买入侧或两边都扣都会少算利润。",
-  "code": "class Solution:\n    def maxProfit(self, prices: List[int], fee: int) -> int:\n        hold = -prices[0]\n        free = 0\n        for p in prices[1:]:\n            hold = max(hold, free - p)\n            free = max(free, hold + p - fee)\n        return free\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    prices = [int(x) for x in data[1:1 + n]]\n    fee = int(data[1 + n])\n    hold = -prices[0]\n    free = 0\n    for p in prices[1:]:\n        hold = max(hold, free - p)\n        free = max(free, hold + p - fee)\n    print(free)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "cx": "时间 O(n)，空间 O(n)",
+  "trap": "表 DP 坑：fee 只在卖出侧扣一次；dp[0][1] 别初始化成 0。",
+  "code": "class Solution:\n    def maxProfit(self, prices: List[int], fee: int) -> int:\n        n = len(prices)\n        # dp[i][0] 空仓的最大利润，dp[i][1] 持股的最大现金\n        dp = [[0, 0] for _ in range(n)]\n        dp[0][1] = -prices[0]\n        for i in range(1, n):\n            p = prices[i]\n            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + p - fee)\n            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] - p)\n        return dp[n - 1][0]\n",
+  "code_opt": "class Solution:\n    def maxProfit(self, prices: List[int], fee: int) -> int:\n        hold = -prices[0]\n        free = 0\n        for p in prices[1:]:\n            hold = max(hold, free - p)\n            free = max(free, hold + p - fee)\n        return free\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    prices = [int(x) for x in data[1:1 + n]]\n    fee = int(data[1 + n])\n    if n == 0:\n        print(0)\n        return\n    dp = [[0, 0] for _ in range(n)]\n    dp[0][1] = -prices[0]\n    for i in range(1, n):\n        p = prices[i]\n        dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + p - fee)\n        dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] - p)\n    print(dp[n - 1][0])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "6 1 3 2 8 4 9 2",
@@ -561,14 +590,16 @@
   "ex": "nums1 = [1,2,3,2,1], nums2 = [3,2,1,4,7] → 3",
   "key": "dp 定义为以 i-1、j-1 结尾，对不上就归零",
   "idea": [
-   "dp[i][j] 表示以 nums1[i-1]、nums2[j-1] 结尾的最长公共子数组长度。",
-   "相等时 dp[i][j]=dp[i-1][j-1]+1，不等时必须置 0，不能继承。",
-   "下标从 1 开始，多一行一列 0 当哨兵，省掉越界判断。",
-   "答案是整个 dp 表里的最大值，不是 dp[n][m]。"
+   "dp[i][j]：以 nums1[i-1]、nums2[j-1] 结尾的最长公共连续子数组长度。",
+   "初始化第 0 行、第 0 列为 0 当哨兵，省掉越界判断。",
+   "相等 dp[i][j]=dp[i-1][j-1]+1，不等必须置 0（连续断了）。",
+   "i、j 从 1 递增；答案边算边取 max，不是 dp[n][m]。",
+   "空间可优化成一行滚动 + prev，见空间优化版。"
   ],
   "cx": "时间 O(nm)，空间 O(nm)",
-  "trap": "不相等要清零；结果边算边取 max，最后取 dp[n][m] 是错的。",
-  "code": "class Solution:\n    def findLength(self, nums1: List[int], nums2: List[int]) -> int:\n        n, m = len(nums1), len(nums2)\n        dp = [[0] * (m + 1) for _ in range(n + 1)]\n        best = 0\n        for i in range(1, n + 1):\n            for j in range(1, m + 1):\n                if nums1[i - 1] == nums2[j - 1]:\n                    dp[i][j] = dp[i - 1][j - 1] + 1\n                    best = max(best, dp[i][j])\n        return best\n",
+  "trap": "表 DP 坑：不等要清零而不是取 max；答案是全表最大值。",
+  "code": "class Solution:\n    def findLength(self, nums1: List[int], nums2: List[int]) -> int:\n        n, m = len(nums1), len(nums2)\n        # dp[i][j]：以 nums1[i-1]、nums2[j-1] 结尾的公共连续段长度\n        dp = [[0] * (m + 1) for _ in range(n + 1)]\n        best = 0\n        for i in range(1, n + 1):\n            for j in range(1, m + 1):\n                if nums1[i - 1] == nums2[j - 1]:\n                    dp[i][j] = dp[i - 1][j - 1] + 1\n                    best = max(best, dp[i][j])\n        return best\n",
+  "code_opt": "class Solution:\n    def findLength(self, nums1: List[int], nums2: List[int]) -> int:\n        n, m = len(nums1), len(nums2)\n        dp = [0] * (m + 1)  # 更新前 dp[j] 就是 dp[i-1][j]\n        best = 0\n        for i in range(1, n + 1):\n            prev = 0  # dp[i-1][j-1]\n            for j in range(1, m + 1):\n                tmp = dp[j]\n                if nums1[i - 1] == nums2[j - 1]:\n                    dp[j] = prev + 1\n                    best = max(best, dp[j])\n                else:\n                    dp[j] = 0\n                prev = tmp\n        return best\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a = [int(x) for x in data[1:1 + n]]\n    m = int(data[1 + n])\n    b = [int(x) for x in data[2 + n:2 + n + m]]\n    dp = [[0] * (m + 1) for _ in range(n + 1)]\n    best = 0\n    for i in range(1, n + 1):\n        for j in range(1, m + 1):\n            if a[i - 1] == b[j - 1]:\n                dp[i][j] = dp[i - 1][j - 1] + 1\n                best = max(best, dp[i][j])\n    print(best)\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -591,15 +622,17 @@
   "ex": "cost = [10,15,20] → 15",
   "key": "dp[i]=min(前两级)+cost[i]，末两步取小",
   "idea": [
-   "dp[i] 表示站到第 i 级台阶时的最小花费，只能从 i-1 或 i-2 上来。",
-   "转移：dp[i]=min(dp[i-1], dp[i-2])+cost[i]。",
-   "起点可选 0 或 1 级，等价于 dp[0]=cost[0]、dp[1]=cost[1]，前面垫两个 0。",
-   "楼顶在最后一级之后，答案是 min(dp[n-1], dp[n-2])。"
+   "dp[i]：到达第 i 级台阶的最小花费，dp[0]=dp[1]=0 表示从地面起步。",
+   "初始化 dp[0]=dp[1]=0，其余留空。",
+   "转移：dp[i]=min(dp[i-1]+cost[i-1], dp[i-2]+cost[i-2])。",
+   "i 从 2 到 n；楼顶在最后一级之后，答案是 dp[n]。",
+   "空间可优化成两个滚动变量，见空间优化版。"
   ],
-  "cx": "时间 O(n)，空间 O(1)",
-  "trap": "最后一步跨到楼顶不花钱，别把 cost[n] 加进去，也别只返回 dp[n-1]。",
-  "code": "class Solution:\n    def minCostClimbingStairs(self, cost: List[int]) -> int:\n        prev, cur = 0, 0\n        for c in cost:\n            prev, cur = cur, min(prev, cur) + c\n        return min(prev, cur)\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    cost = [int(x) for x in data[1:1 + n]]\n    prev, cur = 0, 0\n    for c in cost:\n        prev, cur = cur, min(prev, cur) + c\n    print(min(prev, cur))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "cx": "时间 O(n)，空间 O(n)",
+  "trap": "表 DP 坑：dp 要开 n+1（楼顶是 dp[n]）；dp[0]、dp[1] 都是 0。",
+  "code": "class Solution:\n    def minCostClimbingStairs(self, cost: List[int]) -> int:\n        n = len(cost)\n        # dp[i]：到达第 i 级台阶的最小花费，dp[n] 就是到楼顶\n        dp = [0] * (n + 1)\n        for i in range(2, n + 1):\n            dp[i] = min(dp[i - 1] + cost[i - 1], dp[i - 2] + cost[i - 2])\n        return dp[n]\n",
+  "code_opt": "class Solution:\n    def minCostClimbingStairs(self, cost: List[int]) -> int:\n        prev, cur = 0, 0\n        for c in cost:\n            prev, cur = cur, min(prev, cur) + c\n        return min(prev, cur)\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    cost = [int(x) for x in data[1:1 + n]]\n    dp = [0] * (n + 1)\n    for i in range(2, n + 1):\n        dp[i] = min(dp[i - 1] + cost[i - 1], dp[i - 2] + cost[i - 2])\n    print(dp[n])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "3 10 15 20",
@@ -621,14 +654,16 @@
   "ex": "nums1 = [1,4,2], nums2 = [1,2,4] → 2",
   "key": "线不相交就是相对顺序一致，等价于最长公共子序列",
   "idea": [
-   "连线不交叉，等价于选出的数字在两数组中的相对顺序完全相同。",
-   "于是问题就是求 nums1 与 nums2 的最长公共子序列长度。",
-   "dp[i][j]：两数字相等取左上角 +1，否则取上、左两方向较大值。",
-   "下标从 1 开始避免越界；任一数组为空则答案是 0。"
+   "dp[i][j]：前 i 个与前 j 个能连出的最多不相交线条数，等价于 LCS 长度。",
+   "初始化第 0 行、第 0 列为 0（任一数组为空就连不了线）。",
+   "相等 dp[i][j]=dp[i-1][j-1]+1，否则 max(dp[i-1][j], dp[i][j-1])。",
+   "i、j 从 1 递增；答案是 dp[n][m]。",
+   "空间可优化成一行滚动 + prev，见空间优化版。"
   ],
   "cx": "时间 O(nm)，空间 O(nm)",
-  "trap": "这是子序列不是子数组，字符不等时可以跳过而不是清零。",
-  "code": "class Solution:\n    def maxUncrossedLines(self, nums1: List[int], nums2: List[int]) -> int:\n        n, m = len(nums1), len(nums2)\n        dp = [[0] * (m + 1) for _ in range(n + 1)]\n        for i in range(1, n + 1):\n            for j in range(1, m + 1):\n                if nums1[i - 1] == nums2[j - 1]:\n                    dp[i][j] = dp[i - 1][j - 1] + 1\n                else:\n                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\n        return dp[n][m]\n",
+  "trap": "表 DP 坑：不等时取 max 而不是清零（清零是 718 子数组的写法）。",
+  "code": "class Solution:\n    def maxUncrossedLines(self, nums1: List[int], nums2: List[int]) -> int:\n        n, m = len(nums1), len(nums2)\n        # dp[i][j]：前 i 个与前 j 个能连出的最多不相交线条数（即 LCS）\n        dp = [[0] * (m + 1) for _ in range(n + 1)]\n        for i in range(1, n + 1):\n            for j in range(1, m + 1):\n                if nums1[i - 1] == nums2[j - 1]:\n                    dp[i][j] = dp[i - 1][j - 1] + 1\n                else:\n                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\n        return dp[n][m]\n",
+  "code_opt": "class Solution:\n    def maxUncrossedLines(self, nums1: List[int], nums2: List[int]) -> int:\n        n, m = len(nums1), len(nums2)\n        dp = [0] * (m + 1)  # 更新前 dp[j] 就是 dp[i-1][j]\n        for i in range(1, n + 1):\n            prev = 0\n            for j in range(1, m + 1):\n                tmp = dp[j]\n                if nums1[i - 1] == nums2[j - 1]:\n                    dp[j] = prev + 1\n                else:\n                    dp[j] = max(dp[j], dp[j - 1])\n                prev = tmp\n        return dp[m]\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a = [int(x) for x in data[1:1 + n]]\n    m = int(data[1 + n])\n    b = [int(x) for x in data[2 + n:2 + n + m]]\n    dp = [[0] * (m + 1) for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        for j in range(1, m + 1):\n            if a[i - 1] == b[j - 1]:\n                dp[i][j] = dp[i - 1][j - 1] + 1\n            else:\n                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\n    print(dp[n][m])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -651,15 +686,17 @@
   "ex": "stones = [2,7,4,1,8,1] → 1",
   "key": "尽量把石头分成两堆接近的，答案就是两堆之差",
   "idea": [
-   "整个粉碎过程等价于给每块石头分配正号或负号，求最小的非负结果。",
-   "设总和为 sum，只要让一堆尽量接近 sum/2，差就最小。",
-   "01 背包：dp[j] 表示容量 j 能装下的最大重量，容量倒序遍历。",
-   "答案 = sum - 2*dp[half]，half=sum//2；只有一块时答案就是它本身。"
+   "dp[i][j]：前 i 块石头、容量 j 的 0/1 背包能装出的最大重量。",
+   "初始化第 0 行全 0（没有石头可装）。",
+   "转移：max(dp[i-1][j], dp[i-1][j-w]+w)，w=stones[i-1] 且 j>=w。",
+   "i 从 1 到 n、j 从 0 到 half；答案 total-2*dp[n][half]。",
+   "空间可优化成一维倒序滚动，见空间优化版。"
   ],
-  "cx": "时间 O(n·sum)，空间 O(sum)",
-  "trap": "dp[half] 是「不超过 half 的最大和」，答案要再拿 sum 减两倍它。",
-  "code": "class Solution:\n    def lastStoneWeightII(self, stones: List[int]) -> int:\n        total = sum(stones)\n        half = total // 2\n        dp = [0] * (half + 1)\n        for w in stones:\n            for j in range(half, w - 1, -1):\n                dp[j] = max(dp[j], dp[j - w] + w)\n        return total - 2 * dp[half]\n",
-  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    stones = [int(x) for x in data[1:1 + n]]\n    total = sum(stones)\n    half = total // 2\n    dp = [0] * (half + 1)\n    for w in stones:\n        for j in range(half, w - 1, -1):\n            dp[j] = max(dp[j], dp[j - w] + w)\n    print(total - 2 * dp[half])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "cx": "时间 O(n·sum)，空间 O(n·sum)",
+  "trap": "表 DP 坑：j<w 时要继承上一行；一维压缩必须倒序，正序就成完全背包。",
+  "code": "class Solution:\n    def lastStoneWeightII(self, stones: List[int]) -> int:\n        total = sum(stones)\n        half = total // 2\n        n = len(stones)\n        # dp[i][j]：前 i 块石头、容量 j 能装出的最大重量\n        dp = [[0] * (half + 1) for _ in range(n + 1)]\n        for i in range(1, n + 1):\n            w = stones[i - 1]\n            for j in range(half + 1):\n                dp[i][j] = dp[i - 1][j]\n                if j >= w:\n                    dp[i][j] = max(dp[i][j], dp[i - 1][j - w] + w)\n        return total - 2 * dp[n][half]\n",
+  "code_opt": "class Solution:\n    def lastStoneWeightII(self, stones: List[int]) -> int:\n        total = sum(stones)\n        half = total // 2\n        dp = [0] * (half + 1)\n        for w in stones:\n            for j in range(half, w - 1, -1):\n                dp[j] = max(dp[j], dp[j - w] + w)\n        return total - 2 * dp[half]\n",
+  "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    stones = [int(x) for x in data[1:1 + n]]\n    n = len(stones)  # 以实际读入的石头数为准\n    total = sum(stones)\n    half = total // 2\n    dp = [[0] * (half + 1) for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        w = stones[i - 1]\n        for j in range(half + 1):\n            dp[i][j] = dp[i - 1][j]\n            if j >= w:\n                dp[i][j] = max(dp[i][j], dp[i - 1][j - w] + w)\n    print(total - 2 * dp[n][half])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
     "7 2 7 4 1 8 1",

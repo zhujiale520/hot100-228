@@ -9,15 +9,16 @@
   "ex": "matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 5 → true",
   "key": "右上角起步：比它大往左，比它小往下",
   "idea": [
-   "从右上角出发，这个位置的左边都更小、下边都更大。",
-   "当前值大于 target，说明这一列都大了，列指针左移一格。",
-   "当前值小于 target，说明这一行都小了，行指针下移一格。",
-   "相等直接返回 true，行列越界即说明不存在，返回 false。",
-   "每步砍掉一整行或一整列，最多走 m+n 步；左下角起步同理。"
+   "朴素想法：两重 for 把整个矩阵扫一遍，碰到 target 就返回 true，扫完没有就 false。",
+   "每个格子都要看一次，时间 O(m*n)；m=n=1e3 时就是上百万次比较，数据量大时会超时（TLE），而且完全没用上「行、列都升序」这个条件。",
+   "优化：从右上角出发 —— 这个位置的左边都更小、下边都更大，当前值比 target 大就左移一列，比它小就下移一行。",
+   "每步砍掉一整行或一整列，最多走 m+n 步，时间 O(m+n)，额外空间 O(1)。",
+   "注意别从左上角出发，那里两个方向都变大，无法决定往哪走；矩阵为空时直接返回 false。"
   ],
   "cx": "时间 O(m+n)，空间 O(1)",
-  "trap": "别从左上角出发，那里两个方向都变大，无法决定往哪走。",
-  "code": "class Solution:\n    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:\n        if not matrix or not matrix[0]:\n            return False\n        i, j = 0, len(matrix[0]) - 1\n        while i < len(matrix) and j >= 0:\n            if matrix[i][j] == target:\n                return True\n            if matrix[i][j] > target:\n                j -= 1\n            else:\n                i += 1\n        return False",
+  "trap": "朴素两重循环没用上「行、列都升序」，O(m*n) 在大矩阵上会 TLE；优化版别从左上角出发，那里两个方向都变大，无法决定往哪走。",
+  "code": "class Solution:\n    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:\n        for i in range(len(matrix)):\n            for j in range(len(matrix[0])):\n                if matrix[i][j] == target:\n                    return True\n        return False",
+  "code_opt": "class Solution:\n    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:\n        if not matrix or not matrix[0]:\n            return False\n        i, j = 0, len(matrix[0]) - 1\n        while i < len(matrix) and j >= 0:\n            if matrix[i][j] == target:\n                return True\n            if matrix[i][j] > target:\n                j -= 1\n            else:\n                i += 1\n        return False",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    m = int(data[idx]); idx += 1\n    n = int(data[idx]); idx += 1\n    mat = []\n    for _ in range(m):\n        row = []\n        for _ in range(n):\n            row.append(int(data[idx])); idx += 1\n        mat.append(row)\n    target = int(data[idx]); idx += 1\n    i, j = 0, n - 1\n    found = False\n    while i < m and j >= 0:\n        if mat[i][j] == target:\n            found = True\n            break\n        if mat[i][j] > target:\n            j -= 1\n        else:\n            i += 1\n    print(\"true\" if found else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -44,15 +45,16 @@
   "ex": "intersectVal = 8, listA = [4,1,8,4,5], listB = [5,6,1,8,4,5] → 8",
   "key": "走到头就换对方链表，a+c+b 必相遇",
   "idea": [
-   "两个指针分别从 A、B 的头出发，每次各走一步。",
-   "走到 null 就跳到另一条链表的头，继续往下走。",
-   "双方都恰好走 a+c+b 步，有交点时必同时落在交点上。",
-   "无交点时也会同时变成 null，循环自然结束并返回空。",
-   "比较用 is 判节点身份，不能用 val，值相同不代表同一节点。"
+   "朴素想法：对 A 的每个节点，都把 B 从头到尾扫一遍，看有没有「同一个节点」。",
+   "两层循环，时间 O(m*n)；两条各 1e5 的链相乘就是 1e10 次，数据量大时会超时（TLE）。",
+   "优化：两个指针分别从 A、B 出发，走到 null 就换到另一条链的头，双方都恰好走 a+c+b 步，有交点时必同时落在交点上。",
+   "时间 O(m+n)，空间 O(1)。",
+   "比较必须用 is 判节点身份，不能用 val；无交点时两指针会同时变成 null，循环自然结束。"
   ],
   "cx": "时间 O(m+n)，空间 O(1)",
-  "trap": "必须比较节点引用而非 val；值相同的两个不同节点不算相交。",
-  "code": "class Solution:\n    def getIntersectionNode(self, headA: ListNode,\n                            headB: ListNode) -> Optional[ListNode]:\n        a, b = headA, headB\n        while a is not b:\n            a = a.next if a else headB\n            b = b.next if b else headA\n        return a",
+  "trap": "必须比较节点引用 is 而非 val，值相同不代表同一节点；朴素两层循环能查到但 O(m*n)，大数据会 TLE。",
+  "code": "class Solution:\n    def getIntersectionNode(self, headA: ListNode,\n                            headB: ListNode) -> Optional[ListNode]:\n        a = headA\n        while a:\n            b = headB\n            while b:\n                if a is b:\n                    return a\n                b = b.next\n            a = a.next\n        return None",
+  "code_opt": "class Solution:\n    def getIntersectionNode(self, headA: ListNode,\n                            headB: ListNode) -> Optional[ListNode]:\n        a, b = headA, headB\n        while a is not b:\n            a = a.next if a else headB\n            b = b.next if b else headA\n        return a",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef build(vals, tail=None):\n    head = None\n    for v in reversed(vals):\n        head = ListNode(v, head)\n    if head is None:\n        return tail\n    p = head\n    while p.next:\n        p = p.next\n    p.next = tail\n    return head\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    m = int(data[idx]); idx += 1\n    skip_a = int(data[idx]); idx += 1\n    skip_b = int(data[idx]); idx += 1\n    a_vals = [int(data[idx + i]) for i in range(n)]\n    idx += n\n    b_vals = [int(data[idx + i]) for i in range(m)]\n    idx += m\n    if skip_a < 0 or skip_b < 0:\n        head_a = build(a_vals)\n        head_b = build(b_vals)\n    else:\n        tail = build(a_vals[skip_a:])\n        head_a = build(a_vals[:skip_a], tail)\n        head_b = build(b_vals[:skip_b], tail)\n    pa, pb = head_a, head_b\n    while pa is not pb:\n        pa = pa.next if pa else head_b\n        pb = pb.next if pb else head_a\n    print(pa.val if pa else \"null\")\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -79,15 +81,16 @@
   "ex": "head = [1,2,3,4,5] → [5,4,3,2,1]",
   "key": "先存后继再掉头，prev 就是新头",
   "idea": [
-   "prev 置空，cur 指向头，边遍历边把 cur.next 改指 prev。",
-   "必须先把 nxt 存下来，否则改完指针就找不到后继。",
-   "顺序固定：cur.next = prev，然后 prev = cur，cur = nxt。",
-   "循环结束时 prev 停在原链表尾部，也就是新头，返回它。",
-   "空链表直接返回 None；递归写法是让 head.next.next 指回自己。"
+   "朴素想法：先把整条链的值抄进数组，再从数组尾部往头读，逐个新建节点串成新链表。",
+   "时间 O(n)，但要额外 O(n) 的数组，还把每个节点都重新 new 了一遍 —— 原来的节点全被丢掉，空间翻倍。",
+   "优化：三指针原地掉头 —— 先存好后继，把 cur.next 改指 prev，然后 prev、cur 各自前移。",
+   "时间 O(n)，空间 O(1)，一个节点都不用新建。",
+   "改指针前必须先保存 next，否则断链；空链表直接返回 None，最后返回的是 prev 而不是原来的 head。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "忘记先保存 next 会断链；最后返回 prev 而不是原来的 head。",
-  "code": "class Solution:\n    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        prev = None\n        while head:\n            nxt = head.next\n            head.next = prev\n            prev = head\n            head = nxt\n        return prev",
+  "trap": "朴素版借数组 + 新建节点，空间 O(n)；三指针版忘记先保存 next 会断链，最后返回 prev 而不是原来的 head。",
+  "code": "class Solution:\n    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        vals = []\n        cur = head\n        while cur:\n            vals.append(cur.val)\n            cur = cur.next\n        dummy = ListNode(0)\n        cur = dummy\n        for v in reversed(vals):\n            cur.next = ListNode(v)\n            cur = cur.next\n        return dummy.next",
+  "code_opt": "class Solution:\n    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        prev = None\n        while head:\n            nxt = head.next\n            head.next = prev\n            prev = head\n            head = nxt\n        return prev",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    dummy = ListNode(0)\n    tail = dummy\n    for _ in range(n):\n        tail.next = ListNode(int(data[idx])); idx += 1\n        tail = tail.next\n    prev = None\n    cur = dummy.next\n    while cur:\n        nxt = cur.next\n        cur.next = prev\n        prev = cur\n        cur = nxt\n    out = []\n    while prev:\n        out.append(str(prev.val))\n        prev = prev.next\n    print(\" \".join(out))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -114,15 +117,16 @@
   "ex": "head = [1,2,2,1] → true",
   "key": "快慢找中点，反转后半段，两头对撞",
   "idea": [
-   "快慢指针让 slow 停在中间，偶数个时停在后半段的第一个节点。",
-   "从 slow 起把后半段原地反转，得到从尾指向中的链表。",
-   "头指针和反转后的尾指针同步前移，逐个比值，不等即 false。",
-   "只需走到后半段尽头，奇数长度时中间节点自然被跳过。",
-   "不要求 O(1) 空间时，把值拷进数组再首尾双指针更省事。"
+   "朴素想法：把链表的值全部拷进数组，再用首尾两个下标往中间对撞，逐对比值。",
+   "数组比较本身是 O(n)，但额外占了 O(n) 空间；题目进阶要求 O(1) 空间。",
+   "优化：快慢指针找到中点，把后半段原地反转，再让头指针和反转后的尾指针同步前移逐个比。",
+   "时间 O(n)，空间 O(1)；奇数长度时中间那个节点自然被跳过。",
+   "反转会改动链表结构，题目要求原样时需再反转恢复。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "反转会改动链表结构，题目要求原样时需再反转恢复。",
-  "code": "class Solution:\n    def isPalindrome(self, head: Optional[ListNode]) -> bool:\n        slow = fast = head\n        while fast and fast.next:\n            slow = slow.next\n            fast = fast.next.next\n        prev, cur = None, slow\n        while cur:\n            nxt = cur.next\n            cur.next = prev\n            prev, cur = cur, nxt\n        p, q = head, prev\n        while q:\n            if p.val != q.val:\n                return False\n            p, q = p.next, q.next\n        return True",
+  "trap": "朴素数组法要多 O(n) 空间；快慢指针版反转会改动链表结构，题目要求原样时需再反转恢复。",
+  "code": "class Solution:\n    def isPalindrome(self, head: Optional[ListNode]) -> bool:\n        vals = []\n        cur = head\n        while cur:\n            vals.append(cur.val)\n            cur = cur.next\n        i, j = 0, len(vals) - 1\n        while i < j:\n            if vals[i] != vals[j]:\n                return False\n            i += 1\n            j -= 1\n        return True",
+  "code_opt": "class Solution:\n    def isPalindrome(self, head: Optional[ListNode]) -> bool:\n        slow = fast = head\n        while fast and fast.next:\n            slow = slow.next\n            fast = fast.next.next\n        prev, cur = None, slow\n        while cur:\n            nxt = cur.next\n            cur.next = prev\n            prev, cur = cur, nxt\n        p, q = head, prev\n        while q:\n            if p.val != q.val:\n                return False\n            p, q = p.next, q.next\n        return True",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    dummy = ListNode(0)\n    tail = dummy\n    for _ in range(n):\n        tail.next = ListNode(int(data[idx])); idx += 1\n        tail = tail.next\n    head = dummy.next\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n    prev, cur = None, slow\n    while cur:\n        nxt = cur.next\n        cur.next = prev\n        prev, cur = cur, nxt\n    p, q = head, prev\n    ok = True\n    while q:\n        if p.val != q.val:\n            ok = False\n            break\n        p, q = p.next, q.next\n    print(\"true\" if ok else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -153,15 +157,16 @@
   "ex": "head = [3,2,0,-4], pos = 1 → true",
   "key": "快慢指针跑圈，追上就是有环",
   "idea": [
-   "slow 每次走一步，fast 每次走两步，都从头节点出发。",
-   "有环时 fast 先入环，每轮把距离缩小一步，一定追上 slow。",
-   "无环时 fast 或 fast.next 会先变成 null，直接返回 false。",
-   "循环条件写 fast and fast.next，避免对 None 取 next 报错。",
-   "只要相遇就说明有环，无需知道环的入口和长度。"
+   "朴素想法：一边遍历一边把走过的节点记进集合，第二次走到同一个节点就说明有环。",
+   "时间 O(n)，但要额外 O(n) 的集合；题目进阶要 O(1) 空间，长链表上内存吃不消。",
+   "优化：快慢指针，slow 每次一步、fast 每次两步，有环时 fast 每轮把距离缩小一步，一定追上 slow。",
+   "时间 O(n)，空间 O(1)。",
+   "循环条件写 fast and fast.next，避免对 None 取 next；单节点自环也算有环。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "循环条件漏掉 fast.next 会空指针；单节点自环也算有环。",
-  "code": "class Solution:\n    def hasCycle(self, head: Optional[ListNode]) -> bool:\n        slow = fast = head\n        while fast and fast.next:\n            slow = slow.next\n            fast = fast.next.next\n            if slow is fast:\n                return True\n        return False",
+  "trap": "循环条件漏掉 fast.next 会空指针；朴素集合法额外 O(n) 空间，单节点自环也算有环。",
+  "code": "class Solution:\n    def hasCycle(self, head: Optional[ListNode]) -> bool:\n        seen = set()\n        cur = head\n        while cur:\n            if cur in seen:\n                return True\n            seen.add(cur)\n            cur = cur.next\n        return False",
+  "code_opt": "class Solution:\n    def hasCycle(self, head: Optional[ListNode]) -> bool:\n        slow = fast = head\n        while fast and fast.next:\n            slow = slow.next\n            fast = fast.next.next\n            if slow is fast:\n                return True\n        return False",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    pos = int(data[idx]); idx += 1\n    nodes = []\n    for _ in range(n):\n        nodes.append(ListNode(int(data[idx]))); idx += 1\n    for i in range(n - 1):\n        nodes[i].next = nodes[i + 1]\n    if n and pos >= 0:\n        nodes[n - 1].next = nodes[pos]\n    slow = fast = (nodes[0] if n else None)\n    ok = False\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            ok = True\n            break\n    print(\"true\" if ok else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -188,15 +193,16 @@
   "ex": "head = [3,2,0,-4], pos = 1 → 返回索引为 1 的节点",
   "key": "相遇后一个回起点，同速再走就是入口",
   "idea": [
-   "快慢指针相遇即可确认有环，无环时 fast 先到 null，返回空。",
-   "设头到入口长 a、入口到相遇点长 b、相遇点到入口长 c。",
-   "相遇时 slow 走 a+b，fast 走 2(a+b)，两者差距是环长整数倍。",
-   "由此 an 与 c 关于环长同余，把 fast 放回头、两指针同速走。",
-   "再次相遇处正好是入口；全程不改链表结构。"
+   "朴素想法：顺序遍历并把节点记进集合，第一个「第二次出现」的节点就是环的入口。",
+   "时间 O(n)，但要存 O(n) 个节点，额外空间 O(n)；而且只是判了位置，没解释为什么是入口。",
+   "优化：快慢指针先确认有环；设头到入口长 a、入口到相遇点长 b、相遇点到入口长 c，相遇时两者步数差是环长的整数倍，可推出「从 head 和从相遇点同速走会在入口相遇」。",
+   "时间 O(n)，空间 O(1)，全程不改链表结构。",
+   "相遇点不是入口；重新出发后两个指针都要每次走一步。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "相遇点不是入口；重新出发后两指针都要每次一步。",
-  "code": "class Solution:\n    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        slow = fast = head\n        while fast and fast.next:\n            slow = slow.next\n            fast = fast.next.next\n            if slow is fast:\n                p = head\n                while p is not slow:\n                    p = p.next\n                    slow = slow.next\n                return p\n        return None",
+  "trap": "相遇点不是入口，重新出发后两指针都要每次一步；朴素集合法要多 O(n) 空间，且答不出「为什么是入口」。",
+  "code": "class Solution:\n    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        seen = set()\n        cur = head\n        while cur:\n            if cur in seen:\n                return cur\n            seen.add(cur)\n            cur = cur.next\n        return None",
+  "code_opt": "class Solution:\n    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        slow = fast = head\n        while fast and fast.next:\n            slow = slow.next\n            fast = fast.next.next\n            if slow is fast:\n                p = head\n                while p is not slow:\n                    p = p.next\n                    slow = slow.next\n                return p\n        return None",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    pos = int(data[idx]); idx += 1\n    nodes = []\n    for _ in range(n):\n        nodes.append(ListNode(int(data[idx]))); idx += 1\n    for i in range(n - 1):\n        nodes[i].next = nodes[i + 1]\n    if n and pos >= 0:\n        nodes[n - 1].next = nodes[pos]\n    head = nodes[0] if n else None\n    entry = None\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            p = head\n            while p is not slow:\n                p = p.next\n                slow = slow.next\n            entry = p\n            break\n    if entry is None:\n        print(-1)\n    else:\n        p = head\n        i = 0\n        while p is not entry:\n            p = p.next\n            i += 1\n        print(i)\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -223,15 +229,16 @@
   "ex": "l1 = [1,2,4], l2 = [1,3,4] → [1,1,2,3,4,4]",
   "key": "哑节点起手，谁小接谁，剩的整段挂上",
   "idea": [
-   "建一个 dummy 节点，cur 始终指向结果链表的尾部。",
-   "两链表都非空时，取 val 小的节点接到 cur 后面并后移该链表。",
-   "某一条走空后，把另一条剩下的整段挂到 cur.next 即可。",
-   "返回 dummy.next；不要返回 dummy 本身。",
-   "相等时先接哪个都不影响结果，不额外新建节点。"
+   "朴素想法：把两条链的值全收进数组，排序，再按顺序新建节点串成一条链表。",
+   "排序要 O((m+n) log(m+n))，还要 O(m+n) 的数组并新建全部节点；而两条链本来就有序，这次排序完全是白做的。",
+   "优化：哑节点 + 双指针，谁小接谁，边走边合并，结果天然有序。",
+   "时间 O(m+n)，空间 O(1)，直接复用原来的节点。",
+   "一条走空后把另一条剩下的整段挂到 cur.next 即可；返回 dummy.next 而不是 dummy 本身。"
   ],
   "cx": "时间 O(m+n)，空间 O(1)",
-  "trap": "忘记接剩余段会丢节点；返回 dummy 而不是 dummy.next。",
-  "code": "class Solution:\n    def mergeTwoLists(self, list1: Optional[ListNode],\n                      list2: Optional[ListNode]) -> Optional[ListNode]:\n        dummy = ListNode(0)\n        cur = dummy\n        while list1 and list2:\n            if list1.val <= list2.val:\n                cur.next = list1\n                list1 = list1.next\n            else:\n                cur.next = list2\n                list2 = list2.next\n            cur = cur.next\n        cur.next = list1 if list1 else list2\n        return dummy.next",
+  "trap": "忘记接剩余段会丢节点；返回 dummy 而不是 dummy.next；朴素数组法额外 O(m+n) 空间还多做了一次排序。",
+  "code": "class Solution:\n    def mergeTwoLists(self, list1: Optional[ListNode],\n                      list2: Optional[ListNode]) -> Optional[ListNode]:\n        vals = []\n        cur = list1\n        while cur:\n            vals.append(cur.val)\n            cur = cur.next\n        cur = list2\n        while cur:\n            vals.append(cur.val)\n            cur = cur.next\n        vals.sort()\n        dummy = ListNode(0)\n        cur = dummy\n        for v in vals:\n            cur.next = ListNode(v)\n            cur = cur.next\n        return dummy.next",
+  "code_opt": "class Solution:\n    def mergeTwoLists(self, list1: Optional[ListNode],\n                      list2: Optional[ListNode]) -> Optional[ListNode]:\n        dummy = ListNode(0)\n        cur = dummy\n        while list1 and list2:\n            if list1.val <= list2.val:\n                cur.next = list1\n                list1 = list1.next\n            else:\n                cur.next = list2\n                list2 = list2.next\n            cur = cur.next\n        cur.next = list1 if list1 else list2\n        return dummy.next",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef build(cnt, data, idx):\n    dummy = ListNode(0)\n    tail = dummy\n    for _ in range(cnt):\n        tail.next = ListNode(int(data[idx])); idx += 1\n        tail = tail.next\n    return dummy.next, idx\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    m = int(data[idx]); idx += 1\n    list1, idx = build(n, data, idx)\n    list2, idx = build(m, data, idx)\n    dummy = ListNode(0)\n    cur = dummy\n    while list1 and list2:\n        if list1.val <= list2.val:\n            cur.next = list1\n            list1 = list1.next\n        else:\n            cur.next = list2\n            list2 = list2.next\n        cur = cur.next\n    cur.next = list1 if list1 else list2\n    out = []\n    p = dummy.next\n    while p:\n        out.append(str(p.val))\n        p = p.next\n    print(\" \".join(out))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -258,15 +265,16 @@
   "ex": "l1 = [2,4,3], l2 = [5,6,4] → [7,0,8]",
   "key": "逆序正好从低位加起，进位别忘了补位",
   "idea": [
-   "逆序存储意味着个位在表头，顺着链表走就是从低位往高位加。",
-   "每轮 sum = 两个当前位的值（缺位补 0）+ 上一轮进位 carry。",
-   "新节点存 sum % 10，carry 更新为 sum // 10。",
-   "循环条件带上 carry，两条链表走完仍有进位时要再补一个节点。",
-   "两条链表长度不同时短的按 0 处理，结果可能比输入多一位。"
+   "朴素想法：先把两条链表还原成整数，相加，再把结果的每一位拆出来建新链表。",
+   "要先扫两遍拼出完整整数，位数一多，字符串拼接和大整数运算的代价都上来了，C++/Java 里还会直接溢出 —— 本质是「先算出整体再拆开」。",
+   "优化：链表本来就是逆序存的，顺着走正好从低位加起，逐位相加 + 进位即可，不必还原成整数。",
+   "时间 O(max(m,n))，空间 O(1)（不算返回的链表）。",
+   "循环条件要带上 carry，两条链走完还有进位时要再补一个节点；缺位按 0 补。"
   ],
   "cx": "时间 O(max(m,n))，空间 O(1)",
-  "trap": "循环只写 l1 or l2 会丢掉最高位的进位 1。",
-  "code": "class Solution:\n    def addTwoNumbers(self, l1: Optional[ListNode],\n                      l2: Optional[ListNode]) -> Optional[ListNode]:\n        dummy = ListNode(0)\n        cur = dummy\n        carry = 0\n        while l1 or l2 or carry:\n            s = carry\n            if l1:\n                s += l1.val\n                l1 = l1.next\n            if l2:\n                s += l2.val\n                l2 = l2.next\n            carry = s // 10\n            cur.next = ListNode(s % 10)\n            cur = cur.next\n        return dummy.next",
+  "trap": "循环只写 l1 or l2 会丢掉最高位的进位 1；朴素「先还原成整数」在大数上会溢出（C++/Java）且更慢。",
+  "code": "class Solution:\n    def addTwoNumbers(self, l1: Optional[ListNode],\n                      l2: Optional[ListNode]) -> Optional[ListNode]:\n        def to_int(node):\n            s = \"\"\n            while node:\n                s = str(node.val) + s\n                node = node.next\n            return int(s) if s else 0\n\n        total = to_int(l1) + to_int(l2)\n        if total == 0:\n            return ListNode(0)\n        dummy = ListNode(0)\n        cur = dummy\n        while total:\n            cur.next = ListNode(total % 10)\n            cur = cur.next\n            total //= 10\n        return dummy.next",
+  "code_opt": "class Solution:\n    def addTwoNumbers(self, l1: Optional[ListNode],\n                      l2: Optional[ListNode]) -> Optional[ListNode]:\n        dummy = ListNode(0)\n        cur = dummy\n        carry = 0\n        while l1 or l2 or carry:\n            s = carry\n            if l1:\n                s += l1.val\n                l1 = l1.next\n            if l2:\n                s += l2.val\n                l2 = l2.next\n            carry = s // 10\n            cur.next = ListNode(s % 10)\n            cur = cur.next\n        return dummy.next",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef build(cnt, data, idx):\n    dummy = ListNode(0)\n    tail = dummy\n    for _ in range(cnt):\n        tail.next = ListNode(int(data[idx])); idx += 1\n        tail = tail.next\n    return dummy.next, idx\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    m = int(data[idx]); idx += 1\n    l1, idx = build(n, data, idx)\n    l2, idx = build(m, data, idx)\n    dummy = ListNode(0)\n    cur = dummy\n    carry = 0\n    while l1 or l2 or carry:\n        s = carry\n        if l1:\n            s += l1.val\n            l1 = l1.next\n        if l2:\n            s += l2.val\n            l2 = l2.next\n        carry = s // 10\n        cur.next = ListNode(s % 10)\n        cur = cur.next\n    out = []\n    p = dummy.next\n    while p:\n        out.append(str(p.val))\n        p = p.next\n    print(\" \".join(out))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -293,15 +301,16 @@
   "ex": "head = [1,2,3,4,5], n = 2 → [1,2,3,5]",
   "key": "快指针先跑 n 步，慢指针再陪到末尾",
   "idea": [
-   "加一个 dummy 指向 head，这样删头节点时不用特判。",
-   "fast 先从 dummy 走 n 步，与 slow 拉开 n 的距离。",
-   "之后 fast、slow 同步前移，直到 fast 走到最后一个节点。",
-   "此时 slow 正好停在待删节点的前一个，执行 slow.next 跳过它。",
-   "返回 dummy.next；n 等于链表长度时删的就是原来的头。"
+   "朴素想法：把所有节点按顺序装进数组，要删的就是数组里的倒数第 n 个，删掉后再重新串一遍。",
+   "时间 O(L)，但要额外 O(L) 的数组，链表本来省空间的优势就没了；而且「重新串」还得处理末尾的 next。",
+   "优化：加 dummy 后让 fast 先走 n 步，再和 slow 同步前移；fast 走到最后一个节点时，slow 正好停在待删节点的前驱。",
+   "时间 O(L)，空间 O(1)，一趟就能删掉。",
+   "n 等于链表长度时删的是原来的头，dummy 正好兜住这种情况。"
   ],
   "cx": "时间 O(L)，空间 O(1)",
-  "trap": "不加 dummy 又要删头节点会出错；slow 停在待删节点的前驱。",
-  "code": "class Solution:\n    def removeNthFromEnd(self, head: Optional[ListNode],\n                         n: int) -> Optional[ListNode]:\n        dummy = ListNode(0, head)\n        fast = slow = dummy\n        for _ in range(n):\n            fast = fast.next\n        while fast.next:\n            fast = fast.next\n            slow = slow.next\n        slow.next = slow.next.next\n        return dummy.next",
+  "trap": "不加 dummy 又要删头节点会出错；slow 要停在待删节点的前驱；朴素数组法额外 O(L) 空间。",
+  "code": "class Solution:\n    def removeNthFromEnd(self, head: Optional[ListNode],\n                         n: int) -> Optional[ListNode]:\n        nodes = []\n        cur = head\n        while cur:\n            nodes.append(cur)\n            cur = cur.next\n        nodes.pop(len(nodes) - n)\n        dummy = ListNode(0)\n        cur = dummy\n        for node in nodes:\n            cur.next = node\n            cur = cur.next\n        cur.next = None\n        return dummy.next",
+  "code_opt": "class Solution:\n    def removeNthFromEnd(self, head: Optional[ListNode],\n                         n: int) -> Optional[ListNode]:\n        dummy = ListNode(0, head)\n        fast = slow = dummy\n        for _ in range(n):\n            fast = fast.next\n        while fast.next:\n            fast = fast.next\n            slow = slow.next\n        slow.next = slow.next.next\n        return dummy.next",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    k = int(data[idx]); idx += 1\n    dummy0 = ListNode(0)\n    tail = dummy0\n    for _ in range(n):\n        tail.next = ListNode(int(data[idx])); idx += 1\n        tail = tail.next\n    dummy = ListNode(0, dummy0.next)\n    fast = slow = dummy\n    for _ in range(k):\n        fast = fast.next\n    while fast.next:\n        fast = fast.next\n        slow = slow.next\n    slow.next = slow.next.next\n    out = []\n    p = dummy.next\n    while p:\n        out.append(str(p.val))\n        p = p.next\n    print(\" \".join(out))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -328,15 +337,16 @@
   "ex": "head = [1,2,3,4] → [2,1,4,3]",
   "key": "每次把第二个节点提到前面来",
   "idea": [
-   "dummy 指向 head，prev 指向当前这对节点之前的那一个。",
-   "取 a = prev.next、b = a.next，两者都存在才进入交换。",
-   "改指针三步：a.next = b.next，b.next = a，prev.next = b。",
-   "交换完 prev 移到 a，也就是这一对里靠后的节点，再去下一对。",
-   "剩单个节点时不动，最后返回 dummy.next。"
+   "朴素想法：把节点按顺序装进数组，数组里相邻两个交换位置，再重新串成链表。",
+   "时间 O(n)，但要额外 O(n) 的数组；题目明确要求只能改指针，数组法绕开了这件事。",
+   "优化：dummy 起手，prev 指向当前这对节点的前一个，取 a = prev.next、b = a.next 后三步改指针：a.next = b.next、b.next = a、prev.next = b。",
+   "时间 O(n)，空间 O(1)；剩单个节点时不动。",
+   "交换完 prev 移到 a，也就是这一对里靠后的那个，再去下一对；改指针顺序错会断链或成环。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "改指针顺序错会断链或成环；交换节点而不是交换 val。",
-  "code": "class Solution:\n    def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        dummy = ListNode(0, head)\n        prev = dummy\n        while prev.next and prev.next.next:\n            a = prev.next\n            b = a.next\n            a.next = b.next\n            b.next = a\n            prev.next = b\n            prev = a\n        return dummy.next",
+  "trap": "改指针顺序错会断链或成环；是交换节点而不是交换 val；朴素数组法额外 O(n) 空间，绕开了「只改指针」的要求。",
+  "code": "class Solution:\n    def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        nodes = []\n        cur = head\n        while cur:\n            nodes.append(cur)\n            cur = cur.next\n        i = 0\n        while i + 1 < len(nodes):\n            nodes[i], nodes[i + 1] = nodes[i + 1], nodes[i]\n            i += 2\n        dummy = ListNode(0)\n        cur = dummy\n        for node in nodes:\n            cur.next = node\n            cur = cur.next\n        cur.next = None\n        return dummy.next",
+  "code_opt": "class Solution:\n    def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        dummy = ListNode(0, head)\n        prev = dummy\n        while prev.next and prev.next.next:\n            a = prev.next\n            b = a.next\n            a.next = b.next\n            b.next = a\n            prev.next = b\n            prev = a\n        return dummy.next",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    dummy0 = ListNode(0)\n    tail = dummy0\n    for _ in range(n):\n        tail.next = ListNode(int(data[idx])); idx += 1\n        tail = tail.next\n    dummy = ListNode(0, dummy0.next)\n    prev = dummy\n    while prev.next and prev.next.next:\n        a = prev.next\n        b = a.next\n        a.next = b.next\n        b.next = a\n        prev.next = b\n        prev = a\n    out = []\n    p = dummy.next\n    while p:\n        out.append(str(p.val))\n        p = p.next\n    print(\" \".join(out))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -363,15 +373,16 @@
   "ex": "head = [1,2,3,4,5], k = 2 → [2,1,4,3,5]",
   "key": "先数够 k 个再翻，翻完前后接好",
   "idea": [
-   "dummy 起手，group_prev 指向每一组的前驱节点。",
-   "从 group_prev 往后数 k 步，数不满说明剩余不足 k 个，直接返回。",
-   "记 kth 为组内最后一个节点、nxt 为下一组的头节点。",
-   "组内以 nxt 作为反转的初始 prev，让原组头直接接上下一组。",
-   "翻转后 group_prev.next = kth，再把 group_prev 移到原组头继续。"
+   "朴素想法：把节点全部装进数组，每 k 个一组在数组里倒序，不足 k 个的原样留下，再重新串起来。",
+   "时间 O(n)，但要额外 O(n) 的数组，而且「不足 k 个不翻」这个边界在数组下标里很容易写错。",
+   "优化：原地分组 —— 先往后数 k 步确认够不够，记下组内最后一个 kth 和下一组的头 nxt，把组内反转到 nxt 为止，再把前后接好。",
+   "时间 O(n)，空间 O(1)。",
+   "不足 k 个直接返回；反转的初始 prev 要设成下一组的头 nxt，而不是 None。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "不足 k 个不能翻转；反转初值要设成下一组的头而不是 None。",
-  "code": "class Solution:\n    def reverseKGroup(self, head: Optional[ListNode],\n                      k: int) -> Optional[ListNode]:\n        dummy = ListNode(0, head)\n        group_prev = dummy\n        while True:\n            node = group_prev\n            for _ in range(k):\n                node = node.next\n                if not node:\n                    return dummy.next\n            kth = node\n            nxt = kth.next\n            prev, cur = nxt, group_prev.next\n            while cur is not nxt:\n                tmp = cur.next\n                cur.next = prev\n                prev = cur\n                cur = tmp\n            tmp = group_prev.next\n            group_prev.next = kth\n            group_prev = tmp",
+  "trap": "不足 k 个不能翻转；反转初值要设成下一组的头而不是 None；朴素数组法额外 O(n) 空间，边界（不足 k 个）容易写错。",
+  "code": "class Solution:\n    def reverseKGroup(self, head: Optional[ListNode],\n                      k: int) -> Optional[ListNode]:\n        nodes = []\n        cur = head\n        while cur:\n            nodes.append(cur)\n            cur = cur.next\n        i = 0\n        while i + k <= len(nodes):\n            nodes[i:i + k] = nodes[i:i + k][::-1]\n            i += k\n        dummy = ListNode(0)\n        cur = dummy\n        for node in nodes:\n            cur.next = node\n            cur = cur.next\n        cur.next = None\n        return dummy.next",
+  "code_opt": "class Solution:\n    def reverseKGroup(self, head: Optional[ListNode],\n                      k: int) -> Optional[ListNode]:\n        dummy = ListNode(0, head)\n        group_prev = dummy\n        while True:\n            node = group_prev\n            for _ in range(k):\n                node = node.next\n                if not node:\n                    return dummy.next\n            kth = node\n            nxt = kth.next\n            prev, cur = nxt, group_prev.next\n            while cur is not nxt:\n                tmp = cur.next\n                cur.next = prev\n                prev = cur\n                cur = tmp\n            tmp = group_prev.next\n            group_prev.next = kth\n            group_prev = tmp",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    k = int(data[idx]); idx += 1\n    head = None\n    tail = None\n    for _ in range(n):\n        node = ListNode(int(data[idx])); idx += 1\n        if head is None:\n            head = node\n        else:\n            tail.next = node\n        tail = node\n    dummy = ListNode(0, head)\n    group_prev = dummy\n    while True:\n        node = group_prev\n        for _ in range(k):\n            node = node.next\n            if node is None:\n                break\n        if node is None:\n            break\n        kth = node\n        nxt = kth.next\n        prev, cur = nxt, group_prev.next\n        while cur is not nxt:\n            tmp = cur.next\n            cur.next = prev\n            prev = cur\n            cur = tmp\n        tmp = group_prev.next\n        group_prev.next = kth\n        group_prev = tmp\n    out = []\n    p = dummy.next\n    while p:\n        out.append(str(p.val))\n        p = p.next\n    print(\" \".join(out))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -398,15 +409,16 @@
   "ex": "head = [[7,null],[13,0],[11,4],[10,2],[1,0]] → [[7,null],[13,0],[11,4],[10,2],[1,0]]",
   "key": "克隆节点插在原节点身后，random 跟着走",
   "idea": [
-   "第一遍：为每个节点建一个克隆节点，插到它后面，形成 A→A'→B→B'。",
-   "第二遍给克隆节点的 random 赋值：原节点 random 的后继就是它。",
-   "第三遍：拆开两条链，克隆节点串成新链表，同时还原原链表的 next。",
-   "另一种写法是哈希表存 原节点→新节点，两遍遍历更直观但多 O(n) 空间。",
-   "空链表返回空；random 可以指向自己，插在身后正好处理这种情况。"
+   "朴素想法：先不管 random，用哈希表记下「原节点 → 新节点」，第一遍只顺着 next 把所有克隆节点建出来。",
+   "第二遍再补指针：新节点的 next / random 直接从哈希表里查原节点对应的克隆；时间 O(n)，但要多 O(n) 的哈希表。",
+   "题目进阶要求 O(1) 额外空间，哈希表就是那个要省掉的东西。",
+   "优化：把克隆节点直接插在原节点身后（A→A'→B→B'），这样 cur.random.next 恰好就是克隆节点的 random，哈希表整个不需要了。",
+   "最后拆成两条链并把原链表的 next 还原；random 为空时要判空，random 指向自己也能被这套写法覆盖。"
   ],
   "cx": "时间 O(n)，空间 O(1)（不计返回值）",
-  "trap": "取 cur.random.next 前要判空；拆链时原链表必须保持完整。",
-  "code": "class Solution:\n    def copyRandomList(self, head: 'Optional[Node]') -> 'Optional[Node]':\n        if not head:\n            return None\n        cur = head\n        while cur:\n            cur.next = Node(cur.val, cur.next)\n            cur = cur.next.next\n        cur = head\n        while cur:\n            if cur.random:\n                cur.next.random = cur.random.next\n            cur = cur.next.next\n        dummy = Node(0)\n        tail = dummy\n        cur = head\n        while cur:\n            tail.next = cur.next\n            tail = tail.next\n            cur.next = cur.next.next\n            cur = cur.next\n        return dummy.next",
+  "trap": "取 cur.random.next 前要判空；拆链时原链表必须保持完整；朴素哈希法要多 O(n) 空间。",
+  "code": "class Solution:\n    def copyRandomList(self, head: 'Optional[Node]') -> 'Optional[Node]':\n        if not head:\n            return None\n        mapping = {}\n        cur = head\n        while cur:\n            mapping[cur] = Node(cur.val)\n            cur = cur.next\n        cur = head\n        while cur:\n            if cur.next:\n                mapping[cur].next = mapping[cur.next]\n            if cur.random:\n                mapping[cur].random = mapping[cur.random]\n            cur = cur.next\n        return mapping[head]",
+  "code_opt": "class Solution:\n    def copyRandomList(self, head: 'Optional[Node]') -> 'Optional[Node]':\n        if not head:\n            return None\n        cur = head\n        while cur:\n            cur.next = Node(cur.val, cur.next)\n            cur = cur.next.next\n        cur = head\n        while cur:\n            if cur.random:\n                cur.next.random = cur.random.next\n            cur = cur.next.next\n        dummy = Node(0)\n        tail = dummy\n        cur = head\n        while cur:\n            tail.next = cur.next\n            tail = tail.next\n            cur.next = cur.next.next\n            cur = cur.next\n        return dummy.next",
   "acm": "import sys\n\n\nclass Node:\n    def __init__(self, val=0, nxt=None, rnd=None):\n        self.val = val\n        self.next = nxt\n        self.random = rnd\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    nodes = []\n    rand = []\n    for _ in range(n):\n        v = int(data[idx]); idx += 1\n        r = int(data[idx]); idx += 1\n        nodes.append(Node(v))\n        rand.append(r)\n    for i in range(n - 1):\n        nodes[i].next = nodes[i + 1]\n    for i in range(n):\n        if rand[i] >= 0:\n            nodes[i].random = nodes[rand[i]]\n    head = nodes[0] if n else None\n    new_head = None\n    if head:\n        cur = head\n        while cur:\n            cur.next = Node(cur.val, cur.next)\n            cur = cur.next.next\n        cur = head\n        while cur:\n            if cur.random:\n                cur.next.random = cur.random.next\n            cur = cur.next.next\n        dummy = Node(0)\n        tail = dummy\n        cur = head\n        while cur:\n            tail.next = cur.next\n            tail = tail.next\n            cur.next = cur.next.next\n            cur = cur.next\n        new_head = dummy.next\n    pos = {}\n    p = new_head\n    i = 0\n    while p:\n        pos[id(p)] = i\n        p = p.next\n        i += 1\n    p = new_head\n    while p:\n        r = pos[id(p.random)] if p.random else -1\n        print(p.val, r)\n        p = p.next\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -429,15 +441,16 @@
   "ex": "head = [4,2,1,3] → [1,2,3,4]",
   "key": "找中点劈两半，递归归并再合并",
   "idea": [
-   "链表排序首选归并：找中点切两段，分别排序，再合并两条有序链。",
-   "找中点用快慢指针，fast 从 head.next 起，slow 最终落在左段末尾。",
-   "用 slow.next = None 断开，递归排序左右两段后归并。",
-   "合并直接复用合并两个有序链表的哑节点写法，时间 O(n)。",
-   "要求 O(1) 空间时改成自底向上，按步长 1、2、4 两两合并。"
+   "朴素想法：把值全部收进数组，用 sort() 排好，再按顺序写回原来的节点。",
+   "时间 O(n log n)，但要额外 O(n) 数组，而且只改了 val、没动节点，面试通常要求排的是节点本身。",
+   "优化：链表归并 —— 快慢指针找中点把链表断成两段，递归排好左右，再合并两条有序链。",
+   "时间 O(n log n)，空间 O(log n)（递归栈）；要求 O(1) 空间时可改成自底向上，按步长 1、2、4 两两合并。",
+   "找到中点后必须断开，否则递归不收敛、栈溢出。"
   ],
   "cx": "时间 O(n log n)，空间 O(log n)（递归栈）",
-  "trap": "找到中点后必须断开，否则递归不收敛、栈溢出。",
-  "code": "class Solution:\n    def sortList(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        if not head or not head.next:\n            return head\n        slow, fast = head, head.next\n        while fast and fast.next:\n            slow = slow.next\n            fast = fast.next.next\n        mid = slow.next\n        slow.next = None\n        return self.merge(self.sortList(head), self.sortList(mid))\n\n    def merge(self, a: Optional[ListNode],\n              b: Optional[ListNode]) -> Optional[ListNode]:\n        dummy = ListNode(0)\n        cur = dummy\n        while a and b:\n            if a.val <= b.val:\n                cur.next = a\n                a = a.next\n            else:\n                cur.next = b\n                b = b.next\n            cur = cur.next\n        cur.next = a if a else b\n        return dummy.next",
+  "trap": "找到中点后必须断开，否则递归不收敛、栈溢出；朴素数组法额外 O(n) 空间且只改 val 不排节点。",
+  "code": "class Solution:\n    def sortList(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        vals = []\n        cur = head\n        while cur:\n            vals.append(cur.val)\n            cur = cur.next\n        vals.sort()\n        cur = head\n        i = 0\n        while cur:\n            cur.val = vals[i]\n            i += 1\n            cur = cur.next\n        return head",
+  "code_opt": "class Solution:\n    def sortList(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        if not head or not head.next:\n            return head\n        slow, fast = head, head.next\n        while fast and fast.next:\n            slow = slow.next\n            fast = fast.next.next\n        mid = slow.next\n        slow.next = None\n        return self.merge(self.sortList(head), self.sortList(mid))\n\n    def merge(self, a: Optional[ListNode],\n              b: Optional[ListNode]) -> Optional[ListNode]:\n        dummy = ListNode(0)\n        cur = dummy\n        while a and b:\n            if a.val <= b.val:\n                cur.next = a\n                a = a.next\n            else:\n                cur.next = b\n                b = b.next\n            cur = cur.next\n        cur.next = a if a else b\n        return dummy.next",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef merge(a, b):\n    dummy = ListNode(0)\n    cur = dummy\n    while a and b:\n        if a.val <= b.val:\n            cur.next = a\n            a = a.next\n        else:\n            cur.next = b\n            b = b.next\n        cur = cur.next\n    cur.next = a if a else b\n    return dummy.next\n\n\ndef sort_list(head):\n    if not head or not head.next:\n        return head\n    slow, fast = head, head.next\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n    mid = slow.next\n    slow.next = None\n    return merge(sort_list(head), sort_list(mid))\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    dummy = ListNode(0)\n    tail = dummy\n    for _ in range(n):\n        tail.next = ListNode(int(data[idx])); idx += 1\n        tail = tail.next\n    head = sort_list(dummy.next)\n    out = []\n    while head:\n        out.append(str(head.val))\n        head = head.next\n    print(\" \".join(out))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -464,15 +477,16 @@
   "ex": "lists = [[1,4,5],[1,3,4],[2,6]] → [1,1,2,3,4,4,5,6]",
   "key": "两两归并成倍扩，别逐个往里插",
   "idea": [
-   "把 k 条链表当数组，两两合并，每轮链表数减半，共 log k 轮。",
-   "第 i 条与第 i+step 条合并，结果留在下标小的位置。",
-   "step 从 1 开始倍增，最后 lists[0] 就是答案，k 为 0 返回空。",
-   "每轮总节点数都是 n，总复杂度 O(n log k)，优于逐条合并的 O(nk)。",
-   "也可用小顶堆维护各链表当前头，适合数据流式到达的场景。"
+   "朴素想法：把 k 条链的值全部倒进一个数组，排序，再新建一条链表装回去。",
+   "时间 O(N log N)（N 是总节点数），额外 O(N) 空间，而且完全没利用「每条链本身已经有序」。",
+   "优化：两两归并 —— 第 i 条与第 i+step 条合并，step 从 1 开始倍增，每轮链表数减半，共 log k 轮。",
+   "每轮总节点数都是 N，所以总时间 O(N log k)，直接复用节点、空间 O(1)，优于逐条合并的 O(Nk)。",
+   "k 为 0 返回空，注意空链表；也可用小顶堆维护各链当前头，适合数据流式到达的场景。"
   ],
   "cx": "时间 O(n log k)，空间 O(1)",
-  "trap": "逐条往结果里合并会退化成 O(nk)；注意 k=0 和空链表。",
-  "code": "class Solution:\n    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:\n        def merge(a, b):\n            dummy = ListNode(0)\n            cur = dummy\n            while a and b:\n                if a.val <= b.val:\n                    cur.next = a\n                    a = a.next\n                else:\n                    cur.next = b\n                    b = b.next\n                cur = cur.next\n            cur.next = a if a else b\n            return dummy.next\n\n        k = len(lists)\n        if k == 0:\n            return None\n        step = 1\n        while step < k:\n            for i in range(0, k - step, step * 2):\n                lists[i] = merge(lists[i], lists[i + step])\n            step *= 2\n        return lists[0]",
+  "trap": "逐条往结果里合并会退化成 O(Nk)；注意 k=0 和空链表；朴素全排序法额外 O(N) 空间，浪费了各链已有的有序性。",
+  "code": "class Solution:\n    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:\n        vals = []\n        for node in lists:\n            while node:\n                vals.append(node.val)\n                node = node.next\n        vals.sort()\n        dummy = ListNode(0)\n        cur = dummy\n        for v in vals:\n            cur.next = ListNode(v)\n            cur = cur.next\n        return dummy.next",
+  "code_opt": "class Solution:\n    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:\n        def merge(a, b):\n            dummy = ListNode(0)\n            cur = dummy\n            while a and b:\n                if a.val <= b.val:\n                    cur.next = a\n                    a = a.next\n                else:\n                    cur.next = b\n                    b = b.next\n                cur = cur.next\n            cur.next = a if a else b\n            return dummy.next\n\n        k = len(lists)\n        if k == 0:\n            return None\n        step = 1\n        while step < k:\n            for i in range(0, k - step, step * 2):\n                lists[i] = merge(lists[i], lists[i + step])\n            step *= 2\n        return lists[0]",
   "acm": "import sys\n\n\nclass ListNode:\n    def __init__(self, val=0, nxt=None):\n        self.val = val\n        self.next = nxt\n\n\ndef build(cnt, data, idx):\n    dummy = ListNode(0)\n    tail = dummy\n    for _ in range(cnt):\n        tail.next = ListNode(int(data[idx])); idx += 1\n        tail = tail.next\n    return dummy.next, idx\n\n\ndef merge(a, b):\n    dummy = ListNode(0)\n    cur = dummy\n    while a and b:\n        if a.val <= b.val:\n            cur.next = a\n            a = a.next\n        else:\n            cur.next = b\n            b = b.next\n        cur = cur.next\n    cur.next = a if a else b\n    return dummy.next\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    k = int(data[idx]); idx += 1\n    lists = []\n    for _ in range(k):\n        cnt = int(data[idx]); idx += 1\n        node, idx = build(cnt, data, idx)\n        lists.append(node)\n    if k == 0:\n        print(\"\")\n        return\n    step = 1\n    while step < k:\n        for i in range(0, k - step, step * 2):\n            lists[i] = merge(lists[i], lists[i + step])\n        step *= 2\n    out = []\n    p = lists[0]\n    while p:\n        out.append(str(p.val))\n        p = p.next\n    print(\" \".join(out))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -499,15 +513,16 @@
   "ex": "capacity = 2, put(1,1), put(2,2), get(1), put(3,3), get(2) → 1, -1",
   "key": "哈希定位加双向链表排队，头新尾旧",
   "idea": [
-   "哈希表存 key 到节点，做到 O(1) 定位；双向链表维护新旧顺序。",
-   "约定头部最新、尾部最旧，加 head/tail 哨兵省去大量判空。",
-   "get 命中就把节点从原位摘下再插到头部，未命中返回 -1。",
-   "put 键已存在则改值并提到头部；不存在则新建节点插到头部。",
-   "容量满时要删尾哨兵的前一个，并同步从哈希表里删掉这个键。"
+   "朴素想法：只用一个哈希表存 key → [value, 最近使用的时间戳]，get 命中就把时间戳刷新成当前时刻。",
+   "get 本身是 O(1)，但 put 一旦要淘汰，就得把整张表扫一遍找时间戳最小的键，最坏 O(capacity)，达不到题目要求的 get/put 都 O(1)。",
+   "优化：哈希表负责 O(1) 定位，双向链表负责排队 —— 头部最新、尾部最旧，get 命中或 put 更新就把节点摘下来插到头部。",
+   "get/put 均摊 O(1)，空间 O(capacity)。",
+   "加 head/tail 哨兵可以省掉大量判空；淘汰时链表节点和哈希表项必须一起删。"
   ],
   "cx": "时间 get/put 均 O(1)，空间 O(capacity)",
-  "trap": "淘汰时链表节点和哈希表项要一起删，漏一个就出错。",
-  "code": "class Node:\n    def __init__(self, key=0, val=0):\n        self.key = key\n        self.val = val\n        self.prev = None\n        self.next = None\n\n\nclass LRUCache:\n    def __init__(self, capacity: int):\n        self.cap = capacity\n        self.cache = {}\n        self.head = Node()\n        self.tail = Node()\n        self.head.next = self.tail\n        self.tail.prev = self.head\n\n    def _remove(self, node: 'Node') -> None:\n        node.prev.next = node.next\n        node.next.prev = node.prev\n\n    def _add(self, node: 'Node') -> None:\n        node.prev = self.head\n        node.next = self.head.next\n        self.head.next.prev = node\n        self.head.next = node\n\n    def get(self, key: int) -> int:\n        if key not in self.cache:\n            return -1\n        node = self.cache[key]\n        self._remove(node)\n        self._add(node)\n        return node.val\n\n    def put(self, key: int, value: int) -> None:\n        if key in self.cache:\n            node = self.cache[key]\n            node.val = value\n            self._remove(node)\n            self._add(node)\n            return\n        if len(self.cache) == self.cap:\n            last = self.tail.prev\n            self._remove(last)\n            del self.cache[last.key]\n        node = Node(key, value)\n        self.cache[key] = node\n        self._add(node)",
+  "trap": "淘汰时链表节点和哈希表项要一起删，漏一个就出错；朴素「扫全表找最久未用」是 O(capacity)，不满足 O(1)。",
+  "code": "class LRUCache:\n    def __init__(self, capacity: int):\n        self.cap = capacity\n        self.data = {}\n        self.clock = 0\n\n    def get(self, key: int) -> int:\n        if key not in self.data:\n            return -1\n        self.clock += 1\n        self.data[key][1] = self.clock\n        return self.data[key][0]\n\n    def put(self, key: int, value: int) -> None:\n        self.clock += 1\n        if key in self.data:\n            self.data[key] = [value, self.clock]\n            return\n        if len(self.data) >= self.cap:\n            victim = min(self.data, key=lambda k: self.data[k][1])\n            del self.data[victim]\n        self.data[key] = [value, self.clock]",
+  "code_opt": "class Node:\n    def __init__(self, key=0, val=0):\n        self.key = key\n        self.val = val\n        self.prev = None\n        self.next = None\n\n\nclass LRUCache:\n    def __init__(self, capacity: int):\n        self.cap = capacity\n        self.cache = {}\n        self.head = Node()\n        self.tail = Node()\n        self.head.next = self.tail\n        self.tail.prev = self.head\n\n    def _remove(self, node: 'Node') -> None:\n        node.prev.next = node.next\n        node.next.prev = node.prev\n\n    def _add(self, node: 'Node') -> None:\n        node.prev = self.head\n        node.next = self.head.next\n        self.head.next.prev = node\n        self.head.next = node\n\n    def get(self, key: int) -> int:\n        if key not in self.cache:\n            return -1\n        node = self.cache[key]\n        self._remove(node)\n        self._add(node)\n        return node.val\n\n    def put(self, key: int, value: int) -> None:\n        if key in self.cache:\n            node = self.cache[key]\n            node.val = value\n            self._remove(node)\n            self._add(node)\n            return\n        if len(self.cache) == self.cap:\n            last = self.tail.prev\n            self._remove(last)\n            del self.cache[last.key]\n        node = Node(key, value)\n        self.cache[key] = node\n        self._add(node)",
   "acm": "import sys\n\n\nclass Node:\n    def __init__(self, key=0, val=0):\n        self.key = key\n        self.val = val\n        self.prev = None\n        self.next = None\n\n\nclass LRUCache:\n    def __init__(self, capacity):\n        self.cap = capacity\n        self.cache = {}\n        self.head = Node()\n        self.tail = Node()\n        self.head.next = self.tail\n        self.tail.prev = self.head\n\n    def _remove(self, node):\n        node.prev.next = node.next\n        node.next.prev = node.prev\n\n    def _add(self, node):\n        node.prev = self.head\n        node.next = self.head.next\n        self.head.next.prev = node\n        self.head.next = node\n\n    def get(self, key):\n        if key not in self.cache:\n            return -1\n        node = self.cache[key]\n        self._remove(node)\n        self._add(node)\n        return node.val\n\n    def put(self, key, value):\n        if key in self.cache:\n            node = self.cache[key]\n            node.val = value\n            self._remove(node)\n            self._add(node)\n            return\n        if len(self.cache) == self.cap:\n            last = self.tail.prev\n            self._remove(last)\n            del self.cache[last.key]\n        node = Node(key, value)\n        self.cache[key] = node\n        self._add(node)\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    cap = int(data[idx]); idx += 1\n    q = int(data[idx]); idx += 1\n    lru = LRUCache(cap)\n    for _ in range(q):\n        op = data[idx]; idx += 1\n        if op == \"get\":\n            key = int(data[idx]); idx += 1\n            print(lru.get(key))\n        else:\n            key = int(data[idx]); idx += 1\n            val = int(data[idx]); idx += 1\n            lru.put(key, val)\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -530,15 +545,16 @@
   "ex": "root = [1,null,2,3] → [1,3,2]",
   "key": "左到底再弹栈取值，然后转右子树",
   "idea": [
-   "中序顺序是左子树、根、右子树，递归写法最直接。",
-   "迭代用栈：从 cur 出发一路把左孩子压栈，直到 cur 为 null。",
-   "弹出栈顶就是当前最左的节点，把它的值记进结果。",
-   "把 cur 指向它的右子树，重复压栈过程，堆空且 cur 空时结束。",
-   "空树返回空列表，注意循环条件是 cur or stack，缺一不可。"
+   "朴素想法：照着定义写递归 —— 先走完左子树，再记当前节点的值，最后走右子树。",
+   "时间 O(n)，但递归深度等于树高 h；链状树（h 接近 1e4）在 Python 里会直接 RecursionError。",
+   "优化：用显式栈模拟递归 —— 从 cur 出发一路把左孩子压栈直到 null，弹出栈顶记值，再转向它的右子树。",
+   "时间 O(n)，空间 O(h)，但栈开在堆上，不受递归深度限制。",
+   "循环条件是 cur or stack，缺一不可；空树返回空列表。"
   ],
   "cx": "时间 O(n)，空间 O(h)",
-  "trap": "循环条件只写 cur 会漏掉右子树；空节点不能访问 val。",
-  "code": "class Solution:\n    def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:\n        res, stack, cur = [], [], root\n        while cur or stack:\n            while cur:\n                stack.append(cur)\n                cur = cur.left\n            cur = stack.pop()\n            res.append(cur.val)\n            cur = cur.right\n        return res",
+  "trap": "递归版在链状树上会爆栈（Python 默认递归深度约 1000）；迭代版循环条件只写 cur 会漏掉右子树。",
+  "code": "class Solution:\n    def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:\n        res = []\n\n        def dfs(node):\n            if not node:\n                return\n            dfs(node.left)\n            res.append(node.val)\n            dfs(node.right)\n\n        dfs(root)\n        return res",
+  "code_opt": "class Solution:\n    def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:\n        res, stack, cur = [], [], root\n        while cur or stack:\n            while cur:\n                stack.append(cur)\n                cur = cur.left\n            cur = stack.pop()\n            res.append(cur.val)\n            cur = cur.right\n        return res",
   "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(tokens):\n    if not tokens or tokens[0] == \"null\":\n        return None\n    root = TreeNode(int(tokens[0]))\n    q = [root]\n    i = 1\n    while q and i < len(tokens):\n        node = q.pop(0)\n        if i < len(tokens) and tokens[i] != \"null\":\n            node.left = TreeNode(int(tokens[i]))\n            q.append(node.left)\n        i += 1\n        if i < len(tokens) and tokens[i] != \"null\":\n            node.right = TreeNode(int(tokens[i]))\n            q.append(node.right)\n        i += 1\n    return root\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    root = build(data[idx:idx + n])\n    res = []\n    stack = []\n    cur = root\n    while cur or stack:\n        while cur:\n            stack.append(cur)\n            cur = cur.left\n        cur = stack.pop()\n        res.append(str(cur.val))\n        cur = cur.right\n    print(\" \".join(res))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [
@@ -565,10 +581,11 @@
   "ex": "root = [3,9,20,null,null,15,7] → 3",
   "key": "树高等于左右子树高的较大者加一",
   "idea": [
-   "递归定义：空节点深度为 0，作为出口。",
-   "非空节点返回 max(左子树深, 右子树深) + 1。",
-   "也可以层序遍历，每弹完一层深度加一，不用递归栈。",
-   "深度按节点数算，根节点算一层，空树返回 0。"
+   "朴素想法：直接按定义递归 —— 空节点深度为 0，非空节点返回 max(左子树深, 右子树深) + 1。",
+   "每个节点只会被访问一次，时间 O(n)、空间 O(h)（递归栈），这已经是最优，本题没有更聪明的做法。",
+   "不想用递归栈时可以写成层序遍历，每弹完一层深度加一，空间 O(最宽一层)。",
+   "深度按节点数算：根节点算一层，所以是 +1 而不是 +0。",
+   "空树返回 0 而不是 1；单节点返回 1。"
   ],
   "cx": "时间 O(n)，空间 O(h)",
   "trap": "空树返回 0 而不是 1；深度数节点，不是数边。",
@@ -599,13 +616,14 @@
   "ex": "root = [4,2,7,1,3,6,9] → [4,7,2,9,6,3,1]",
   "key": "每个节点都换左右孩子，递归到底",
   "idea": [
-   "对每个节点把 left 与 right 交换，整棵树就镜像了。",
-   "递归处理左右子树，先交换再递归、先递归再交换都行。",
+   "朴素想法：直接递归 —— 对每个节点把 left 和 right 交换，再递归处理两个孩子。",
+   "每个节点恰好交换一次，时间 O(n)、空间 O(h)（递归栈），这已经是最优，本题没有更聪明的做法。",
+   "不想用递归时，可以层序遍历：弹出节点就交换它的两个孩子并入队，思路完全等价。",
    "空节点直接返回，作为递归出口。",
-   "迭代版用队列层序，弹出节点就交换它的两个孩子并入队。"
+   "只交换根节点的孩子不够，每棵子树的内部也要换。"
   ],
   "cx": "时间 O(n)，空间 O(h)",
-  "trap": "只交换根节点的孩子不够，每棵子树的内部也要换。",
+  "trap": "只交换根节点的孩子不够，每棵子树的内部也要换；返回值是翻转后的根。",
   "code": "class Solution:\n    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:\n        if not root:\n            return None\n        root.left, root.right = root.right, root.left\n        self.invertTree(root.left)\n        self.invertTree(root.right)\n        return root",
   "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(tokens):\n    if not tokens or tokens[0] == \"null\":\n        return None\n    root = TreeNode(int(tokens[0]))\n    q = [root]\n    i = 1\n    while q and i < len(tokens):\n        node = q.pop(0)\n        if i < len(tokens) and tokens[i] != \"null\":\n            node.left = TreeNode(int(tokens[i]))\n            q.append(node.left)\n        i += 1\n        if i < len(tokens) and tokens[i] != \"null\":\n            node.right = TreeNode(int(tokens[i]))\n            q.append(node.right)\n        i += 1\n    return root\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    root = build(data[idx:idx + n])\n    def invert(node):\n        if not node:\n            return\n        node.left, node.right = node.right, node.left\n        invert(node.left)\n        invert(node.right)\n\n    invert(root)\n    out = []\n    q = [root]\n    while q:\n        node = q.pop(0)\n        if node is None:\n            out.append(\"null\")\n        else:\n            out.append(str(node.val))\n            q.append(node.left)\n            q.append(node.right)\n    while out and out[-1] == \"null\":\n        out.pop()\n    print(\" \".join(out))\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
@@ -633,14 +651,14 @@
   "ex": "root = [1,2,2,3,4,4,3] → true",
   "key": "左的左配右的右，左的右配右的左",
   "idea": [
-   "对称不是比较左右子树是否相同，而是比较它们的镜像位置。",
-   "辅助函数 same(a, b)：两个都空返回 true，只有一个空返回 false。",
-   "值相等且 same(a.left, b.right) 与 same(a.right, b.left) 都为真。",
-   "空树算对称；单节点也算对称。",
-   "迭代写法用队列把节点成对入队，遇到不匹配直接返回 false。"
+   "朴素想法：写辅助函数 same(a, b) 按镜像递归比较 —— 两个都空返回 true，只有一个空返回 false，否则值相等且 same(a.left, b.right)、same(a.right, b.left) 都成立。",
+   "每个节点只访问一次，时间 O(n)、空间 O(h)（递归栈），这已经是最优，本题没有更聪明的做法。",
+   "不想用递归时，把节点成对放进队列迭代，遇到不匹配直接返回 false。",
+   "关键是「镜像」：比较的不是左右子树是否相同，而是左的左配右的右、左的右配右的左。",
+   "空树、单节点都算对称。"
   ],
   "cx": "时间 O(n)，空间 O(h)",
-  "trap": "写成 same(a.left, b.left) 就变成判断两棵子树是否相同。",
+  "trap": "写成 same(a.left, b.left) 就变成判断两棵子树是否相同；只有一个为空时必须返回 false。",
   "code": "class Solution:\n    def isSymmetric(self, root: Optional[TreeNode]) -> bool:\n        def same(a, b):\n            if not a and not b:\n                return True\n            if not a or not b:\n                return False\n            return (a.val == b.val and same(a.left, b.right)\n                    and same(a.right, b.left))\n\n        return same(root, root)",
   "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(tokens):\n    if not tokens or tokens[0] == \"null\":\n        return None\n    root = TreeNode(int(tokens[0]))\n    q = [root]\n    i = 1\n    while q and i < len(tokens):\n        node = q.pop(0)\n        if i < len(tokens) and tokens[i] != \"null\":\n            node.left = TreeNode(int(tokens[i]))\n            q.append(node.left)\n        i += 1\n        if i < len(tokens) and tokens[i] != \"null\":\n            node.right = TreeNode(int(tokens[i]))\n            q.append(node.right)\n        i += 1\n    return root\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    root = build(data[idx:idx + n])\n    def same(a, b):\n        if not a and not b:\n            return True\n        if not a or not b:\n            return False\n        return (a.val == b.val and same(a.left, b.right)\n                and same(a.right, b.left))\n\n    print(\"true\" if same(root, root) else \"false\")\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
@@ -668,15 +686,16 @@
   "ex": "root = [1,2,3,4,5] → 3",
   "key": "左右子树高度之和，边走边更新最大",
   "idea": [
-   "经过某个节点的最长路径边数 = 左子树高度 + 右子树高度。",
-   "递归函数返回以当前节点为端点向下走的节点数（高度）。",
-   "递归中用 nonlocal 或全局变量在每个节点更新最大直径。",
-   "最长路径可能不经过根，所以更新要在每个节点做，不能只算根。",
-   "高度按节点数数、直径按边数数，两者正好差一。"
+   "朴素想法：先写一个求高度的 height()，然后对每个节点都算一次「左高 + 右高」，再递归到左右子树取最大。",
+   "慢在高度被反复重算 —— 每个节点都被它的每一层祖先各算一次，链状树上退化成 O(n²)，n=1e4 时就会超时（TLE）。",
+   "优化：只做一次后序遍历，depth(node) 返回以它为端点向下走的节点数，回来时顺手用「左高 + 右高」更新全局最大值。",
+   "时间 O(n)，空间 O(h)（递归栈）。",
+   "最长路径可能不经过根，所以更新要在每个节点做，不能只在根算一次；高度按节点数、直径按边数，正好差一。"
   ],
   "cx": "时间 O(n)，空间 O(h)",
-  "trap": "只在根节点算一次会漏掉藏在子树里的更长路径。",
-  "code": "class Solution:\n    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:\n        best = 0\n\n        def depth(node):\n            nonlocal best\n            if not node:\n                return 0\n            left = depth(node.left)\n            right = depth(node.right)\n            best = max(best, left + right)\n            return max(left, right) + 1\n\n        depth(root)\n        return best",
+  "trap": "只在根节点算一次会漏掉藏在子树里的更长路径；朴素「每个节点都重算高度」是 O(n²)，链状树会 TLE。",
+  "code": "class Solution:\n    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:\n        def height(node):\n            if not node:\n                return 0\n            return 1 + max(height(node.left), height(node.right))\n\n        if not root:\n            return 0\n        best = height(root.left) + height(root.right)\n        return max(best, self.diameterOfBinaryTree(root.left),\n                   self.diameterOfBinaryTree(root.right))",
+  "code_opt": "class Solution:\n    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:\n        best = 0\n\n        def depth(node):\n            nonlocal best\n            if not node:\n                return 0\n            left = depth(node.left)\n            right = depth(node.right)\n            best = max(best, left + right)\n            return max(left, right) + 1\n\n        depth(root)\n        return best",
   "acm": "import sys\n\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build(tokens):\n    if not tokens or tokens[0] == \"null\":\n        return None\n    root = TreeNode(int(tokens[0]))\n    q = [root]\n    i = 1\n    while q and i < len(tokens):\n        node = q.pop(0)\n        if i < len(tokens) and tokens[i] != \"null\":\n            node.left = TreeNode(int(tokens[i]))\n            q.append(node.left)\n        i += 1\n        if i < len(tokens) and tokens[i] != \"null\":\n            node.right = TreeNode(int(tokens[i]))\n            q.append(node.right)\n        i += 1\n    return root\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    root = build(data[idx:idx + n])\n    best = 0\n\n    def depth(node):\n        nonlocal best\n        if not node:\n            return 0\n        left = depth(node.left)\n        right = depth(node.right)\n        if left + right > best:\n            best = left + right\n        return (left if left > right else right) + 1\n\n    depth(root)\n    print(best)\n\n\nif __name__ == \"__main__\":\n    main()",
   "tests": [
    [

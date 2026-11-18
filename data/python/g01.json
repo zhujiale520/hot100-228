@@ -9,14 +9,15 @@
   "ex": "nums = [2,7,11,15], target = 9 → [0,1]",
   "key": "边扫边存，先查另一半再入表",
   "idea": [
-   "用哈希表存「值 → 下标」，一次遍历即可，免去 O(n²) 枚举。",
-   "对每个 nums[i]，先查 target - nums[i] 是否已经在表里。",
-   "查到就直接返回这两个下标；查不到再把 nums[i] 和 i 存进表。",
-   "先查后存，保证同一个元素不会被用两次。"
+   "最直接：把所有下标对 (i, j) 枚举一遍，i < j，相加等于 target 就返回，时间 O(n²)。",
+   "慢在每个数都要往后重扫一遍另一半，「找 target - x」是一次 O(n) 的线性查找，n 到 1e4 就会超时（TLE）。",
+   "优化：把「另一半出现过没有」交给哈希表，遍历到 x 时先查 target - x 在不在表里。",
+   "查表 O(1)，整体时间 O(n)、空间 O(n)；先查后插，保证同一个元素不会被用两次。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
-  "trap": "必须先查表再插入，否则 [3,3] 这类会把自己当答案。",
-  "code": "class Solution:\n    def twoSum(self, nums: List[int], target: int) -> List[int]:\n        seen = {}\n        for i, x in enumerate(nums):\n            if target - x in seen:\n                return [seen[target - x], i]\n            seen[x] = i\n        return []\n",
+  "trap": "先查表再插入，否则 [3,3] 这类会把自己当答案；朴素版的双层循环也要让 j 从 i+1 开始，否则同一个元素会被用两次。",
+  "code": "class Solution:\n    def twoSum(self, nums: List[int], target: int) -> List[int]:\n        n = len(nums)\n        for i in range(n):\n            for j in range(i + 1, n):\n                if nums[i] + nums[j] == target:\n                    return [i, j]\n        return []\n",
+  "code_opt": "class Solution:\n    def twoSum(self, nums: List[int], target: int) -> List[int]:\n        seen = {}\n        for i, x in enumerate(nums):\n            if target - x in seen:\n                return [seen[target - x], i]\n            seen[x] = i\n        return []\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx])\n    idx += 1\n    target = int(data[idx])\n    idx += 1\n    nums = [int(x) for x in data[idx:idx + n]]\n    seen = {}\n    ans = []\n    for i, x in enumerate(nums):\n        if target - x in seen:\n            ans = [seen[target - x], i]\n            break\n        seen[x] = i\n    print(ans[0], ans[1])\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -43,14 +44,16 @@
   "ex": "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"] → [[\"bat\"],[\"nat\",\"tan\"],[\"ate\",\"eat\",\"tea\"]]",
   "key": "排序后的单词当钥匙，同钥匙进同一格",
   "idea": [
-   "字母异位词排序后完全相同，把排序结果当作分组 key。",
-   "遍历每个单词，算出 key 后追加到哈希表对应的列表。",
-   "用 26 位计数数组当 key，可省掉排序的 O(k log k)。",
-   "最后取出哈希表所有 value 即为答案，组的顺序无所谓。"
+   "最直接：两两比较，每拿到一个单词就把还没分组的单词都比一遍，是字母异位词就塞进同一组。",
+   "判断两个词是否异位词要排序比较，O(klogk)；外层再套一对一的 n² 次比较，时间 O(n²·klogk)，单词一多就超时（TLE）。",
+   "优化：给每个单词算一个「钥匙」——把字母排序成同一个字符串，异位词的钥匙必然相同。",
+   "用哈希表把钥匙映射到分组列表，每个单词只算一次钥匙、查一次表，时间降到 O(n·klogk)。",
+   "钥匙也可以换成 26 位计数数组，省掉排序的 log 因子。"
   ],
   "cx": "时间 O(n·klogk)，空间 O(n·k)",
-  "trap": "不能只比长度或首字母；空串、单字符也要能正常成组。",
-  "code": "class Solution:\n    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:\n        groups = {}\n        for w in strs:\n            key = \"\".join(sorted(w))\n            groups.setdefault(key, []).append(w)\n        return list(groups.values())\n",
+  "trap": "不能只比长度或首字母；空串、单字符也要能正常成组；朴素版记得用 used 标记，否则同一个单词会被塞进好几个组。",
+  "code": "class Solution:\n    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:\n        res = []\n        used = [False] * len(strs)\n        for i in range(len(strs)):\n            if used[i]:\n                continue\n            used[i] = True\n            w = strs[i]\n            group = [w]\n            for j in range(i + 1, len(strs)):\n                if not used[j] and sorted(strs[j]) == sorted(w):\n                    used[j] = True\n                    group.append(strs[j])\n            res.append(group)\n        return res\n",
+  "code_opt": "class Solution:\n    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:\n        groups = {}\n        for w in strs:\n            key = \"\".join(sorted(w))\n            groups.setdefault(key, []).append(w)\n        return list(groups.values())\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    groups = {}\n    for w in data[1:1 + n]:\n        key = \"\".join(sorted(w))\n        groups.setdefault(key, []).append(w)\n    lines = sorted(\" \".join(sorted(g)) for g in groups.values())\n    print(\"\\n\".join(lines))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -77,14 +80,15 @@
   "ex": "nums = [100,4,200,1,3,2] → 4",
   "key": "只从起点往后数，起点是 x-1 不在集合",
   "idea": [
-   "把所有数字放进集合，实现 O(1) 判断某个数在不在。",
-   "只有 x-1 不在集合时，x 才是某段连续序列的起点。",
-   "从起点开始不断 +1 往后数，数到断为止并更新答案。",
-   "每个数最多被访问两次，整体 O(n)；空数组返回 0。"
+   "最直接：先把数丢进集合，再对每个数都往后数——y+1 在集合里就让 y 加一，最长的那一次就是答案。",
+   "慢在每个数都要一直数到它所在序列的末尾，[1,2,...,n] 这种会退化成 O(n²)，数据量大时超时（TLE）。",
+   "优化：只有 x-1 不在集合里时，x 才是一段连续序列的起点，从起点数到断为止就够了。",
+   "这样每个数最多被数两次，总时间 O(n)、空间 O(n)；空数组返回 0。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
-  "trap": "每个数都往后数会退化成 O(n²)，必须只从序列起点数。",
-  "code": "class Solution:\n    def longestConsecutive(self, nums: List[int]) -> int:\n        s = set(nums)\n        best = 0\n        for x in s:\n            if x - 1 in s:\n                continue\n            y = x\n            while y + 1 in s:\n                y += 1\n            best = max(best, y - x + 1)\n        return best\n",
+  "trap": "每个数都往后数会退化成 O(n²)，必须只从序列起点数；朴素版对序列中段和重复元素会重复数很多遍。",
+  "code": "class Solution:\n    def longestConsecutive(self, nums: List[int]) -> int:\n        s = set(nums)\n        best = 0\n        for x in nums:\n            y = x\n            while y + 1 in s:\n                y += 1\n            if y - x + 1 > best:\n                best = y - x + 1\n        return best\n",
+  "code_opt": "class Solution:\n    def longestConsecutive(self, nums: List[int]) -> int:\n        s = set(nums)\n        best = 0\n        for x in s:\n            if x - 1 in s:\n                continue\n            y = x\n            while y + 1 in s:\n                y += 1\n            best = max(best, y - x + 1)\n        return best\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    s = set(int(x) for x in data[1:1 + n])\n    best = 0\n    for x in s:\n        if x - 1 in s:\n            continue\n        y = x\n        while y + 1 in s:\n            y += 1\n        if y - x + 1 > best:\n            best = y - x + 1\n    print(best)\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -111,14 +115,15 @@
   "ex": "nums = [0,1,0,3,12] → [1,3,12,0,0]",
   "key": "非零往前挪，剩下的位置补零",
   "idea": [
-   "写指针 w 始终指向下一个非零元素该放置的位置。",
-   "遍历数组，遇到非零就写到 nums[w]，随后 w 加一。",
-   "遍历结束后把 w 到末尾的位置全部填成 0。",
-   "非零元素的相对顺序天然不变，且只用了常数空间。"
+   "最直接：从前往后扫，遇到 0 就和后面的非零元素交换，让 0 一格一格「冒」到末尾。",
+   "一次交换只把 0 挪一格，最坏（一排 0 在前、非零在后）要换 O(n²) 次，时间 O(n²)，数据量大时超时（TLE）。",
+   "优化：换个角度，不搬 0 而搬非零——写指针 w 指向下一个非零元素该放的位置，遇到非零就写到 nums[w]。",
+   "遍历完把 w 之后的位置一次补 0，非零的相对顺序天然不变，时间 O(n)、额外空间 O(1)。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "不能用额外数组或 pop/append，题目要求原地；全 0 也要正确。",
-  "code": "class Solution:\n    def moveZeroes(self, nums: List[int]) -> None:\n        w = 0\n        for x in nums:\n            if x != 0:\n                nums[w] = x\n                w += 1\n        for i in range(w, len(nums)):\n            nums[i] = 0\n",
+  "trap": "不能用额外数组或 pop/append，题目要求原地；全 0 也要正确；朴素交换版外层要跑够 n 轮，轮数不够会有 0 卡在中间。",
+  "code": "class Solution:\n    def moveZeroes(self, nums: List[int]) -> None:\n        n = len(nums)\n        for _ in range(n):\n            for j in range(n - 1):\n                if nums[j] == 0 and nums[j + 1] != 0:\n                    nums[j], nums[j + 1] = nums[j + 1], nums[j]\n",
+  "code_opt": "class Solution:\n    def moveZeroes(self, nums: List[int]) -> None:\n        w = 0\n        for x in nums:\n            if x != 0:\n                nums[w] = x\n                w += 1\n        for i in range(w, len(nums)):\n            nums[i] = 0\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    w = 0\n    for x in nums:\n        if x != 0:\n            nums[w] = x\n            w += 1\n    for i in range(w, n):\n        nums[i] = 0\n    print(\" \".join(str(x) for x in nums))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -145,14 +150,15 @@
   "ex": "height = [1,8,6,2,5,4,8,3,7] → 49",
   "key": "左右夹逼，每次挪矮的那根",
   "idea": [
-   "面积 = 两指针间距 × 较矮那根的高度。",
-   "左右指针放两端，先算当前面积并更新最大值。",
-   "每次移动较矮一侧的指针：挪高侧只会让宽度变小、高度不升。",
-   "两指针相遇结束，历史最大面积即为答案。"
+   "最直接：枚举所有两条边的组合 (i, j)，面积 = min(h[i], h[j]) × (j - i)，取最大值。",
+   "组合有 n²/2 对，时间 O(n²)，n = 1e5 时会超时（TLE）。",
+   "优化：面积由「宽度」和「矮的那根」决定。左右指针从两端出发，每次只挪矮的一侧——挪高的一侧宽度变小、高度又不会增加，一定不会更优。",
+   "每移动一次就排除掉一根柱子，指针相遇即结束，时间 O(n)、空间 O(1)。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "宽度是下标差而不是加一；两边等高时挪任意一侧都行。",
-  "code": "class Solution:\n    def maxArea(self, height: List[int]) -> int:\n        l, r = 0, len(height) - 1\n        best = 0\n        while l < r:\n            best = max(best, min(height[l], height[r]) * (r - l))\n            if height[l] < height[r]:\n                l += 1\n            else:\n                r -= 1\n        return best\n",
+  "trap": "宽度是下标差而不是加一；两边等高时挪任意一侧都行；朴素版内层要从 i+1 开始，别把同一根柱子用两次。",
+  "code": "class Solution:\n    def maxArea(self, height: List[int]) -> int:\n        n = len(height)\n        best = 0\n        for i in range(n):\n            for j in range(i + 1, n):\n                area = min(height[i], height[j]) * (j - i)\n                if area > best:\n                    best = area\n        return best\n",
+  "code_opt": "class Solution:\n    def maxArea(self, height: List[int]) -> int:\n        l, r = 0, len(height) - 1\n        best = 0\n        while l < r:\n            best = max(best, min(height[l], height[r]) * (r - l))\n            if height[l] < height[r]:\n                l += 1\n            else:\n                r -= 1\n        return best\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    h = [int(x) for x in data[1:1 + n]]\n    l, r = 0, n - 1\n    best = 0\n    while l < r:\n        area = min(h[l], h[r]) * (r - l)\n        if area > best:\n            best = area\n        if h[l] < h[r]:\n            l += 1\n        else:\n            r -= 1\n    print(best)\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -175,14 +181,16 @@
   "ex": "nums = [-1,0,1,2,-1,-4] → [[-1,-1,2],[-1,0,1]]",
   "key": "排序固定第一个数，后两个用双指针夹",
   "idea": [
-   "先排序，枚举第一个数 nums[i]，剩余两数用左右指针找。",
-   "三数和小于 0 就左指针右移，大于 0 就右指针左移。",
-   "命中后左右同时收缩，并跳过相同的值避免重复三元组。",
-   "nums[i] 大于 0 可提前结束；i 与前一个相同则跳过。"
+   "最直接：三重循环枚举 (i, j, k)，和为 0 就把三个数排好序塞进 set，靠 set 去重。",
+   "三层循环是 O(n³)，n = 3000 就基本跑不完，会超时（TLE）；set 还额外占空间。",
+   "优化：先排序，固定第一个数 nums[i]，后两个数用左右指针往中间夹：和小于 0 左指针右移，大于 0 右指针左移。",
+   "两层循环把时间降到 O(n²)；排序后相同元素挨在一起，跳过重复值即可天然去重，不再需要 set。",
+   "边界：nums[i] > 0 直接结束；i 和前一个位置相同则跳过。"
   ],
   "cx": "时间 O(n²)，空间 O(1)（不计结果）",
-  "trap": "三处去重缺一不可：外层 i、左指针、右指针。",
-  "code": "class Solution:\n    def threeSum(self, nums: List[int]) -> List[List[int]]:\n        nums.sort()\n        res = []\n        n = len(nums)\n        for i in range(n):\n            if nums[i] > 0:\n                break\n            if i > 0 and nums[i] == nums[i - 1]:\n                continue\n            l, r = i + 1, n - 1\n            while l < r:\n                total = nums[i] + nums[l] + nums[r]\n                if total == 0:\n                    res.append([nums[i], nums[l], nums[r]])\n                    while l < r and nums[l] == nums[l + 1]:\n                        l += 1\n                    while l < r and nums[r] == nums[r - 1]:\n                        r -= 1\n                    l += 1\n                    r -= 1\n                elif total < 0:\n                    l += 1\n                else:\n                    r -= 1\n        return res\n",
+  "trap": "三处去重缺一不可：外层 i、左指针、右指针；朴素版则要保证 i<j<k，并用 set 存排序后的三元组，否则同一答案会重复。",
+  "code": "class Solution:\n    def threeSum(self, nums: List[int]) -> List[List[int]]:\n        res = set()\n        n = len(nums)\n        for i in range(n):\n            for j in range(i + 1, n):\n                for k in range(j + 1, n):\n                    if nums[i] + nums[j] + nums[k] == 0:\n                        res.add(tuple(sorted((nums[i], nums[j], nums[k]))))\n        return [list(t) for t in res]\n",
+  "code_opt": "class Solution:\n    def threeSum(self, nums: List[int]) -> List[List[int]]:\n        nums.sort()\n        res = []\n        n = len(nums)\n        for i in range(n):\n            if nums[i] > 0:\n                break\n            if i > 0 and nums[i] == nums[i - 1]:\n                continue\n            l, r = i + 1, n - 1\n            while l < r:\n                total = nums[i] + nums[l] + nums[r]\n                if total == 0:\n                    res.append([nums[i], nums[l], nums[r]])\n                    while l < r and nums[l] == nums[l + 1]:\n                        l += 1\n                    while l < r and nums[r] == nums[r - 1]:\n                        r -= 1\n                    l += 1\n                    r -= 1\n                elif total < 0:\n                    l += 1\n                else:\n                    r -= 1\n        return res\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = sorted(int(x) for x in data[1:1 + n])\n    res = []\n    for i in range(n):\n        if nums[i] > 0:\n            break\n        if i > 0 and nums[i] == nums[i - 1]:\n            continue\n        l, r = i + 1, n - 1\n        while l < r:\n            total = nums[i] + nums[l] + nums[r]\n            if total == 0:\n                res.append((nums[i], nums[l], nums[r]))\n                while l < r and nums[l] == nums[l + 1]:\n                    l += 1\n                while l < r and nums[r] == nums[r - 1]:\n                    r -= 1\n                l += 1\n                r -= 1\n            elif total < 0:\n                l += 1\n            else:\n                r -= 1\n    print(\"\\n\".join(\" \".join(map(str, t)) for t in res))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -209,14 +217,15 @@
   "ex": "height = [0,1,0,2,1,0,1,3,2,1,2,1] → 6",
   "key": "左右指针谁矮先结算谁，减当前高度",
   "idea": [
-   "每个位置的水量 = min(左侧最高, 右侧最高) - 自身高度。",
-   "左右指针从两端向中间走，各自维护见过的高度最大值。",
-   "哪边当前更矮就先结算哪边：水量为该侧最大值减当前高度。",
-   "一次遍历完成，不需要额外的前后缀数组。"
+   "最直接：对每个位置 i，往左扫出左边最高、往右扫出右边最高，这个位置的水量就是 min(左高, 右高) - h[i]。",
+   "每个位置都要左右各扫一遍，时间 O(n²)，n = 2e4 就会超时（TLE）。",
+   "优化：左右指针从两端往中间走，各自维护「这一侧见过的最高柱子」，哪边矮就先结算哪边。",
+   "矮的那侧水量只由该侧最高值决定，不用真的去另一边扫，一次遍历 O(n)、额外空间 O(1)。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "先更新该侧最大值再算差值，否则矮柱处会算出负数。",
-  "code": "class Solution:\n    def trap(self, height: List[int]) -> int:\n        l, r = 0, len(height) - 1\n        lm = rm = 0\n        ans = 0\n        while l < r:\n            if height[l] < height[r]:\n                lm = max(lm, height[l])\n                ans += lm - height[l]\n                l += 1\n            else:\n                rm = max(rm, height[r])\n                ans += rm - height[r]\n                r -= 1\n        return ans\n",
+  "trap": "先更新该侧最大值再算差值，否则矮柱处会算出负数；朴素版左右最大值都要包含 i 自己，漏掉最边上的柱子会多算水。",
+  "code": "class Solution:\n    def trap(self, height: List[int]) -> int:\n        n = len(height)\n        ans = 0\n        for i in range(n):\n            left_max = max(height[:i + 1])\n            right_max = max(height[i:])\n            ans += min(left_max, right_max) - height[i]\n        return ans\n",
+  "code_opt": "class Solution:\n    def trap(self, height: List[int]) -> int:\n        l, r = 0, len(height) - 1\n        lm = rm = 0\n        ans = 0\n        while l < r:\n            if height[l] < height[r]:\n                lm = max(lm, height[l])\n                ans += lm - height[l]\n                l += 1\n            else:\n                rm = max(rm, height[r])\n                ans += rm - height[r]\n                r -= 1\n        return ans\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    h = [int(x) for x in data[1:1 + n]]\n    l, r = 0, n - 1\n    lm = rm = 0\n    ans = 0\n    while l < r:\n        if h[l] < h[r]:\n            lm = max(lm, h[l])\n            ans += lm - h[l]\n            l += 1\n        else:\n            rm = max(rm, h[r])\n            ans += rm - h[r]\n            r -= 1\n    print(ans)\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -239,14 +248,16 @@
   "ex": "s = \"abcabcbb\" → 3",
   "key": "右指针进、左指针退，窗口内字符唯一",
   "idea": [
-   "维护窗口 [left, right]，保证窗口内字符互不相同。",
-   "右指针逐个吞字符，哈希表记录字符最后出现的位置。",
-   "新字符上次出现在窗口内时，left 直接跳到该位置加一。",
-   "每步用窗口长度更新答案；空串返回 0。"
+   "最直接：枚举所有子串 s[i:j+1]，用 set 判重，不重复就更新答案。",
+   "子串有 O(n²) 个，每个还要花 O(n) 建 set 判重，总时间 O(n³)，长串直接超时（TLE）。",
+   "优化：维护窗口 [left, right]，保证窗口内字符唯一；右指针每吞一个字符，就用哈希表记下它最后出现的位置。",
+   "新字符上次出现在窗口内时，left 直接跳到该位置 +1（不用一步步退），每步用窗口长度更新答案，时间 O(n)。",
+   "空串返回 0。"
   ],
   "cx": "时间 O(n)，空间 O(字符集)",
-  "trap": "left 只能往右跳不能回退，要写 left = max(left, last+1)。",
-  "code": "class Solution:\n    def lengthOfLongestSubstring(self, s: str) -> int:\n        last = {}\n        left = 0\n        best = 0\n        for right, ch in enumerate(s):\n            if ch in last and last[ch] >= left:\n                left = last[ch] + 1\n            last[ch] = right\n            best = max(best, right - left + 1)\n        return best\n",
+  "trap": "left 只能往右跳不能回退，要写 left = max(left, last+1)；朴素版判重要看 set(子串) 的长度，别只比较相邻两个字符。",
+  "code": "class Solution:\n    def lengthOfLongestSubstring(self, s: str) -> int:\n        n = len(s)\n        best = 0\n        for i in range(n):\n            for j in range(i, n):\n                sub = s[i:j + 1]\n                if len(set(sub)) == len(sub):\n                    if len(sub) > best:\n                        best = len(sub)\n        return best\n",
+  "code_opt": "class Solution:\n    def lengthOfLongestSubstring(self, s: str) -> int:\n        last = {}\n        left = 0\n        best = 0\n        for right, ch in enumerate(s):\n            if ch in last and last[ch] >= left:\n                left = last[ch] + 1\n            last[ch] = right\n            best = max(best, right - left + 1)\n        return best\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    s = data[0] if data else \"\"\n    last = {}\n    left = 0\n    best = 0\n    for right, ch in enumerate(s):\n        if ch in last and last[ch] >= left:\n            left = last[ch] + 1\n        last[ch] = right\n        if right - left + 1 > best:\n            best = right - left + 1\n    print(best)\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -273,14 +284,16 @@
   "ex": "s = \"cbaebabacd\", p = \"abc\" → [0,6]",
   "key": "定长窗口滑动，计数一致就记下标",
   "idea": [
-   "窗口长度固定为 len(p)，用长度 26 的计数数组表示字符分布。",
-   "右端进一个字符，窗口超长时左端出一个字符。",
-   "窗口计数与 p 的计数完全相等时，记录窗口起点。",
-   "每次比较只花常数时间，整体线性。"
+   "最直接：先数出 p 的字符计数，再从每个位置 i 截出长度 k 的子串，重新数一遍字符，和 p 的计数相等就记下 i。",
+   "每个窗口都从头数 k 个字符，共 n 个窗口，时间 O(n·k)；s 和 p 都很长时会超时（TLE）。",
+   "优化：窗口定长滑动，右端进一个字符、左端出一个字符，每次只改动两个计数。",
+   "用长度 26 的计数数组做比较，窗口计数等于 p 的计数即命中，单次比较 O(1)，总时间 O(n + m)。",
+   "边界：i ≥ k 才需要删左边；窗口没凑满 k 个时不能记录。"
   ],
   "cx": "时间 O(n + m)，空间 O(1)（26 个桶）",
-  "trap": "窗口还没凑满 len(p) 时不能记录，起点是 i-len(p)+1。",
-  "code": "class Solution:\n    def findAnagrams(self, s: str, p: str) -> List[int]:\n        need = [0] * 26\n        win = [0] * 26\n        for ch in p:\n            need[ord(ch) - 97] += 1\n        k = len(p)\n        res = []\n        for i, ch in enumerate(s):\n            win[ord(ch) - 97] += 1\n            if i >= k:\n                win[ord(s[i - k]) - 97] -= 1\n            if win == need:\n                res.append(i - k + 1)\n        return res\n",
+  "trap": "窗口还没凑满 len(p) 时不能记录，起点是 i-len(p)+1；朴素版上界要写 len(s)-k+1，末尾切片会自动变短，容易越界混算。",
+  "code": "class Solution:\n    def findAnagrams(self, s: str, p: str) -> List[int]:\n        k = len(p)\n        need = {}\n        for ch in p:\n            need[ch] = need.get(ch, 0) + 1\n        res = []\n        for i in range(len(s) - k + 1):\n            win = {}\n            for ch in s[i:i + k]:\n                win[ch] = win.get(ch, 0) + 1\n            if win == need:\n                res.append(i)\n        return res\n",
+  "code_opt": "class Solution:\n    def findAnagrams(self, s: str, p: str) -> List[int]:\n        need = [0] * 26\n        win = [0] * 26\n        for ch in p:\n            need[ord(ch) - 97] += 1\n        k = len(p)\n        res = []\n        for i, ch in enumerate(s):\n            win[ord(ch) - 97] += 1\n            if i >= k:\n                win[ord(s[i - k]) - 97] -= 1\n            if win == need:\n                res.append(i - k + 1)\n        return res\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if len(data) < 2:\n        return\n    s, p = data[0], data[1]\n    need = [0] * 26\n    win = [0] * 26\n    for ch in p:\n        need[ord(ch) - 97] += 1\n    k = len(p)\n    res = []\n    for i, ch in enumerate(s):\n        win[ord(ch) - 97] += 1\n        if i >= k:\n            win[ord(s[i - k]) - 97] -= 1\n        if win == need:\n            res.append(i - k + 1)\n    print(\" \".join(map(str, res)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -307,14 +320,16 @@
   "ex": "nums = [1,1,1], k = 2 → 2",
   "key": "前缀和做差，哈希表数之前出现几次",
   "idea": [
-   "子数组和是两个前缀和之差：pre[j] - pre[i] = k。",
-   "遍历时把当前前缀和存进哈希表，value 是出现次数。",
-   "每步查 pre - k 出现过几次，就有几个子数组以当前位置结尾。",
+   "最直接：枚举左端点 i，右端点 j 一路往右加，边加边判断这段和是不是 k，是就计数加一。",
+   "子数组有 O(n²) 个，时间 O(n²)，n = 2e4 就会超时（TLE）。",
+   "优化：子数组和等于两个前缀和之差，pre[j] - pre[i] = k 等价于 pre[i] = pre[j] - k。",
+   "边遍历边把前缀和的出现次数存进哈希表，每步查 pre - k 出现过几次，就新增几个答案，时间 O(n)、空间 O(n)。",
    "哈希表要先放 {0: 1}，否则从下标 0 开始的子数组会漏。"
   ],
   "cx": "时间 O(n)，空间 O(n)",
-  "trap": "初始前缀和 0 的计数必须为 1；元素为负不影响该做法。",
-  "code": "class Solution:\n    def subarraySum(self, nums: List[int], k: int) -> int:\n        cnt = {0: 1}\n        pre = 0\n        ans = 0\n        for x in nums:\n            pre += x\n            ans += cnt.get(pre - k, 0)\n            cnt[pre] = cnt.get(pre, 0) + 1\n        return ans\n",
+  "trap": "初始前缀和 0 的计数必须为 1；元素为负不影响该做法；朴素版每换一个左端点 total 都要清零。",
+  "code": "class Solution:\n    def subarraySum(self, nums: List[int], k: int) -> int:\n        ans = 0\n        n = len(nums)\n        for i in range(n):\n            total = 0\n            for j in range(i, n):\n                total += nums[j]\n                if total == k:\n                    ans += 1\n        return ans\n",
+  "code_opt": "class Solution:\n    def subarraySum(self, nums: List[int], k: int) -> int:\n        cnt = {0: 1}\n        pre = 0\n        ans = 0\n        for x in nums:\n            pre += x\n            ans += cnt.get(pre - k, 0)\n            cnt[pre] = cnt.get(pre, 0) + 1\n        return ans\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    k = int(data[1])\n    nums = [int(x) for x in data[2:2 + n]]\n    cnt = {0: 1}\n    pre = 0\n    ans = 0\n    for x in nums:\n        pre += x\n        ans += cnt.get(pre - k, 0)\n        cnt[pre] = cnt.get(pre, 0) + 1\n    print(ans)\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -341,14 +356,15 @@
   "ex": "nums = [1,3,-1,-3,5,3,6,7], k = 3 → [3,3,5,5,6,7]",
   "key": "单调队列存下标，队头永远是最大值",
   "idea": [
-   "维护一个下标队列，队列里的值从大到小单调递减。",
-   "新元素入队前，把队尾比它小或相等的元素全部弹掉。",
-   "队头下标滑出窗口（≤ i-k）时从队头弹出。",
-   "窗口凑满 k 个后，队头对应的值就是当前窗口最大值。"
+   "最直接：每个窗口起点都截出 k 个数，直接调 max 求最大值，塞进结果。",
+   "相邻两个窗口有 k-1 个数是重复的，却每次都重新比较，时间 O(n·k)；k 接近 n 时退化成 O(n²)，会超时（TLE）。",
+   "优化：用单调队列存下标，队列里的值从大到小递减；新元素入队前把队尾比它小（或相等）的都弹掉。",
+   "队头就是当前窗口最大值，下标滑出窗口（≤ i-k）就从队头弹出；每个下标进出队列各一次，时间 O(n)、空间 O(k)。"
   ],
   "cx": "时间 O(n)，空间 O(k)",
-  "trap": "队列里要存下标而不是值，否则判断不了是否滑出窗口。",
-  "code": "class Solution:\n    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:\n        q = []\n        head = 0\n        res = []\n        for i, x in enumerate(nums):\n            while len(q) > head and nums[q[-1]] <= x:\n                q.pop()\n            q.append(i)\n            if q[head] <= i - k:\n                head += 1\n            if i >= k - 1:\n                res.append(nums[q[head]])\n        return res\n",
+  "trap": "队列里要存下标而不是值，否则判断不了是否滑出窗口；朴素版循环上界是 len(nums)-k+1，k 比数组长时不该进循环。",
+  "code": "class Solution:\n    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:\n        res = []\n        for i in range(len(nums) - k + 1):\n            res.append(max(nums[i:i + k]))\n        return res\n",
+  "code_opt": "class Solution:\n    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:\n        q = []\n        head = 0\n        res = []\n        for i, x in enumerate(nums):\n            while len(q) > head and nums[q[-1]] <= x:\n                q.pop()\n            q.append(i)\n            if q[head] <= i - k:\n                head += 1\n            if i >= k - 1:\n                res.append(nums[q[head]])\n        return res\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    k = int(data[1])\n    nums = [int(x) for x in data[2:2 + n]]\n    q = []\n    head = 0\n    res = []\n    for i, x in enumerate(nums):\n        while len(q) > head and nums[q[-1]] <= x:\n            q.pop()\n        q.append(i)\n        if q[head] <= i - k:\n            head += 1\n        if i >= k - 1:\n            res.append(nums[q[head]])\n    print(\" \".join(map(str, res)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -375,14 +391,16 @@
   "ex": "s = \"ADOBECODEBANC\", t = \"ABC\" → \"BANC\"",
   "key": "右扩到覆盖，左缩到不覆盖，全程记最短",
   "idea": [
-   "need 记录 t 各字符需求量，窗口内某字符达标就记一次。",
-   "右指针不断扩张，直到达标字符种类数等于 need 的大小。",
-   "达标后左指针收缩，每缩一步尝试更新最短答案。",
-   "收缩到不再覆盖后继续扩张右指针，直到 s 遍历完。"
+   "最直接：枚举所有子串，写个 cover 函数数一遍字符，看是否包含 t 的全部字符，能覆盖就更新最短答案。",
+   "子串有 O(n²) 个，每次覆盖检查 O(n)，总时间 O(n³)，字符串长一点就超时（TLE）。",
+   "优化：改成滑动窗口——右指针扩张到刚好覆盖 t，再让左指针尽量收缩，收缩全程记录最短。",
+   "用 need/win 两个计数表加一个「达标字符种类数」，窗口是否覆盖只需 O(1) 判断，总时间 O(n)。",
+   "边界：无解返回空串；t 里有重复字符时按次数算，不是按种类算。"
   ],
   "cx": "时间 O(n)，空间 O(字符集)",
-  "trap": "用「种类数达标」判断覆盖，别逐字符比较；无解输出空串。",
-  "code": "class Solution:\n    def minWindow(self, s: str, t: str) -> str:\n        need = {}\n        for ch in t:\n            need[ch] = need.get(ch, 0) + 1\n        win = {}\n        have, want = 0, len(need)\n        left = 0\n        bl, br = 0, -1\n        best = len(s) + 1\n        for right, ch in enumerate(s):\n            if ch in need:\n                win[ch] = win.get(ch, 0) + 1\n                if win[ch] == need[ch]:\n                    have += 1\n            while have == want:\n                if right - left + 1 < best:\n                    best = right - left + 1\n                    bl, br = left, right\n                c = s[left]\n                if c in need:\n                    win[c] -= 1\n                    if win[c] < need[c]:\n                        have -= 1\n                left += 1\n        return s[bl:br + 1] if best <= len(s) else \"\"\n",
+  "trap": "用「种类数达标」判断覆盖，别逐字符比较；无解输出空串；朴素版 cover 必须按次数比，t = \"aa\" 时只判字符出现过就会错。",
+  "code": "class Solution:\n    def minWindow(self, s: str, t: str) -> str:\n        need = {}\n        for ch in t:\n            need[ch] = need.get(ch, 0) + 1\n\n        def cover(sub: str) -> bool:\n            cnt = {}\n            for ch in sub:\n                cnt[ch] = cnt.get(ch, 0) + 1\n            for ch, c in need.items():\n                if cnt.get(ch, 0) < c:\n                    return False\n            return True\n\n        best = \"\"\n        n = len(s)\n        for i in range(n):\n            for j in range(i, n):\n                if cover(s[i:j + 1]):\n                    if not best or j - i + 1 < len(best):\n                        best = s[i:j + 1]\n        return best\n",
+  "code_opt": "class Solution:\n    def minWindow(self, s: str, t: str) -> str:\n        need = {}\n        for ch in t:\n            need[ch] = need.get(ch, 0) + 1\n        win = {}\n        have, want = 0, len(need)\n        left = 0\n        bl, br = 0, -1\n        best = len(s) + 1\n        for right, ch in enumerate(s):\n            if ch in need:\n                win[ch] = win.get(ch, 0) + 1\n                if win[ch] == need[ch]:\n                    have += 1\n            while have == want:\n                if right - left + 1 < best:\n                    best = right - left + 1\n                    bl, br = left, right\n                c = s[left]\n                if c in need:\n                    win[c] -= 1\n                    if win[c] < need[c]:\n                        have -= 1\n                left += 1\n        return s[bl:br + 1] if best <= len(s) else \"\"\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if len(data) < 2:\n        return\n    s, t = data[0], data[1]\n    need = {}\n    for ch in t:\n        need[ch] = need.get(ch, 0) + 1\n    win = {}\n    have, want = 0, len(need)\n    left = 0\n    bl, br = 0, -1\n    best = len(s) + 1\n    for right, ch in enumerate(s):\n        if ch in need:\n            win[ch] = win.get(ch, 0) + 1\n            if win[ch] == need[ch]:\n                have += 1\n        while have == want:\n            if right - left + 1 < best:\n                best = right - left + 1\n                bl, br = left, right\n            c = s[left]\n            if c in need:\n                win[c] -= 1\n                if win[c] < need[c]:\n                    have -= 1\n            left += 1\n    print(s[bl:br + 1] if best <= len(s) else \"\")\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -409,14 +427,16 @@
   "ex": "nums = [-2,1,-3,4,-1,2,1,-5,4] → 6",
   "key": "前缀和变负就丢掉，从当前数重新开始",
   "idea": [
-   "cur 表示以当前元素结尾的最大子数组和。",
-   "转移：cur = max(x, cur + x)，前面为负就干脆另起一段。",
-   "每步用 cur 更新全局最大值 best。",
-   "全负数时答案就是最大的那个负数，故初始化成 nums[0]。"
+   "最直接：枚举所有子数组 [i, j]，边加边和当前最优比较，取最大的和。",
+   "子数组有 O(n²) 个，时间 O(n²)，n = 1e5 时会超时（TLE）。",
+   "优化：只关心「以当前元素结尾的最大和」cur，转移 cur = max(x, cur + x)——前面那段和为负就丢掉，从 x 重新开始。",
+   "每步用 cur 更新全局 best，一遍扫描时间 O(n)、额外空间 O(1)。",
+   "best 初始化成 nums[0]，全负数时答案就是最大的那个负数。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "best 不能初始化成 0，否则全负数数组会返回错误结果。",
-  "code": "class Solution:\n    def maxSubArray(self, nums: List[int]) -> int:\n        cur = best = nums[0]\n        for x in nums[1:]:\n            cur = max(x, cur + x)\n            best = max(best, cur)\n        return best\n",
+  "trap": "best 不能初始化成 0，否则全负数数组会返回错误结果；朴素版换一个左端点就要把 total 清零。",
+  "code": "class Solution:\n    def maxSubArray(self, nums: List[int]) -> int:\n        best = nums[0]\n        n = len(nums)\n        for i in range(n):\n            total = 0\n            for j in range(i, n):\n                total += nums[j]\n                if total > best:\n                    best = total\n        return best\n",
+  "code_opt": "class Solution:\n    def maxSubArray(self, nums: List[int]) -> int:\n        cur = best = nums[0]\n        for x in nums[1:]:\n            cur = max(x, cur + x)\n            best = max(best, cur)\n        return best\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    cur = best = nums[0]\n    for x in nums[1:]:\n        cur = max(x, cur + x)\n        if cur > best:\n            best = cur\n    print(best)\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -443,14 +463,15 @@
   "ex": "intervals = [[1,3],[2,6],[8,10],[15,18]] → [[1,6],[8,10],[15,18]]",
   "key": "按左端点排序，能接上就延长右端点",
   "idea": [
-   "先按区间左端点升序排序，重叠的区间必定相邻。",
-   "结果数组存已合并区间，逐个拿新区间与最后一个比较。",
-   "新区间左端点 ≤ 最后区间右端点时合并，右端点取较大值。",
-   "否则不相交，直接把新区间追加到结果。"
+   "最直接：不排序，把区间一个个塞进结果，遇到重叠的就并成一个，并完再和别的区间继续比。",
+   "并一次可能又撞上别的区间，所以要反复扫到「一遍下来没有合并」为止，最坏 O(n³)，数据量大时超时（TLE）。",
+   "优化：先按左端点排序，能合并的区间就一定是相邻的。",
+   "排序后只要一趟：新区间左端点 ≤ 结果里最后一个区间的右端点就合并（右端点取 max），否则直接追加，总时间 O(nlogn)。"
   ],
   "cx": "时间 O(nlogn)，空间 O(n)（不计排序栈）",
-  "trap": "重叠判断用 ≤ 而不是 <；合并时右端点必须取 max。",
-  "code": "class Solution:\n    def merge(self, intervals: List[List[int]]) -> List[List[int]]:\n        intervals.sort(key=lambda x: x[0])\n        res = []\n        for a, b in intervals:\n            if res and a <= res[-1][1]:\n                res[-1][1] = max(res[-1][1], b)\n            else:\n                res.append([a, b])\n        return res\n",
+  "trap": "重叠判断用 ≤ 而不是 <；合并时右端点必须取 max；朴素版要扫到没有变化为止，只并一遍会漏掉传递重叠。",
+  "code": "class Solution:\n    def merge(self, intervals: List[List[int]]) -> List[List[int]]:\n        res = [[a, b] for a, b in intervals]\n        changed = True\n        while changed:\n            changed = False\n            out = []\n            for a, b in res:\n                merged = False\n                for iv in out:\n                    if a <= iv[1] and iv[0] <= b:\n                        iv[0] = min(iv[0], a)\n                        iv[1] = max(iv[1], b)\n                        merged = True\n                        changed = True\n                        break\n                if not merged:\n                    out.append([a, b])\n            res = out\n        return res\n",
+  "code_opt": "class Solution:\n    def merge(self, intervals: List[List[int]]) -> List[List[int]]:\n        intervals.sort(key=lambda x: x[0])\n        res = []\n        for a, b in intervals:\n            if res and a <= res[-1][1]:\n                res[-1][1] = max(res[-1][1], b)\n            else:\n                res.append([a, b])\n        return res\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m = int(data[0])\n    idx = 1\n    intervals = []\n    for _ in range(m):\n        a = int(data[idx])\n        b = int(data[idx + 1])\n        idx += 2\n        intervals.append([a, b])\n    intervals.sort()\n    res = []\n    for a, b in intervals:\n        if res and a <= res[-1][1]:\n            if b > res[-1][1]:\n                res[-1][1] = b\n        else:\n            res.append([a, b])\n    print(\"\\n\".join(\"%d %d\" % (a, b) for a, b in res))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -477,14 +498,16 @@
   "ex": "nums = [1,2,3,4,5,6,7], k = 3 → [5,6,7,1,2,3,4]",
   "key": "整体翻转，再翻前 k 段和后 n-k 段",
   "idea": [
-   "先对 k 取模 n，k 可能大于数组长度。",
-   "整体翻转后，末尾 k 个元素跑到最前，但内部顺序是反的。",
-   "再分别翻转前 k 个和后 n-k 个，两段内部顺序恢复。",
-   "三次翻转都在原数组上完成，额外空间 O(1)。"
+   "最直接：真的按题意「把整个数组右移一位」，重复 k 次。",
+   "每轮都要搬 n 个元素，k 又可能接近 n，时间 O(n·k)；n = 1e5、k = 5e4 时会超时（TLE）。",
+   "优化：看出右移 k 位 = 整体翻转 + 前 k 段翻转 + 后 n-k 段翻转。",
+   "三次翻转都在原数组上做，时间 O(n)、额外空间 O(1)。",
+   "边界：先 k %= n，k 可能大于数组长度。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "忘记 k %= n 会在 k > n 时出错；k 为 0 时别翻转空区间。",
-  "code": "class Solution:\n    def rotate(self, nums: List[int], k: int) -> None:\n        n = len(nums)\n        k %= n\n\n        def rev(i: int, j: int) -> None:\n            while i < j:\n                nums[i], nums[j] = nums[j], nums[i]\n                i += 1\n                j -= 1\n\n        rev(0, n - 1)\n        rev(0, k - 1)\n        rev(k, n - 1)\n",
+  "trap": "忘记 k %= n 会在 k > n 时出错；k 为 0 时别翻空区间；朴素版要先把最后一位存起来，否则会被前一位覆盖。",
+  "code": "class Solution:\n    def rotate(self, nums: List[int], k: int) -> None:\n        n = len(nums)\n        k %= n\n        for _ in range(k):\n            last = nums[n - 1]\n            for i in range(n - 1, 0, -1):\n                nums[i] = nums[i - 1]\n            nums[0] = last\n",
+  "code_opt": "class Solution:\n    def rotate(self, nums: List[int], k: int) -> None:\n        n = len(nums)\n        k %= n\n\n        def rev(i: int, j: int) -> None:\n            while i < j:\n                nums[i], nums[j] = nums[j], nums[i]\n                i += 1\n                j -= 1\n\n        rev(0, n - 1)\n        rev(0, k - 1)\n        rev(k, n - 1)\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    k = int(data[1])\n    nums = [int(x) for x in data[2:2 + n]]\n    if n == 0:\n        print(\"\")\n        return\n    k %= n\n\n    def rev(i, j):\n        while i < j:\n            nums[i], nums[j] = nums[j], nums[i]\n            i += 1\n            j -= 1\n\n    rev(0, n - 1)\n    rev(0, k - 1)\n    rev(k, n - 1)\n    print(\" \".join(map(str, nums)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -511,14 +534,16 @@
   "ex": "nums = [1,2,3,4] → [24,12,8,6]",
   "key": "先存左边积，再从右乘上右边积",
   "idea": [
-   "answer[i] 等于 i 左侧所有元素积 × i 右侧所有元素积。",
-   "从左往右一遍，answer[i] 先存 i 左侧的乘积。",
-   "再从右往左，用变量 suffix 记右侧积，边乘边更新 suffix。",
-   "结果数组之外只用一个变量，满足 O(1) 额外空间。"
+   "最直接：对每个位置 i，把除 nums[i] 以外的数全部乘一遍。",
+   "两层循环，时间 O(n²)，n = 1e5 时会超时（TLE）；虽然绕开了除法，但还是太慢。",
+   "优化：答案 = i 左侧所有数的积 × i 右侧所有数的积。",
+   "从左往右扫一遍把左侧积存进 ans[i]；再从右往左扫一遍，用变量 suf 累乘右侧积，边乘边更新 suf。",
+   "结果数组之外只多一个变量，时间 O(n)、额外空间 O(1)。"
   ],
   "cx": "时间 O(n)，空间 O(1)（不计输出数组）",
-  "trap": "有 0 时除法会失效，题目也禁止除法，前后缀积天然正确。",
-  "code": "class Solution:\n    def productExceptSelf(self, nums: List[int]) -> List[int]:\n        n = len(nums)\n        ans = [1] * n\n        for i in range(1, n):\n            ans[i] = ans[i - 1] * nums[i - 1]\n        suf = 1\n        for i in range(n - 1, -1, -1):\n            ans[i] *= suf\n            suf *= nums[i]\n        return ans\n",
+  "trap": "有 0 时除法会失效，题目也禁止除法，前后缀积天然正确；朴素版判断 j != i 时别把自身乘进去。",
+  "code": "class Solution:\n    def productExceptSelf(self, nums: List[int]) -> List[int]:\n        n = len(nums)\n        ans = []\n        for i in range(n):\n            prod = 1\n            for j in range(n):\n                if j != i:\n                    prod *= nums[j]\n            ans.append(prod)\n        return ans\n",
+  "code_opt": "class Solution:\n    def productExceptSelf(self, nums: List[int]) -> List[int]:\n        n = len(nums)\n        ans = [1] * n\n        for i in range(1, n):\n            ans[i] = ans[i - 1] * nums[i - 1]\n        suf = 1\n        for i in range(n - 1, -1, -1):\n            ans[i] *= suf\n            suf *= nums[i]\n        return ans\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    ans = [1] * n\n    for i in range(1, n):\n        ans[i] = ans[i - 1] * nums[i - 1]\n    suf = 1\n    for i in range(n - 1, -1, -1):\n        ans[i] *= suf\n        suf *= nums[i]\n    print(\" \".join(map(str, ans)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -541,14 +566,15 @@
   "ex": "nums = [1,2,0] → 3",
   "key": "值 x 换到下标 x-1，再找第一个错位",
   "idea": [
-   "答案一定在 1 到 n+1 之间，只需关心落在 [1, n] 的数。",
-   "遍历数组，把值为 x 的数交换到下标 x-1，直到换不动。",
-   "再扫一遍，第一个 nums[i] != i+1 的位置，答案就是 i+1。",
-   "若全部归位，说明 1 到 n 都出现，答案是 n+1。"
+   "最直接：从 1 开始往上试，x 在数组里就让 x 加一，第一个不在数组里的就是答案。",
+   "每次「在不在」都是对数组做一次 O(n) 的线性查找，答案最多是 n+1，总时间 O(n²)，n = 1e5 会超时（TLE）。",
+   "优化：答案一定在 1..n+1 之间，只关心落在 [1, n] 的数——把值为 x 的数换到下标 x-1，让数组自己变成哈希表。",
+   "再扫一遍，第一个 nums[i] != i+1 的位置答案就是 i+1；全部归位则答案是 n+1，时间 O(n)、空间 O(1)。"
   ],
   "cx": "时间 O(n)，空间 O(1)",
-  "trap": "交换可能死循环，必须判断 nums[nums[i]-1] != nums[i] 防重复。",
-  "code": "class Solution:\n    def firstMissingPositive(self, nums: List[int]) -> int:\n        n = len(nums)\n        for i in range(n):\n            while 1 <= nums[i] <= n and nums[nums[i] - 1] != nums[i]:\n                j = nums[i] - 1\n                nums[i], nums[j] = nums[j], nums[i]\n        for i in range(n):\n            if nums[i] != i + 1:\n                return i + 1\n        return n + 1\n",
+  "trap": "交换可能死循环，必须判断 nums[nums[i]-1] != nums[i] 防重复；朴素版的 in list 是 O(n) 查找，别当成 O(1)。",
+  "code": "class Solution:\n    def firstMissingPositive(self, nums: List[int]) -> int:\n        x = 1\n        while x in nums:\n            x += 1\n        return x\n",
+  "code_opt": "class Solution:\n    def firstMissingPositive(self, nums: List[int]) -> int:\n        n = len(nums)\n        for i in range(n):\n            while 1 <= nums[i] <= n and nums[nums[i] - 1] != nums[i]:\n                j = nums[i] - 1\n                nums[i], nums[j] = nums[j], nums[i]\n        for i in range(n):\n            if nums[i] != i + 1:\n                return i + 1\n        return n + 1\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = [int(x) for x in data[1:1 + n]]\n    for i in range(n):\n        while 1 <= nums[i] <= n and nums[nums[i] - 1] != nums[i]:\n            j = nums[i] - 1\n            nums[i], nums[j] = nums[j], nums[i]\n    ans = n + 1\n    for i in range(n):\n        if nums[i] != i + 1:\n            ans = i + 1\n            break\n    print(ans)\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -575,14 +601,16 @@
   "ex": "matrix = [[1,1,1],[1,0,1],[1,1,1]] → [[1,0,1],[0,0,0],[1,0,1]]",
   "key": "第一行第一列当标记板，最后再补自己",
   "idea": [
-   "先记录第一行、第一列本身是否含 0，它们要留作标记位。",
-   "从 (1,1) 扫描，遇到 0 就把对应第一行、第一列的位置置 0。",
-   "再按标记把非首行首列的位置清零。",
-   "最后按第 1 步的记录决定是否清空第一行、第一列。"
+   "最直接：另开 rows、cols 两个标记数组，先扫一遍记下哪些行、哪些列含 0，再扫一遍按标记置零。",
+   "写法对，但要多花 O(m+n) 的额外空间；如果偷懒边扫边原地置零，新写下的 0 会被当成原来的 0，越清越多。",
+   "优化：直接把矩阵的第一行、第一列当标记板——遇到 matrix[i][j] == 0 就写 matrix[i][0] = matrix[0][j] = 0。",
+   "再按标记清零非首行首列，最后用两个布尔量补处理第一行、第一列自己，额外空间 O(1)。",
+   "顺序不能反：先标记、再清零、最后处理第一行和第一列。"
   ],
   "cx": "时间 O(mn)，空间 O(1)",
-  "trap": "顺序不能反：先标记、再清零、最后处理第一行和第一列。",
-  "code": "class Solution:\n    def setZeroes(self, matrix: List[List[int]]) -> None:\n        m, n = len(matrix), len(matrix[0])\n        row0 = any(matrix[0][j] == 0 for j in range(n))\n        col0 = any(matrix[i][0] == 0 for i in range(m))\n        for i in range(1, m):\n            for j in range(1, n):\n                if matrix[i][j] == 0:\n                    matrix[i][0] = 0\n                    matrix[0][j] = 0\n        for i in range(1, m):\n            for j in range(1, n):\n                if matrix[i][0] == 0 or matrix[0][j] == 0:\n                    matrix[i][j] = 0\n        if row0:\n            for j in range(n):\n                matrix[0][j] = 0\n        if col0:\n            for i in range(m):\n                matrix[i][0] = 0\n",
+  "trap": "顺序不能反：先标记、再清零、最后处理第一行和第一列；朴素版若改成一边扫描一边原地置零，会把新写的 0 当原 0 传染全图。",
+  "code": "class Solution:\n    def setZeroes(self, matrix: List[List[int]]) -> None:\n        m, n = len(matrix), len(matrix[0])\n        rows = [False] * m\n        cols = [False] * n\n        for i in range(m):\n            for j in range(n):\n                if matrix[i][j] == 0:\n                    rows[i] = True\n                    cols[j] = True\n        for i in range(m):\n            for j in range(n):\n                if rows[i] or cols[j]:\n                    matrix[i][j] = 0\n",
+  "code_opt": "class Solution:\n    def setZeroes(self, matrix: List[List[int]]) -> None:\n        m, n = len(matrix), len(matrix[0])\n        row0 = any(matrix[0][j] == 0 for j in range(n))\n        col0 = any(matrix[i][0] == 0 for i in range(m))\n        for i in range(1, m):\n            for j in range(1, n):\n                if matrix[i][j] == 0:\n                    matrix[i][0] = 0\n                    matrix[0][j] = 0\n        for i in range(1, m):\n            for j in range(1, n):\n                if matrix[i][0] == 0 or matrix[0][j] == 0:\n                    matrix[i][j] = 0\n        if row0:\n            for j in range(n):\n                matrix[0][j] = 0\n        if col0:\n            for i in range(m):\n                matrix[i][0] = 0\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m = int(data[0])\n    n = int(data[1])\n    idx = 2\n    mat = []\n    for _ in range(m):\n        mat.append([int(x) for x in data[idx:idx + n]])\n        idx += n\n    row0 = any(mat[0][j] == 0 for j in range(n))\n    col0 = any(mat[i][0] == 0 for i in range(m))\n    for i in range(1, m):\n        for j in range(1, n):\n            if mat[i][j] == 0:\n                mat[i][0] = 0\n                mat[0][j] = 0\n    for i in range(1, m):\n        for j in range(1, n):\n            if mat[i][0] == 0 or mat[0][j] == 0:\n                mat[i][j] = 0\n    if row0:\n        for j in range(n):\n            mat[0][j] = 0\n    if col0:\n        for i in range(m):\n            mat[i][0] = 0\n    print(\"\\n\".join(\" \".join(map(str, row)) for row in mat))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -605,14 +633,16 @@
   "ex": "matrix = [[1,2,3],[4,5,6],[7,8,9]] → [1,2,3,6,9,8,7,4,5]",
   "key": "四边界收缩，走完一行一列就收一格",
   "idea": [
-   "用 top、bottom、left、right 四个边界框住未遍历区域。",
-   "依次走：上边一行、右边一列、下边一行、左边一列。",
-   "每走完一条边就收缩对应边界，直到边界交叉。",
-   "只剩一行或一列时要判 top ≤ bottom、left ≤ right 防重复。"
+   "最直接：模拟走路——从 (0,0) 往右走，撞到边界或走过的格子就右转，一共走 m*n 步。",
+   "要另开一个 visited 数组记住哪些格子走过，空间 O(mn)；转弯条件写错还容易死循环。",
+   "优化：不要 visited，用 top、bottom、left、right 四个边界框住还没走的区域，每走完一条边就收缩一格。",
+   "边界交叉就结束，额外空间只有四个变量，时间 O(mn)。",
+   "只剩一行或一列时要判 top ≤ bottom、left ≤ right 防重复输出。"
   ],
   "cx": "时间 O(mn)，空间 O(1)（不计结果）",
-  "trap": "单行或单列时若不加边界判断，会重复输出同一批元素。",
-  "code": "class Solution:\n    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:\n        m, n = len(matrix), len(matrix[0])\n        top, bottom, left, right = 0, m - 1, 0, n - 1\n        res = []\n        while top <= bottom and left <= right:\n            for j in range(left, right + 1):\n                res.append(matrix[top][j])\n            top += 1\n            for i in range(top, bottom + 1):\n                res.append(matrix[i][right])\n            right -= 1\n            if top <= bottom:\n                for j in range(right, left - 1, -1):\n                    res.append(matrix[bottom][j])\n                bottom -= 1\n            if left <= right:\n                for i in range(bottom, top - 1, -1):\n                    res.append(matrix[i][left])\n                left += 1\n        return res\n",
+  "trap": "单行或单列时若不加边界判断，会重复输出同一批元素；朴素版转弯要同时检查越界和已访问，漏一个就会死循环或重复。",
+  "code": "class Solution:\n    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:\n        m, n = len(matrix), len(matrix[0])\n        seen = [[False] * n for _ in range(m)]\n        dirs = [(0, 1), (1, 0), (0, -1), (-1, 0)]\n        r = c = 0\n        d = 0\n        res = []\n        for _ in range(m * n):\n            res.append(matrix[r][c])\n            seen[r][c] = True\n            nr, nc = r + dirs[d][0], c + dirs[d][1]\n            if not (0 <= nr < m and 0 <= nc < n and not seen[nr][nc]):\n                d = (d + 1) % 4\n                nr, nc = r + dirs[d][0], c + dirs[d][1]\n            r, c = nr, nc\n        return res\n",
+  "code_opt": "class Solution:\n    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:\n        m, n = len(matrix), len(matrix[0])\n        top, bottom, left, right = 0, m - 1, 0, n - 1\n        res = []\n        while top <= bottom and left <= right:\n            for j in range(left, right + 1):\n                res.append(matrix[top][j])\n            top += 1\n            for i in range(top, bottom + 1):\n                res.append(matrix[i][right])\n            right -= 1\n            if top <= bottom:\n                for j in range(right, left - 1, -1):\n                    res.append(matrix[bottom][j])\n                bottom -= 1\n            if left <= right:\n                for i in range(bottom, top - 1, -1):\n                    res.append(matrix[i][left])\n                left += 1\n        return res\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    m = int(data[0])\n    n = int(data[1])\n    idx = 2\n    mat = []\n    for _ in range(m):\n        mat.append([int(x) for x in data[idx:idx + n]])\n        idx += n\n    top, bottom, left, right = 0, m - 1, 0, n - 1\n    res = []\n    while top <= bottom and left <= right:\n        for j in range(left, right + 1):\n            res.append(mat[top][j])\n        top += 1\n        for i in range(top, bottom + 1):\n            res.append(mat[i][right])\n        right -= 1\n        if top <= bottom:\n            for j in range(right, left - 1, -1):\n                res.append(mat[bottom][j])\n            bottom -= 1\n        if left <= right:\n            for i in range(bottom, top - 1, -1):\n                res.append(mat[i][left])\n            left += 1\n    print(\" \".join(map(str, res)))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
@@ -639,14 +669,16 @@
   "ex": "matrix = [[1,2,3],[4,5,6],[7,8,9]] → [[7,4,1],[8,5,2],[9,6,3]]",
   "key": "先沿主对角线转置，再左右翻转每行",
   "idea": [
-   "顺时针 90 度等价于「转置 + 每行左右翻转」。",
-   "转置只交换 i < j 的对称元素，避免换回去。",
-   "再对每一行做首尾双指针交换。",
-   "两步都在原矩阵上完成，额外空间 O(1)。"
+   "最直接：按旋转规则直接算新位置——原 (i, j) 会到 (j, n-1-i)，开一个新矩阵接住，最后再拷回去。",
+   "答案是对的，但要多开一个 n×n 的矩阵，空间 O(n²)；题目要求原地修改。",
+   "优化：顺时针 90 度 = 先沿主对角线转置，再把每行左右翻转。",
+   "转置只交换 i < j 的对称元素，翻转用首尾双指针，两步都在原矩阵上完成，时间 O(n²)、额外空间 O(1)。",
+   "边界：n = 1 时两段循环都不执行，直接结束。"
   ],
   "cx": "时间 O(n²)，空间 O(1)",
-  "trap": "转置内层循环要从 i+1 开始，从 0 开始会把已换的又换回去。",
-  "code": "class Solution:\n    def rotate(self, matrix: List[List[int]]) -> None:\n        n = len(matrix)\n        for i in range(n):\n            for j in range(i + 1, n):\n                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]\n        for row in matrix:\n            row.reverse()\n",
+  "trap": "转置内层循环要从 i+1 开始，从 0 开始会把已换的又换回去；朴素版坐标别写反：(i, j) → (j, n-1-i) 才是顺时针。",
+  "code": "class Solution:\n    def rotate(self, matrix: List[List[int]]) -> None:\n        n = len(matrix)\n        res = [[0] * n for _ in range(n)]\n        for i in range(n):\n            for j in range(n):\n                res[j][n - 1 - i] = matrix[i][j]\n        for i in range(n):\n            for j in range(n):\n                matrix[i][j] = res[i][j]\n",
+  "code_opt": "class Solution:\n    def rotate(self, matrix: List[List[int]]) -> None:\n        n = len(matrix)\n        for i in range(n):\n            for j in range(i + 1, n):\n                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]\n        for row in matrix:\n            row.reverse()\n",
   "acm": "import sys\n\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    idx = 1\n    mat = []\n    for _ in range(n):\n        mat.append([int(x) for x in data[idx:idx + n]])\n        idx += n\n    for i in range(n):\n        for j in range(i + 1, n):\n            mat[i][j], mat[j][i] = mat[j][i], mat[i][j]\n    for row in mat:\n        row.reverse()\n    print(\"\\n\".join(\" \".join(map(str, row)) for row in mat))\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "tests": [
    [
